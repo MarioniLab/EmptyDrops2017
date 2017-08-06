@@ -150,7 +150,71 @@ Using a variety of simulations, we demonstrate that our method outperforms any s
 We also apply our method to several real data sets where we are able to recover more cells from both existing and new cell types.
 
 \section*{Description of the method}
-These protocols also use unique molecular identifiers (UMIs) 
+
+\subsection*{Testing for deviations from the ambient profile}
+To construct the profile for the ambient RNA pool, we consider a threshold $T$ on the total UMI count.
+The set $\mathcal{D}$ of all barcodes with total counts less than $T$ are considered to represent empty droplets.
+The exact choice of $T$ does not matter, as long as (i) it is small enough so that droplets with genuine cells do not have total counts below $T$,
+and (ii) there are sufficient counts to obtain a precise estimate of the ambient profile.
+A simple approach is to define empty droplets from all but the top 100,000 barcodes with the largest total counts, under the assumption that fewer than 100,000 cells are captured in any run.
+We stress that $T$ is not the same as the threshold used in existing methods, as we make no statement on barcodes with total counts greater than $T$ at this point.
+
+The ambient profile is constructed by summing counts for each gene across $\mathcal{D}$.
+Let $y_{gb}$ be the count for gene $g$ in barcode $b$.
+We define the ambient count as 
+\[
+    A_{g} = \sum_{b \in \mathcal{D}} y_{gb} \;,
+\]
+yielding a count vector $\mathbf{A} = (A_1, \dots, A_N)$ for all $N$ genes.
+We apply the Good-Turing algorithm to $\mathbf{A}$ to obtain the posterior expectation $\tilde{p}_g$ of the proportion of counts assigned to $g$ \cite{gale1995good}, using the \texttt{goodTuringProportions} function in the \textsf{edgeR} package \cite{robinson2010edgeR}.
+This ensures that genes with zero counts in the ambient pool have non-zero proportions, avoiding the possibility of obtaining likelihoods of zero in downstream calculations.
+
+Each barcode with a total count above $T$ is then fitted to this ambient profile.
+Consider a barcode $b$ with a total count $t_b$, corresponding to an empty droplet.
+For this barcode, we assume that the count for each gene follows a Poisson distribution with mean $\lambda_{gb} = \tilde{p}_g t_b$.
+This is based on random sampling of free-floating transcripts in solution into the empty droplets.
+We also assume that the sampling procedure is independent between genes.
+The deviance of the fit for this barcode is written as
+\[
+    D_b = 2 \left[ \sum_{g} y_{gb} \log\left(\frac{y_{gb}}{\lambda_{gb}}\right) - y_{gb} + \lambda_{gb} \right] \;,
+\]
+where the sum is taken across all genes.
+We note that this can be computed very efficiently for sparse data.
+If only genes in $\mathcal{G}_b$ have non-zero counts for $b$,
+\[
+    D_b = 2\left[ t_b + \sum_{g\in\mathcal{G}_b} y_{gb}\log\left(\frac{y_{gb}}{\lambda_{gb}}\right) \right] \;.
+\]
+
+Based on generalized linear model theory, $D_b$ should approximately follow a $\chi^2_N$ distribution under the null hypothesis, i.e., if the barcode truly originates from an empty droplet.
+One could then reject the null hypothesis by computing the upper tail probability of the $\chi^2_N$ distribution at $D_b$.
+However, this approach is not reliable in practice, possibly due to the failure of the saddlepoint approximation at low counts.
+We instead use a Monte Carlo approach to determine the distribution of $D_b$ under the null:
+\begin{enumerate}
+    \item Let the largest value of $t_b$ be $t_M$.
+        Define a tolerance $\tau$, and split the range $[\log_2(T)-\tau, \log_2(t_M)+\tau]$ into $S$ equidistant points.
+        $S$ should be chosen such that the interval $[\log_2(t_b) - \tau, \log_2(t_b)+\tau]$ for any $b$ contains $R=10^5$ points.
+    \item Let point $s$ have a total count of $t^*_s$. 
+        For each gene $g$, randomly sample a count from a Poisson distribution with mean $\tilde{p}_g t^*_s$.
+        Compute the deviance $D^*_s$ from the resulting count vector, using the same expression as described for $D_b$.
+    \item Fit a trend to $D^*_s$ against $\log_2(t^*_s)$ for all points.
+        We use a loess smoother with degree 1 and span 0.2, though any smoothing algorithm can be used.
+        This yields a function $f(.)$, which returns the expected deviance at a given log-total.
+        We also obtain the residuals from the trend, which we denote as $r^*_s$.
+    \item For each barcode $b$, compute the deviation from the trend as $r_{b} = D_b/f(\log_2(t_b))$.
+        We identify all points with $\log_2(t^*_s)$ values in the interval $[\log_2(t_b) - \tau, \log_2(t_b)+\tau]$.
+        Denote $R_{b}$ as the number of points in this interval where $r^*_s \ge r_{b}$.
+        We use the method of Phipson and Smyth \cite{phipson2010permutation} to compute a $p$-value for $b$ as
+        \[
+            P_b = \frac{R_b + 1}{R + 1}
+        \]
+\end{enumerate}
+This approach allows us to obtain permutation $p$-values for each barcode in a computationally efficient manner.
+$R$ and $\tau$ determine the trade-off between speed and accuracy and can be set to arbitrarily large and small values, respectively, if computation time is no issue. 
+In particular, larger values of $R$ improve the precision with which $P_b$ is calculated, while smaller values of $\tau$ improve accuracy in the presence of heteroskedasticity in the distribution of $D^*_s$ with respect to increasing $t^*_s$.
+
+Finally, we correct for multiple testing by controlling the false discovery rate (FDR) using the Benjamini-Hochberg method \cite{benjamini1995controlling}.
+Putative cells are defined as those that have significantly poor fits to the ambient model at a specified FDR threshold.
+We set the FDR threshold to 0.1\% by default, meaning that the expected proportion of empty droplets in the set of retained barcodes is no greater than 0.1\%.
 
 \section*{Results}
 
