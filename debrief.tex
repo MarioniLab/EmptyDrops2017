@@ -166,6 +166,7 @@ We define the ambient count as
     A_{g} = \sum_{b \in \mathcal{D}} y_{gb} \;,
 \]
 yielding a count vector $\mathbf{A} = (A_1, \dots, A_N)$ for all $N$ genes.
+(We assume that any gene with counts of zero for all barcodes has already been filtered out, as this provides no information for distiguishing between barcodes.)
 We apply the Good-Turing algorithm to $\mathbf{A}$ to obtain the posterior expectation $\tilde{p}_g$ of the proportion of counts assigned to $g$ \cite{gale1995good}, using the \texttt{goodTuringProportions} function in the \textsf{edgeR} package \cite{robinson2010edgeR}.
 This ensures that genes with zero counts in the ambient pool have non-zero proportions, avoiding the possibility of obtaining likelihoods of zero in downstream calculations.
 
@@ -182,7 +183,7 @@ where the sum is taken across all genes.
 We note that this can be computed very efficiently for sparse data.
 If only genes in $\mathcal{G}_b$ have non-zero counts for $b$,
 \[
-    D_b = 2\left[ t_b + \sum_{g\in\mathcal{G}_b} y_{gb}\log\left(\frac{y_{gb}}{\lambda_{gb}}\right) \right] \;.
+    D_b = 2 \sum_{g\in\mathcal{G}_b} y_{gb}\log\left(\frac{y_{gb}}{\lambda_{gb}}\right) \;.
 \]
 
 Based on generalized linear model theory, $D_b$ should approximately follow a $\chi^2_N$ distribution under the null hypothesis, i.e., if the barcode truly originates from an empty droplet.
