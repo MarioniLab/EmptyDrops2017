@@ -1,0 +1,164 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[top=0.85in,left=2.75in,footskip=0.75in,marginparwidth=2in]{geometry}
+
+% use Unicode characters - try changing the option if you run into troubles with special characters (e.g. umlauts)
+\usepackage[utf8]{inputenc}
+
+% clean citations
+\usepackage{cite}
+
+% hyperref makes references clicky. use \url{www.example.com} or \href{www.example.com}{description} to add a clicky url
+\usepackage{nameref,hyperref}
+
+% line numbers
+\usepackage[right]{lineno}
+
+% improves typesetting in LaTeX
+\usepackage{microtype}
+\DisableLigatures[f]{encoding = *, family = * }
+
+% text layout - change as needed
+\raggedright
+\setlength{\parindent}{0.5cm}
+\textwidth 5.25in 
+\textheight 8.75in
+
+% Remove % for double line spacing
+%\usepackage{setspace} 
+%\doublespacing
+
+% use adjustwidth environment to exceed text width (see examples in text)
+\usepackage{changepage}
+
+% adjust caption style
+\usepackage[aboveskip=1pt,labelfont=bf,labelsep=period,singlelinecheck=off]{caption}
+
+% remove brackets from references
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+
+% headrule, footrule and page numbers
+\usepackage{lastpage,fancyhdr,graphicx}
+\usepackage{epstopdf}
+\pagestyle{myheadings}
+\pagestyle{fancy}
+\fancyhf{}
+\rfoot{\thepage/\pageref{LastPage}}
+\renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
+\fancyheadoffset[L]{2.25in}
+\fancyfootoffset[L]{2.25in}
+
+% use \textcolor{color}{text} for colored text (e.g. highlight to-do areas)
+\usepackage{color}
+
+% define custom colors (this one is for figure captions)
+\definecolor{Gray}{gray}{.25}
+
+% this is required to include graphics
+\usepackage{graphicx}
+
+% use if you want to put caption to the side of the figure - see example in text
+\usepackage{sidecap}
+
+% use for have text wrap around figures
+\usepackage{wrapfig}
+\usepackage[pscoord]{eso-pic}
+\usepackage[fulladjust]{marginnote}
+\reversemarginpar
+
+% Adding multirow.
+\usepackage{multirow}
+
+% Other required things:
+\usepackage{color}
+\usepackage{subcaption}
+\captionsetup[subfigure]{justification=centering}
+\newcommand{\beachmat}{\textit{beachmat}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\newcommand{\suppfigsimpleaccess}{1}
+\newcommand{\suppfigsparseschem}{2}
+\newcommand{\suppfigsparsecol}{3}
+\newcommand{\suppfighdflayout}{4-5}
+\newcommand{\suppfigtenx}{6}
+
+\newcommand{\suppseclayoutoptim}{1}
+\newcommand{\suppseclayouttest}{2}
+
+% document begins here
+\begin{document}
+\vspace*{0.35in}
+
+% title goes here:
+\begin{flushleft}
+{\Large
+    \textbf\newline{On the correct detection of empty droplets in droplet-based single-cell RNA sequencing protocols}
+}
+\newline
+
+% authors go here:
+%\\
+Aaron T. L. Lun\textsuperscript{1,*},
+Samantha Riesenfeld\textsuperscript{2,*},
+Tallulah Andrews\textsuperscript{3,*},
+The Phuong Dao\textsuperscript{4,*},
+Tomas Gomes\textsuperscript{3,*}
+and others
+\\
+\bigskip
+\bf{1} Cancer Research UK Cambridge Institute, University of Cambridge, Li Ka Shing Centre, Robinson Way, Cambridge CB2 0RE, United Kingdom \\
+\bf{2} Something... Broad? \\
+\bf{3} Wellcome Trust Sanger Institute, Wellcome Genome Campus, Hinxton, Cambridge CB10 1SA, United Kingdom \\
+\bf{4} Something... Columbia?
+\\
+\bigskip
+* These authors contributed equally to this work.
+
+\end{flushleft}
+
+\section*{Introduction}
+Recent advances in droplet-based protocols have revolutionized the field of single-cell transcriptomics by allowing tens of thousands of cells to be profiled in a single assay \cite{macosko2015highly,klein2015droplet,zheng2017massively}.
+In these technologies, individual cells are captured into aqueous droplets in a water-in-oil emulsion.
+Each droplet also contains a co-captured bead with primers for reverse transcription, where all primers on a single bead contain a cell barcode that is (effectively) unique to that bead.
+The droplets serve as isolated reaction chambers in which cell lysis and reverse transcription are performed to obtain barcoded cDNA.
+This is followed by breaking of the emulsion, amplification of the cDNA and construction of a sequencing library.
+After sequencing, debarcoding is performed based on the cell barcode observed in each read sequence.
+This yields an expression profile for each cell, typically in the form of unique molecular identifier (UMI) counts \cite{islam2014quantitative} for all annotated genes. 
+The use of droplets increases throughput by at least an order of magnitude compared to protocols based on plates \cite{picelli2013smartseq2} or conventional microfluidics \cite{pollen2014low}, which is appealing for large-scale projects such as the Human Cell Atlas \cite{regev2017human}.
+
+That said, the complexity of the sequencing data from droplet-based technologies poses a number of interesting challenges for low-level data processing.
+One such challenge is the identification and removal of cell barcodes corresponding to empty droplets.
+An empty droplet does not contain a cell but will still contain ``ambient'' RNA \cite{macosko2015highly}, i.e., cell-free transcripts in the solution in which the cells are suspended.
+Ambient RNA may be actively secreted by cells or released upon cell lysis, the latter of which is particularly likely given the stresses of dissociation.
+The presence of ambient RNA means that many empty droplets will contain material for reverse transcription and library preparation, resulting in non-zero total UMI counts for the corresponding barcodes.
+However, the resulting expression profiles do not originate from any single cell and need to be removed prior to further analysis to avoid misleading conclusions.
+
+Existing methods for removing empty droplets assume that droplets containing genuine cells should have more RNA, resulting in larger total UMI counts for the corresponding barcodes.
+Zheng \textit{et al.} \cite{zheng2017massively} remove all barcodes with total counts below 10\% of the 99\textsuperscript{th} percentile of the $Y$ largest total counts (where $Y$ is defined as the expected number of cells to be captured on the Chromium device).
+Macosko \textit{et al.} \cite{macosko2015highly} set the threshold at the inflection point in the cumulative fraction of reads with respect to increasing total count.
+While simple, the use of a one-dimensional filter on the total UMI count is suboptimal as it may discard small cells with low RNA content.
+Droplets containing small cells may not be easily distinguishable from large empty droplets in terms of the total number of transcripts.
+This problem is exacerbated by variable capture and amplification efficiency across droplets, which further mixes the distributions of total counts between empty and non-empty droplets.
+A simple threshold on the total count forces the researcher into a difficult choice between the loss of small cells or an increase to the number of artifactual ``cells'' composed of ambient RNA.
+
+In this report, we propose a new method for detecting empty droplets in droplet-based single-cell RNA sequencing (scRNA-seq) data.
+We construct a profile of the ambient pool of RNA, and test each barcode for deviations from this profile using a Poisson-based model for the count distribution.
+Barcodes with significant deviations are considered to be genuine cells, thus allowing recovery of cells with low total RNA content and small total UMI counts.
+We combine our approach with an inflection point filter to ensure that barcodes with large total counts are always retained.
+Using a variety of simulations, we demonstrate that our method outperforms any simple threshold on the total UMI count.
+We also apply our method to several real data sets where we are able to recover more cells from both existing and new cell types.
+
+\section*{Description of the method}
+These protocols also use unique molecular identifiers (UMIs) 
+
+\section*{Results}
+
+\section*{Discussion}
+
+\section*{Methods}
+
+\bibliography{ref.bib}
+\bibliographystyle{unsrt}
+
+\end{document}
