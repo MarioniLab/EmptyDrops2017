@@ -213,9 +213,32 @@ This approach allows us to obtain permutation $p$-values for each barcode in a c
 $R$ and $\tau$ determine the trade-off between speed and accuracy and can be set to arbitrarily large and small values, respectively, if computation time is no issue. 
 In particular, larger values of $R$ improve the precision with which $P_b$ is calculated, while smaller values of $\tau$ improve accuracy in the presence of heteroskedasticity in the distribution of $D^*_s$ with respect to increasing $t^*_s$.
 
-Finally, we correct for multiple testing by controlling the false discovery rate (FDR) using the Benjamini-Hochberg method \cite{benjamini1995controlling}.
+\subsection*{Detecting the inflection point in the log-totals}
+The procedure described above will identify barcodes that have count profiles that are significantly different from the ambient pool of RNA.
+This will be the case for most cell-containing droplets, as the ambient pool is formed from many (lysed) cells and is unlikely to be representative of any single cell.
+However, it is possible for some cell-containing droplets to have ambient-like expression profiles.
+This can occur if the cell population is highly homogeneous or if one cell subpopulation contributes disproportionately to the ambient pool, e.g., if it is more prone to lysis.
+Sequencing errors in the cell barcodes may also bias the estimates of the ambient proportions, by misassigning counts from cell-containing droplets to barcodes with low UMI totals.
+This may result in spurious similarities between cells and the estimated ambient profile.
+
+If we apply our procedure directly, barcodes corresponding to ambient-like cell-containing droplets will be incorrectly filtered out.
+To avoid this, we combine our procedure with a conventional threshold on the total UMI count.
+We rank all barcodes in order of decreasing $t_b$, and consider the function of $\log(t_b)$ with respect to increasing log-rank.
+The first inflection point in this function corresponds to a transition between a distinct subset of barcodes with large totals and the majority of barcodes with smaller totals.
+We assume that all barcodes with large totals must correspond to cell-containing droplets, regardless of whether its count profile resembles the ambient pool.
+This is based on the expectation that fluctuations in the size or capture efficiency of empty droplets should be smooth and not result in a distinct distribution of large totals.
+
+In summary, all barcodes with $t_b$ above the inflection point are retained, regardless of $P_b$.
+We stress that this approach is different from existing methods, due to the addition of our testing procedure.
+Barcodes with $t_b$ below the inflection point can still be retained if the count profile is significantly different from the ambient pool.
+This is not be possible with existing methods that would simply discard these barcodes.
+
+\subsection*{Correcting for multiple testing across barcodes}
+We correct for multiple testing by controlling the false discovery rate (FDR) using the Benjamini-Hochberg method \cite{benjamini1995controlling}.
 Putative cells are defined as those that have significantly poor fits to the ambient model at a specified FDR threshold.
 We set the FDR threshold to 0.1\% by default, meaning that the expected proportion of empty droplets in the set of retained barcodes is no greater than 0.1\%.
+Note that we only perform the correction on the $p$-values for barcodes that have $t_b$ greater than $T$ and less than the inflection point.
+This reduces the severity of the correction given that barcodes with $t_b$ outside of this range have fixed outcomes, i.e., barcodes with $t_b < T$ will always be discarded while barcodes with $t_b$ above the inflection point will always be retained.
 
 \section*{Results}
 
