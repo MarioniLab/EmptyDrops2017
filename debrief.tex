@@ -228,8 +228,10 @@ The first inflection point in this function corresponds to a transition between 
 We assume that all barcodes with large totals must correspond to cell-containing droplets, regardless of whether its count profile resembles the ambient pool.
 This is based on the expectation that fluctuations in the size or capture efficiency of empty droplets should be smooth and not result in a distinct distribution of large totals.
 
-In summary, all barcodes with $t_b$ above the inflection point are retained, regardless of $P_b$.
-We stress that this approach is different from existing methods, due to the addition of our testing procedure.
+We define the upper threshold $U$ as the $t_b$ at the inflection point multiplied by some constant (2 by default).
+We then ensure recovery of large cell-containing droplets by retaining all barcodes with $t_b \ge U$, regardless of their $P_b$.
+The multiplication by a constant avoids retention of empty droplets at the boundary of the empty/non-empty distributions.
+We stress that this approach is different from existing methods, due to the use of our testing procedure.
 Barcodes with $t_b$ below the inflection point can still be retained if the count profile is significantly different from the ambient pool.
 This is not be possible with existing methods that would simply discard these barcodes.
 
@@ -237,8 +239,9 @@ This is not be possible with existing methods that would simply discard these ba
 We correct for multiple testing by controlling the false discovery rate (FDR) using the Benjamini-Hochberg method \cite{benjamini1995controlling}.
 Putative cells are defined as those that have significantly poor fits to the ambient model at a specified FDR threshold.
 We set the FDR threshold to 0.1\% by default, meaning that the expected proportion of empty droplets in the set of retained barcodes is no greater than 0.1\%.
-Note that we only perform the correction on the $p$-values for barcodes that have $t_b$ greater than $T$ and less than the inflection point.
-This reduces the severity of the correction given that barcodes with $t_b$ outside of this range have fixed outcomes, i.e., barcodes with $t_b < T$ will always be discarded while barcodes with $t_b$ above the inflection point will always be retained.
+Note that we only perform the correction on the $p$-values for barcodes that have $t_b$ greater than $T$.
+This reduces the severity of the correction given that barcodes with lower $t_b$ will always be discarded.
+Similarly, all barcodes with $t_b \ge U$ have their $p$-values set to zero during correction, as these barcodes are considered to be known true positives.
 
 \section*{Results}
 
