@@ -233,7 +233,7 @@ This is not be possible with existing methods that would simply discard these ba
 \subsection*{Correcting for multiple testing across barcodes}
 We correct for multiple testing by controlling the false discovery rate (FDR) using the Benjamini-Hochberg method \cite{benjamini1995controlling}.
 Putative cells are defined as those that have significantly poor fits to the ambient model at a specified FDR threshold.
-We set the FDR threshold to 0.1\% by default, meaning that the expected proportion of empty droplets in the set of retained barcodes is no greater than 0.1\%.
+We set the FDR threshold to 1\% by default, meaning that the expected proportion of empty droplets in the set of retained barcodes is no greater than 1\%.
 Note that we only perform the correction on the $p$-values for barcodes that have $t_b$ greater than $T$.
 This reduces the severity of the correction given that barcodes with lower $t_b$ will always be discarded.
 Similarly, all barcodes with $t_b \ge U$ have their $p$-values set to zero during correction, as these barcodes are considered to be known true positives.
@@ -243,28 +243,61 @@ Similarly, all barcodes with $t_b \ge U$ have their $p$-values set to zero durin
 \subsection*{Performance on simulated data}
 We named our method ``EmptyDrops'' and proceeded to test it on simulated data.
 Simulations were performed by mixing two real droplet-based scRNA-seq data sets involving cells with different RNA content (see Methods).
-This resulted in a single data set containing two groups of cells with low and high RNA content, and an ambient pool of RNA that was a mixture of transcripts from both groups.
-EmptyDrops was consistently able to detect cells from both groups (Figure~\ref{fig:demo}) with only a small false positive rate.
+This resulted in a single data set containing two groups of cells with low and high RNA content, and an ambient pool of RNA composed of a mixture of transcripts from both data sets.
+EmptyDrops was consistently able to detect cells from both groups with a small FDR (Table~\ref{tab:sim}).
 In contrast, applying a threshold on the total UMI count was less effective at recovering cells from the smaller group.
 This is because barcodes corresponding to small cells with little RNA have similar total UMI counts as barcodes corresponding to large empty droplets with high levels of ambient RNA.
 The total UMI count cannot distinguish between these two possibilities, resulting in either reduced recall for the low-RNA group or a high false positive rate.
-This is demonstrated by the poor performance of the strategy used by 10X Genomics in their CellRanger software.
+This is demonstrated by the poor performance of the strategy used by 10X Genomics in their CellRanger software (Figure~\ref{fig:demo}).
+
+\begin{table}[bt]
+    \caption{Performance of EmptyDrops on each simulation scenario with varying numbers of real cell barcodes from Group 2 (low RNA content).
+        The recall for each group represents the proportion of real cells that were detected by EmptyDrops.
+        The false discovery rate represents the proportion of detected barcodes that were empty droplets.
+    }
+    \begin{center}
+        \begin{tabular}{l r r r r r}
+            \hline
+            \textbf{Scenario} & \multicolumn{2}{c}{\textbf{Group 1}} & \multicolumn{2}{c}{\textbf{Group 2}} & \multicolumn{1}{c}{\textbf{FDR (\%)}} \\
+            & \textit{Number} & \textit{Recall (\%)} &  \textit{Number} & \textit{Recall (\%)} & \\
+            \hline
+            1  & 3285 &  99.88 &  205 &  95.61 & 0.14 \\ 
+            2  & 3285 &  99.88 &  432 &  96.53 & 0.43 \\
+            3  & 3285 &  99.88 &  815 &  95.34 & 0.20 \\
+            4  & 3285 &  99.91 & 1731 &  95.15 & 0.20 \\
+            5  & 3285 &  99.88 &  203 &  99.51 & 0.34 \\
+            6  & 3285 &  99.88 &  391 & 100.00 & 0.33 \\
+            7  & 3285 &  99.88 &  855 & 100.00 & 0.27 \\
+            8  & 3285 &  99.88 & 1708 &  99.82 & 0.40 \\
+            9  & 3285 &  99.88 &  180 & 100.00 & 0.49 \\
+            10 & 3285 &  99.91 &  430 & 100.00 & 0.13 \\
+            11 & 3285 &  99.88 &  810 & 100.00 & 0.29 \\
+            12 & 3285 & 100.00 & 1644 &  99.94 & 6.56 \\
+            13 & 3285 &  99.88 &  211 & 100.00 & 0.34 \\
+            14 & 3285 &  99.91 &  445 & 100.00 & 0.08 \\
+            15 & 3285 &  99.91 &  886 & 100.00 & 0.38 \\
+            16 & 3285 &  99.94 & 1702 & 100.00 & 0.50 \\
+            \hline
+        \end{tabular}
+    \end{center}
+    \label{tab:sim}
+\end{table}
 
 \begin{figure}[bt]
 \begin{center}
     \includegraphics[width=0.49\textwidth]{pics/plot_6.png}
     \includegraphics[width=0.49\textwidth]{pics/Total_Accuracy.png}
 \end{center}
-\caption{Behaviour of EmptyDrops on simulated data.
+\caption{Behaviour of EmptyDrops and CellRanger on simulated data.
     Left: deviance statistics for each barcode in the simulated data (scenario 6), plotted against the total UMI count.
     Barcodes are coloured according to whether they are true positives, false positives or false negatives according to our method.
     The expected deviance under the null is also shown, along with the threshold defined by CellRanger.
-    Right: recall of EmptyDrops for the two groups of cells in the simulated data.
+    Right: recall of EmptyDrops and CellRanger for the two groups of cells in the simulated data.
     Group 1 contains the cells with more RNA while group 2 contains smaller cells.
-    The performance of CellRanger is also shown.
 }
 \label{fig:demo}
 \end{figure}
+
 
 \section*{Discussion}
 
