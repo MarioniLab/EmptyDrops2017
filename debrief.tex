@@ -253,7 +253,7 @@ EmptyDrops was consistently able to detect cells from both groups with a small F
 In contrast, applying a threshold on the total UMI count was less effective at recovering cells from the smaller group.
 This is because barcodes corresponding to small cells with little RNA have similar total UMI counts as barcodes corresponding to large empty droplets with high levels of ambient RNA.
 The total UMI count cannot distinguish between these two possibilities, resulting in either reduced recall for the low-RNA group or a high false positive rate.
-This is demonstrated by the poor performance of the strategy used by 10X Genomics in their CellRanger software (Figure~\ref{fig:demo}).
+This is demonstrated by the poor performance of the strategy used by 10X Genomics in their CellRanger software (Figures~\ref{fig:simdemo}, \ref{fig:simall}).
 
 \begin{table}[bt]
     \caption{Performance of EmptyDrops on each simulation scenario with varying numbers of real cell barcodes from Group 2 (low RNA content).
@@ -290,19 +290,27 @@ This is demonstrated by the poor performance of the strategy used by 10X Genomic
 
 \begin{figure}[bt]
 \begin{center}
-    \includegraphics[width=0.49\textwidth]{pics/plot_6.png}
-    \includegraphics[width=0.49\textwidth]{pics/Total_Accuracy.png}
+    \includegraphics[width=0.49\textwidth]{pics/plot_6_1.png}
+    \includegraphics[width=0.49\textwidth]{pics/Total_Accuracy_1.png}
 \end{center}
-\caption{Behaviour of EmptyDrops and CellRanger on simulated data.
-    Left: deviance statistics for each barcode in the simulated data (scenario 6), plotted against the total UMI count.
-    Barcodes are coloured according to whether they are true positives, false positives or false negatives according to our method.
+\caption{Behaviour of EmptyDrops and CellRanger in simulation scenario 6.
+    Left: deviance statistics for each barcode in the simulated data, plotted against the total UMI count.
+    Each barcode is represented by a point that is coloured according to whether it is a true positives, false positives or false negatives according to our method.
     The expected deviance under the null is also shown, along with the threshold defined by CellRanger.
     Right: recall of EmptyDrops and CellRanger for the two groups of cells in the simulated data.
     Group 1 contains the cells with more RNA while group 2 contains smaller cells.
 }
-\label{fig:demo}
+\label{fig:simdemo}
 \end{figure}
 
+\begin{figure}[bt]
+    \begin{center}
+        \includegraphics[width=\textwidth]{pics/Us_vs_Cr_Sim_Recall_1.png}
+    \end{center}
+    \caption{Comparison of recall between EmptyDrops (top) and CellRanger (bottom) in all simulation scenarios.
+    Groups 1 and 2 contain larger and smaller cells, respectively.}
+    \label{fig:simall}
+\end{figure}
 
 \section*{Discussion}
 
