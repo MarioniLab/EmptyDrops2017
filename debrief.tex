@@ -208,7 +208,7 @@ This approach allows us to obtain permutation $p$-values for each barcode in a c
 $R$ and $\tau$ determine the trade-off between speed and accuracy and can be set to arbitrarily large and small values, respectively, if computation time is no issue. 
 In particular, larger values of $R$ improve the precision with which $P_b$ is calculated, while smaller values of $\tau$ improve accuracy in the presence of heteroskedasticity in the distribution of $D^*_s$ with respect to increasing $t^*_s$.
 
-\subsection*{Detecting the inflection point in the log-totals}
+\subsection*{Detecting the knee point in the log-totals}
 The procedure described above will identify barcodes that have count profiles that are significantly different from the ambient pool of RNA.
 This will be the case for most cell-containing droplets, as the ambient pool is formed from many (lysed) cells and is unlikely to be representative of any single cell.
 However, it is possible for some cell-containing droplets to have ambient-like expression profiles.
@@ -218,16 +218,21 @@ This may result in spurious similarities between cells and the estimated ambient
 
 If we apply our procedure directly, barcodes corresponding to ambient-like cell-containing droplets will be incorrectly filtered out.
 To avoid this, we combine our procedure with a conventional threshold on the total UMI count.
-We rank all barcodes in order of decreasing $t_b$, and consider the function of $\log(t_b)$ with respect to increasing log-rank.
-The first inflection point in this function corresponds to a transition between a distinct subset of barcodes with large totals and the majority of barcodes with smaller totals.
-We assume that all barcodes with large totals must correspond to cell-containing droplets, regardless of whether its count profile resembles the ambient pool.
-This is based on the expectation that fluctuations in the size or capture efficiency of empty droplets should be smooth and not result in a distinct distribution of large totals.
+We rank all barcodes in order of decreasing $t_b$, and consider the function $f(.)$ of $\log(t_b)$ with respect to increasing log-rank.
+The first ``knee'' point in this function corresponds to a transition between a distinct subset of barcodes with large totals and the majority of barcodes with smaller totals.
+This is defined as the log-rank that maximizes the curvature
+\[
+    \frac{|f''|}{(1 + f'^2)^{1.5}} \;,
+\]
+and represents the point at which $f(.)$ begins to drop rapidly, marking the start of the transition between large and small totals.
+We use the knee point rather than the inflection point as the former is more conservative, thus avoiding empty droplets.
 
-We define the upper threshold $U$ as the $t_b$ at the inflection point multiplied by some constant (2 by default).
-We then ensure recovery of large cell-containing droplets by retaining all barcodes with $t_b \ge U$, regardless of their $P_b$.
-The multiplication by a constant avoids retention of empty droplets at the boundary of the empty/non-empty distributions.
-We stress that this approach is different from existing methods, due to the use of our testing procedure.
-Barcodes with $t_b$ below the inflection point can still be retained if the count profile is significantly different from the ambient pool.
+Our assumption is that all barcodes with large totals must represent cell-containing droplets, regardless of whether its count profile resembles the ambient pool.
+This is based on the expectation that fluctuations in the size or capture efficiency of empty droplets should be smooth and not result in a distinct distribution of large totals.
+We define the upper threshold $U$ as the $t_b$ at the knee point and retain all barcodes with $t_b \ge U$, regardless of their $P_b$.
+This ensures recovery of barcodes corresponding to large cell-containing droplets. 
+We stress that this approach is different from existing methods due to the use of our testing procedure.
+Barcodes with $t_b$ below the knee point can still be retained if the count profile is significantly different from the ambient pool.
 This is not be possible with existing methods that would simply discard these barcodes.
 
 \subsection*{Correcting for multiple testing across barcodes}
@@ -261,22 +266,22 @@ This is demonstrated by the poor performance of the strategy used by 10X Genomic
             \textbf{Scenario} & \multicolumn{2}{c}{\textbf{Group 1}} & \multicolumn{2}{c}{\textbf{Group 2}} & \multicolumn{1}{c}{\textbf{FDR (\%)}} \\
             & \textit{Number} & \textit{Recall (\%)} &  \textit{Number} & \textit{Recall (\%)} & \\
             \hline
-            1  & 3285 &  99.88 &  205 &  95.61 & 0.14 \\ 
-            2  & 3285 &  99.88 &  432 &  96.53 & 0.43 \\
-            3  & 3285 &  99.88 &  815 &  95.34 & 0.20 \\
-            4  & 3285 &  99.91 & 1731 &  95.15 & 0.20 \\
-            5  & 3285 &  99.88 &  203 &  99.51 & 0.34 \\
-            6  & 3285 &  99.88 &  391 & 100.00 & 0.33 \\
-            7  & 3285 &  99.88 &  855 & 100.00 & 0.27 \\
-            8  & 3285 &  99.88 & 1708 &  99.82 & 0.40 \\
-            9  & 3285 &  99.88 &  180 & 100.00 & 0.49 \\
-            10 & 3285 &  99.91 &  430 & 100.00 & 0.13 \\
-            11 & 3285 &  99.88 &  810 & 100.00 & 0.29 \\
-            12 & 3285 & 100.00 & 1644 &  99.94 & 6.56 \\
-            13 & 3285 &  99.88 &  211 & 100.00 & 0.34 \\
-            14 & 3285 &  99.91 &  445 & 100.00 & 0.08 \\
-            15 & 3285 &  99.91 &  886 & 100.00 & 0.38 \\
-            16 & 3285 &  99.94 & 1702 & 100.00 & 0.50 \\
+            1  & 3285 & 99.85 &  205 &  96.10 & 0.00 \\ 
+            2  & 3285 & 99.85 &  432 &  93.52 & 0.00 \\
+            3  & 3285 & 99.88 &  815 &  93.74 & 0.01 \\
+            4  & 3285 & 99.88 & 1731 &  93.41 & 0.00 \\
+            5  & 3285 & 99.88 &  203 &  99.01 & 0.01 \\
+            6  & 3285 & 99.85 &  391 &  99.74 & 0.00 \\
+            7  & 3285 & 99.85 &  855 &  99.77 & 0.00 \\
+            8  & 3285 & 99.88 & 1708 &  99.41 & 0.00 \\
+            9  & 3285 & 99.85 &  180 & 100.00 & 0.00 \\
+            10 & 3285 & 99.88 &  430 & 100.00 & 0.00 \\
+            11 & 3285 & 99.85 &  810 & 100.00 & 0.00 \\
+            12 & 3285 & 99.88 & 1644 &  99.94 & 0.00 \\
+            13 & 3285 & 99.85 &  211 & 100.00 & 0.00 \\
+            14 & 3285 & 99.85 &  445 & 100.00 & 0.00 \\
+            15 & 3285 & 99.88 &  886 & 100.00 & 0.00 \\
+            16 & 3285 & 99.85 & 1702 & 100.00 & 0.00 \\
             \hline
         \end{tabular}
     \end{center}
