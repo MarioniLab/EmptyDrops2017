@@ -351,6 +351,29 @@ The ability of EmptyDrops to retain small cells means that it can capture biolog
 \end{figure}
 
 \section*{Discussion}
+Droplet-based technologies are becoming increasingly popular for high-throughput single-cell transcriptomics.
+However, little work has been performed to develop computational methods for distinguishing genuine cells from empty droplets.
+Here, we describe EmptyDrops, a method to detect cell-containing barcodes based on significant deviation of the expression profiles from the pool of ambient RNA.
+We use simulated data to demonstrate that EmptyDrops outperforms the strategy that is currently implemented in the CellRanger software suite.
+Furthermore, EmptyDrops can recover biology in real 10X data that is lost using the CellRanger strategy.
+Our results indicate that EmptyDrops is effective for cell detection in droplet-based scRNA-seq data.
+
+A key assumption of our approach is that barcodes with very low UMI totals represent empty droplets.
+This allows us to use these barcodes to obtain an estimate of the ambient pool.
+However, this assumption may not be appropriate if the data set contains a subset of cells with very low RNA content.
+In such cases, the estimate of the ambient expression profile will be biased, though this bias is likely to be small as relatively few transcripts will be contributed by cells with low RNA content.
+Another potential source of bias may arise from sequencing errors in the cell barcode, such that transcripts from a cell-containing droplet are misassigned to an otherwise empty droplet.
+This is mitigated to some extent by the use of designed cell barcodes in the GemCode protocol, which allow for error correction in the barcode \cite{zheng2017massively}.
+However, it may be more of a problem in protocols where error correction of the barcodes is not possible \cite{macosko2015highly}.
+
+% Note that the detection drops down to a dribble near total=100 in the real data.
+% This is consistent with our assumptions.
+
+An interesting question is whether the output of EmptyDrops is compatible with existing scRNA-seq analysis workflows.
+In particular, many workflows recommend the removal of cells with low total numbers of expressed genes during quality control \cite{lun2016stepbystep,mccarthy2017scater}.
+This would potentially result in the loss of cells that are recovered by EmptyDrops, defeating the purpose of using EmptyDrops in the first place.
+Moreover, it remains to be seen whether downstream analyses can effectively model the very high frequency of zero counts in these small cells.
+With improved recovery of small cells from droplet data, modifications may be required to existing scRNA-seq analysis pipelines.
 
 \section*{Methods}
 
