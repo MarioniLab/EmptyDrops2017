@@ -336,7 +336,7 @@ This is attributable to the conservativeness of the knee-point threshold in Empt
 To explore the differences between methods in more detail, we generated a $t$-stochastic neighbour embedding (t-SNE) plot \cite{van2008visualizing} of all barcodes that were detected by either method.
 We observed that the CellRanger-only barcodes clustered with barcodes that were detected by both methods (Figure~\ref{fig:realtsne}).
 This suggests that the conservativeness of EmptyDrops can be largely ignored, as it only results in the loss of some cells from a cluster that would have been detected anyway.
-In contrast, the EmptyDrops-only barcodes formed their own cluster, such that the use of CellRanger would have resulted in the loss of an entire group of cells.
+In contrast, the EmptyDrops-only barcodes formed three of their own clusters, such that the use of CellRanger would have resulted in the loss of an entire group of cells. These clusters were associated 101, 28 and 2339 significant marker genes respectively (from left to right). The latter group of cells we identified as platelets based on the expression of PF4 and PPBP (Figure ?). 
 This is not surprising as the total RNA content of a cell is often associated with its type/state.
 The ability of EmptyDrops to retain small cells means that it can capture biology that would have been lost with CellRanger.
 
@@ -393,8 +393,8 @@ The observed false discovery rate was defined as the proportion of detected barc
 We repeated this using the CellRanger approach, implemented as previously described \cite{zheng2017massively}.
 
 \subsection*{Analysis of the 10X PBMC data set}
-We obtained one channel of the 10X PBMC data set from ???, and defined cells from the raw barcode counts using the EmptyDrops and CellRanger methods.
-For the set of barcodes detected by either method, we generated a t-SNE plot from the library size-normalized expression profiles using the Rtsne package (settings?).
+We obtained one channel of the 10X PBMC data set from ???, and defined cells from the raw barcode counts using the EmptyDrops and CellRanger methods. For the CellRanger method the expected number of cells was estimated as the number of cells identified at 1\% FDR using EmptyDrops (ncells = 8524) this ensured a fairer comparison of the two methods. CellRanger was relatively insensitive to this parameter with 8318, 8381, and 8387 cells identified, a difference of fewer than 70 cells, when the expected number of cells used was 5000, 8524, and 10000 respectively. 
+For the set of barcodes detected by either method, we generated a t-SNE plot from the raw expression profiles using the Rtsne package (default parameters, perplexity=30), using the top 500 highly variable genes. Three groups enriched in cells identified only using EmptyDrops were segmented by eye and marker genes were identified with a one-vs-all Wilcox-rank-sum test using a 5\% FDR threshold.
 
 \bibliography{ref.bib}
 \bibliographystyle{unsrt}
