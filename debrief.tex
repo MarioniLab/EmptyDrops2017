@@ -394,7 +394,7 @@ We repeated this using the CellRanger approach, implemented as previously descri
 
 \subsection*{Analysis of the 10X PBMC data set}
 We obtained one channel of the 10X PBMC data set from ???, and defined cells from the raw barcode counts using the EmptyDrops and CellRanger methods. For the CellRanger method the expected number of cells was estimated as the number of cells identified at 1\% FDR using EmptyDrops (ncells = 8524) this ensured a fairer comparison of the two methods. CellRanger was relatively insensitive to this parameter with 8318, 8381, and 8387 cells identified, a difference of fewer than 70 cells, when the expected number of cells used was 5000, 8524, and 10000 respectively. 
-For the set of barcodes detected by either method, we generated a t-SNE plot from the raw expression profiles using the Rtsne package (default parameters, perplexity=30), using the top 500 highly variable genes. Three groups enriched in cells identified only using EmptyDrops were segmented by eye and marker genes were identified with a one-vs-all Wilcox-rank-sum test using a 5\% FDR threshold.
+For the set of barcodes detected by either method, we generated a t-SNE plot from the library-size normalized expression profiles using the Rtsne package (default parameters, perplexity=30), using the top 500 highly variable genes. Library-size normalization involved scaling the total counts of each cell to the median total counts across all cells. Three groups enriched in cells identified only using EmptyDrops were segmented by eye and marker genes were identified with a one-vs-all Wilcox-rank-sum test using a 5\% FDR threshold.
 
 \bibliography{ref.bib}
 \bibliographystyle{unsrt}
