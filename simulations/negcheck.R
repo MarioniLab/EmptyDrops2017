@@ -4,7 +4,9 @@
 ALLFILES <- c("pbmc4k/raw_gene_bc_matrices/GRCh38",
               "neurons_900/raw_gene_bc_matrices/mm10/",
               "293t/matrices_mex/hg19/",
-              "ercc/matrices_mex/ercc92/")
+              "jurkat/matrices_mex/hg19/",
+              "t_4k/raw_gene_bc_matrices/GRCh38/",
+              "neuron_9k/raw_gene_bc_matrices/mm10/")
 
 library(DropletUtils)
 library(Matrix)
@@ -12,6 +14,7 @@ library(viridis)
 fout <- "pics-negcheck"
 dir.create(fout, showWarning=FALSE)
 set.seed(1000)
+plot.legend <- TRUE
 
 for (fname in ALLFILES) { 
     sce <- read10xResults(file.path("..", "data", fname))
@@ -19,6 +22,7 @@ for (fname in ALLFILES) {
     ambient <- counts(sce)[,totals<=100 & totals > 0]
     out <- testEmptyDrops(ambient, test.ambient=TRUE)
 
+    # Drawing the standard deviance vs total plot.
     stub <- sub("/.*", "", fname)
     png(file.path(fout, paste0("dev_", stub, ".png")), res=150, width=7, height=7, units='in', pointsize=12)
     plot(out$Total, out$Deviance, log="xy", xlab="Total UMI count", ylab="Deviance", pch=16, cex=0.5, cex.axis=1.2, cex.lab=1.4)
@@ -28,15 +32,48 @@ for (fname in ALLFILES) {
     points(out$Total[is.sig], out$Deviance[is.sig], col="red", pch=16)
     dev.off()
 
+    # Drawing a very complicated histogram.
     pdf(file.path(fout, paste0("hist_", stub, ".pdf")))
-    plot(0,0,type="n", xlim=c(0,1), ylim=c(0, 3), xlab="p-value", ylab="Density", cex.axis=1.2, cex.lab=1.4)
-    minvals <- c(0, 10, 20, 40, 60, 80)
-    colors <- viridis(length(minvals))
-    for (m in seq_along(minvals)) { 
-        X <- hist(out$PValue[out$Total >= minvals[m]], plot=FALSE, breaks=20)
-        lines(X$mids, X$density, col=colors[m], lwd=3) 
+    par(mar=c(5.1, 4.1, 2.1, 4.5))
+    N <- 20
+    breaks <- seq(0, 1, length.out=N+1)
+    choice <- pmax(1, pmin(N, findInterval(out$PValue, breaks)))
+    collected <- aggregate(out$Total, by=list(choice), FUN=sum)
+
+    all.percents <- collected[,2]/sum(out$Total)*100
+    max.percent <- max(all.percents)
+    plot(0, 0, type="n", xlim=c(0,1), ylim=c(0, max.percent), bty="n",
+         xlab="p-value", ylab="Contribution to ambient profile (%)", cex.axis=1.2, cex.lab=1.4)
+    rect(breaks[-N-1], 0, breaks[-1], all.percents, bty="n", col="grey80")
+    axis(2, labels=FALSE)
+
+    minvals <- c(0, 20, 40, 60, 80, 100)
+    N2 <- length(minvals)-1
+    densities <- mids <- vector("list", N2)
+    for (m in seq_len(N2)) { 
+        keep <- out$Total > minvals[m] & out$Total <= minvals[m+1]
+        X <- hist(out$PValue[keep], plot=FALSE, breaks=20)
+        densities[[m]] <- X$density
+        mids[[m]] <- X$mids
     }
-    abline(h=1, col="red", lty=2)
-    legend("topright", col=colors, lwd=3, legend=paste("At least", minvals), cex=1.1, bg="white")
+
+    max.dens <- max(sapply(densities, max))
+    rescale <- max.percent/max.dens
+    colors <- viridis(N2)
+    for (m in seq_len(N2)) { 
+        lines(mids[[m]], densities[[m]]*rescale, col=colors[m], lwd=2)
+    }
+
+    prettified <- pretty(c(0,max.dens))
+    prettified <- prettified[prettified < max.dens]
+    axis(4, at=prettified*rescale, labels=prettified, cex.axis=1.2)
+    mtext("Density", side=4, line=2.5, cex=1.4)
+
+    if (plot.legend){ 
+        legend(1, max.percent, col=colors, lwd=3, 
+               legend=sprintf("(%i, %i]", minvals[-N2-1], minvals[-1]), 
+               cex=1.1, bg="white", xjust=1, yjust=1)
+        plot.legend <- FALSE
+    }
     dev.off()
 }
