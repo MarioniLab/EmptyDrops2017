@@ -37,18 +37,23 @@ assessMethod <- function(keep, identity) {
     return(c(G1=g1, G2=g2, FDR=fdr))
 }
 
-plotBarcodes <- function(ranks, totals, fitted=NULL, add=FALSE, ...) {
-    # Dropping non-unique plots to save space.
+plotBarcodes <- function(ranks, totals, fitted=NULL, subset=NULL, ...) {
+    xlim <- range(ranks[ranks>0])
+    ylim <- range(totals[totals>0])
+
+    # Dropping non-unique points to save space.
+    # Subsetting performed after range() to create comparable plots, if desired.
     keep <- !duplicated(totals)
+    if (!is.null(subset)) {
+        alt.keep <- keep
+        keep[] <- FALSE
+        keep[subset] <- alt.keep[subset] 
+    }
     Rx <- ranks[keep]
     Tx <- totals[keep]
 
-    if (!add) {
-        plot(Rx, Tx, log="xy", xlab="Rank", ylab="Total", ...)
-    } else {
-        points(Rx, Tx, ...)
-    }
-   
+    # Actually making the plot, also plotting the fitted values if requested.
+    plot(Rx, Tx, log="xy", xlab="Rank", ylab="Total count", xlim=xlim, ylim=ylim, ...)
     if (!is.null(fitted)) {  
         Fx <- fitted[keep]
         o <- order(Rx)
