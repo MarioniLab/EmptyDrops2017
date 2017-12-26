@@ -58,7 +58,15 @@ $^2$Blah blah blah \\[6pt]
 \end{center}
 \end{titlepage}
 
-\providecommand{\myceil}[1]{\left \lceil #1 \right \rceil }
+\begin{figure}
+    \begin{center}
+        \includegraphics[width=\textwidth]{../simulations/pics-sim/pbmc4k_2000_2000.pdf}
+    \end{center}
+\caption{Total count against the rank for each barcode in a simulation based on the PBMC dataset with $G_1=G_2=2000$.
+Plots are shown for all barcodes, barcodes corresponding to empty droplets, and barcodes corresponding to large or small cells.
+Ranks are calculated from the entire set of barcodes in all plots, for ease of comparison between plots.
+All axes are on a log-scale.}
+\end{figure}
 
 \begin{table}
 \caption{Summary of the datasets used to assess the various cell detection methods.
