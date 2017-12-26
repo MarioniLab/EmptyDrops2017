@@ -1,0 +1,83 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage[margin=3cm]{geometry}
+\usepackage[hidelinks]{hyperref}
+
+\makeatletter 
+\renewcommand{\fnum@figure}{Supplementary \figurename~\thefigure}
+\renewcommand{\fnum@table}{Supplementary \tablename~\thetable}
+\makeatother
+
+\usepackage[labelfont=bf]{caption}
+\usepackage{subcaption}
+\usepackage{graphicx}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\usepackage{color}
+\newcommand{\revised}[1]{\textcolor{red}{#1}}
+
+\begin{document}
+
+\begin{titlepage}
+\vspace*{3cm}
+\begin{center}
+
+
+{\LARGE
+Detecting empty droplets in droplet-based single-cell RNA sequencing data
+\par}
+
+\vspace{0.75cm}
+
+{\Large
+    \textsc{Supplementary Materials}
+\par
+}
+\vspace{0.75cm}
+
+\large
+by
+
+
+\vspace{0.75cm}
+Aaron T. L. Lun$^1$,
+and others
+
+\vspace{1cm}
+\begin{minipage}{0.9\textwidth}
+\begin{flushleft}
+$^1$Cancer Research UK Cambridge Institute, University of Cambridge, Li Ka Shing Centre, Robinson Way, Cambridge CB2 0RE, United Kingdom \\[6pt]
+$^2$Blah blah blah \\[6pt]
+\end{flushleft}
+\end{minipage}
+
+\vspace{1.5cm}
+{\large \today{}}
+
+\vspace*{\fill}
+\end{center}
+\end{titlepage}
+
+\providecommand{\myceil}[1]{\left \lceil #1 \right \rceil }
+
+\begin{table}
+\caption{Summary of the datasets used to assess the various cell detection methods.
+    All datasets were obtained from the 10X Genomics website.
+The organism, cell type, estimated number of cells from CellRanger and the version of the CellRanger software used is shown for each dataset.}
+\begin{center}
+\begin{tabular}{l l l l r}
+\hline
+\textbf{Name} & \textbf{Organism} & \textbf{Cell type} & \textbf{Number} & \textbf{Version} \\
+\hline
+\code{293t}   & Human & 293T cell line & 2800 & 1.1.0 \\
+\code{jurkat} & Human & Jurkat cell line & 3200 & 1.1.0 \\
+\code{neuron\_9k} & Mouse & Brain cells & 9128 & 2.1.0 \\
+\code{neurons\_900} & Mouse & Brain cells & 931 & 2.1.0 \\
+\code{pbmc4k} & Human & PBMCs & 4340 & 2.1.0 \\
+\code{t\_4k} & Human & Pan T cells & 4538 & 2.1.0 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\end{document}

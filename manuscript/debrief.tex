@@ -74,14 +74,10 @@
 \usepackage{color}
 \usepackage{subcaption}
 \captionsetup[subfigure]{justification=centering}
-\newcommand{\beachmat}{\textit{beachmat}}
 \newcommand{\code}[1]{\texttt{#1}}
 
-\newcommand{\suppfigsimpleaccess}{1}
-\newcommand{\suppfigsparseschem}{2}
-\newcommand{\suppfigsparsecol}{3}
-\newcommand{\suppfighdflayout}{4-5}
-\newcommand{\suppfigtenx}{6}
+\newcommand{\supptabdataset}{1}
+\newcommand{\suppfigsimdesign}{1}
 
 \newcommand{\suppseclayoutoptim}{1}
 \newcommand{\suppseclayouttest}{2}
@@ -93,7 +89,7 @@
 % title goes here:
 \begin{flushleft}
 {\Large
-    \textbf\newline{Detecting empty droplets in droplet-based single-cell RNA sequencing data}
+    \textbf\newline{Detecting droplets in droplet-based single-cell RNA sequencing data}
 }
 \newline
 
@@ -167,7 +163,7 @@ We define the ambient count as
 \]
 yielding a count vector $\mathbf{A} = (A_1, \dots, A_N)$ for all $N$ genes.
 (We assume that any gene with counts of zero for all barcodes has already been filtered out, as this provides no information for distiguishing between barcodes.)
-We apply the Good-Turing algorithm to $\mathbf{A}$ to obtain the posterior expectation $\tilde{p}_g$ of the proportion of counts assigned to $g$ \cite{gale1995good}, using the \texttt{goodTuringProportions} function in the \textsf{edgeR} package \cite{robinson2010edgeR}.
+We apply the Good-Turing algorithm to $\mathbf{A}$ to obtain the posterior expectation $\tilde{p}_g$ of the proportion of counts assigned to $g$ \cite{gale1995good}, using the \code{goodTuringProportions} function in the \textsf{edgeR} package \cite{robinson2010edgeR}.
 This ensures that genes with zero counts in the ambient pool have non-zero proportions, avoiding the possibility of obtaining likelihoods of zero in downstream calculations.
 
 Each barcode with a total count above $T$ is then fitted to this ambient profile.
@@ -249,9 +245,11 @@ Similarly, all barcodes with $t_b \ge U$ have their $p$-values set to zero durin
 \section*{Results}
 
 \subsection*{Performance on simulated data}
-We named our method ``EmptyDrops'' and proceeded to test it on simulated data involving cells with different RNA content (see Methods).
-Each simulated dataset was generated from real droplet-based scRNA-seq data and contained one group of large cells (i.e., high RNA content, large $t_b$), 
-one group of small cells (low RNA content, small $t_b$), and a set of empty droplets with counts sampled from an ambient pool of RNA.
+We named our method ``EmptyDrops'' and tested it on simulated data involving cells with different RNA content (see Methods, Supplementary Figure~\suppfigsimdesign{}).
+Each simulated dataset was generated from real droplet-based scRNA-seq data (Supplementary Table~\supptabdataset{}) 
+and contained one group of large cells with high RNA content and large $t_b$;
+one group of small cells with low RNA content and small $t_b$; 
+and a set of empty droplets with counts sampled from an ambient pool of RNA.
 We applied EmptyDrops at a FDR of 1\% to determine the recall for each group of cells and the FDR among the detected barcodes.
 We also tested other methods based on applying a direct threshold to the total UMI count.
 This included keeping all cells above the knee point \cite{macosko2015highly} or using the quantile-based approach in CellRanger to set the threshold \cite{zheng2017massively}.
@@ -277,6 +275,7 @@ In contrast, EmptyDrops exploits the expression profile for each droplet to dete
 \caption{Results for the simulations based on the PBMC dataset, using three methods for detecting cell-containing droplets.    
 Different simulation scenarios are labelled as $G_1/G_2$ where $G_1$ and $G_2$ are the number of barcodes in the group of large and small cells, respectively.
 The recall for each group is shown as a proportion of the group size, and the FDR is calculated as the proportion of detected droplets that are empty.
+Each point represents the result of one simulation iteration, while the bar represents the mean across 10 iterations and the error bars represent the standard error of the mean.
 }
 \label{fig:simpbmc}
 \end{figure}
@@ -352,11 +351,11 @@ With improved recovery of small cells from droplet data, modifications may be re
 \subsection*{Obtaining the datasets}
 All datasets were downloaded from the 10X Genomics website (\url{https://support.10xgenomics.com/single-cell-gene-expression/datasets}).
 Only the ``raw'' count matrices were used to ensure that CellRanger filtering was not already applied to the cell barcodes.
-Supplementary Table Y contains a brief summary of the datasets used in our study.
+Supplementary Table~\supptabdataset{} contains a brief summary of the datasets used in our study.
 
 \subsection*{Design of the simulations}
 For a given real dataset, we computed the total sum of UMI counts $t_b$ for each barcode.
-We identified the inflection point in the curve of $\log(t_b)$ against the log-rank using the \texttt{barcodeRanks} function from the \textsf{DropletUtils} package.
+We identified the inflection point in the curve of $\log(t_b)$ against the log-rank using the \code{barcodeRanks} function from the \textsf{DropletUtils} package.
 The set of all barcodes with $\log(t_b)$ below the inflection point was defined as the set of empty droplets $\mathcal{G}_0$.
 Counts for all $b \in \mathcal{G}_0$ were summed together to create an ambient pool of RNA molecules.
 (Here, we use the inflection point to be conservative with the definition of empty droplets.
@@ -368,7 +367,7 @@ In this manner, we recapitulated the observed number of empty droplets and their
 To obtain $G_1$ large cells, we sampled from the set of barcodes with $\log(t_b)$ above the inflection point.
 We used sampling with replacement to avoid problems in cases where $G_1$ is greater than the number of estimated cells in the dataset.
 To generate $G_2$ small cells, we sampled from the same set of barcodes and downsampled the count vector for each barcode to 10\% of its original total,
-using the \texttt{downsampleMatrix} function from the \textsf{DropletUtils} package.
+using the \code{downsampleMatrix} function from the \textsf{DropletUtils} package.
 This mimics the presence of small cells with low RNA content. 
 We tested different simulation scenarios by setting $G_1$ or $G_2$ to 500 and 2000 cells.
 The various components of the simulation are visualized in Supplementary Figure X.
