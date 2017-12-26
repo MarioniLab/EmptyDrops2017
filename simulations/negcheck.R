@@ -3,7 +3,6 @@
 
 library(DropletUtils)
 library(Matrix)
-library(viridis)
 source("functions.R")
 fout <- "pics-negcheck"
 dir.create(fout, showWarning=FALSE)
@@ -37,18 +36,23 @@ for (fname in ALLFILES) {
 
     # Drawing a very complicated histogram.
     pdf(file.path(fout, paste0("hist_", stub, ".pdf")))
-#    par(mar=c(5.1, 4.1, 2.1, 4.5))
+    par(mar=c(5.1, 5.1, 2.1, 4.5))
     N <- 20
     breaks <- seq(0, 1, length.out=N+1)
     choice <- pmax(1, pmin(N, findInterval(out$PValue, breaks)))
-    collected <- aggregate(out$Total, by=list(choice), FUN=sum)
+    collected <- tabulate(choice, nbins=N)/1000
 
-    all.percents <- collected[,2]/sum(out$Total)*100
-    max.percent <- max(all.percents)
-    plot(0, 0, type="n", xlim=c(0,1), ylim=c(0, max.percent), bty="n", main=stub, cex.main=1.4,
-         xlab="p-value", ylab="Contribution to ambient profile (%)", cex.axis=1.2, cex.lab=1.4)
-    rect(breaks[-N-1], 0, breaks[-1], all.percents, bty="n", col="grey90")
+    max.counts <- max(collected)
+    plot(0, 0, type="n", xlim=c(0,1), ylim=c(0, max.counts), bty="n", main=stub, cex.main=1.4,
+         xlab="p-value", ylab=expression("Number of cells ("*10^3*")"), cex.axis=1.2, cex.lab=1.4)
+    rect(breaks[-N-1], 0, breaks[-1], collected, bty="n", col="grey90")
     axis(2, labels=FALSE)
+    
+    contrib <- aggregate(out$Total, by=list(choice), FUN=sum)[,2]/sum(out$Total)*100
+    max.contrib <- max(contrib)
+    rescale <- max.counts/max.contrib * 0.95
+    shift <- 0.01
+    plotHistogramOutline(breaks+shift, contrib*rescale, lwd=2, lty=2)
 
 #    minvals <- c(0, 20, 40, 60, 80, 100)
 #    N2 <- length(minvals)-1
@@ -68,10 +72,10 @@ for (fname in ALLFILES) {
 #        shift <- shift + 0.002
 #    }
 #
-#    prettified <- pretty(c(0,max.dens))
-#    prettified <- prettified[prettified < max.dens]
-#    axis(4, at=prettified*rescale, labels=prettified, cex.axis=1.2)
-#    mtext("Density", side=4, line=2.5, cex=1.4)
+    prettified <- pretty(c(0,max.contrib))
+    prettified <- prettified[prettified < max.contrib]
+    axis(4, at=prettified*rescale, labels=prettified, cex.axis=1.2)
+    mtext("Contribution to ambient profile (%)", side=4, line=2.5, cex=1.4)
 #
 #    if (plot.legend){ 
 #        legend(1, max.percent, col=colors, lwd=3, 

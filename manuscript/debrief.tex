@@ -77,10 +77,8 @@
 \newcommand{\code}[1]{\texttt{#1}}
 
 \newcommand{\supptabdataset}{1}
-\newcommand{\suppfigsimdesign}{1}
-
-\newcommand{\suppseclayoutoptim}{1}
-\newcommand{\suppseclayouttest}{2}
+\newcommand{\suppfignegative}{1}
+\newcommand{\suppfigsimdesign}{2}
 
 % document begins here
 \begin{document}
@@ -149,17 +147,17 @@ We also apply our method to several real data sets where we are able to recover 
 
 \subsection*{Testing for deviations from the ambient profile}
 To construct the profile for the ambient RNA pool, we consider a threshold $T$ on the total UMI count.
-The set $\mathcal{D}$ of all barcodes with total counts less than $T$ are considered to represent empty droplets.
+The set $\mathcal{G}$ of all barcodes with total counts less than or equal to $T$ are considered to represent empty droplets.
 The exact choice of $T$ does not matter, as long as (i) it is small enough so that droplets with genuine cells do not have total counts below $T$,
 and (ii) there are sufficient counts to obtain a precise estimate of the ambient profile.
-A simple approach is to define empty droplets from all but the top 100,000 barcodes with the largest total counts, under the assumption that fewer than 100,000 cells are captured in any run.
-We stress that $T$ is not the same as the threshold used in existing methods, as we make no statement on barcodes with total counts greater than $T$ at this point.
+We set $T=100$ by default in our approach, motivated by examination of several real datasets (Supplementary Materials, Supplementary Figure~\suppfignegative{}).
+We stress that $T$ is not the same as the threshold used in existing methods as barcodes with total counts greater than $T$ are not automatically considered to be cell-containing droplets.
 
-The ambient profile is constructed by summing counts for each gene across $\mathcal{D}$.
+The ambient profile is constructed by summing counts for each gene across $\mathcal{G}$.
 Let $y_{gb}$ be the count for gene $g$ in barcode $b$.
 We define the ambient count as 
 \[
-    A_{g} = \sum_{b \in \mathcal{D}} y_{gb} \;,
+    A_{g} = \sum_{b \in \mathcal{G}} y_{gb} \;,
 \]
 yielding a count vector $\mathbf{A} = (A_1, \dots, A_N)$ for all $N$ genes.
 (We assume that any gene with counts of zero for all barcodes has already been filtered out, as this provides no information for distiguishing between barcodes.)

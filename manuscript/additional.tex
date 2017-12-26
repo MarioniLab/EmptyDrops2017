@@ -58,7 +58,41 @@ $^2$Blah blah blah \\[6pt]
 \end{center}
 \end{titlepage}
 
-\begin{figure}
+\section*{Motivating the choice of the total count threshold $T$}
+The threshold $T$ should be chosen so that cell-containing droplets are not used to estimate the ambient profile.
+Otherwise, our ambient profile estimate will be distorted and we will have less power to discriminate between cells and empty droplets.
+To check whether this occurs in real data, we calculated a $p$-value against the ambient null hypothesis for each barcode $b \in \mathcal{G}$, 
+i.e., with $t_b \le T$ where $T = 100$ by default.
+If many cell-containing droplets were present in $\mathcal{G}$, we should observe an enrichment of low $p$-values.
+These low $p$-values either correspond to the cell-containing droplets themselves,
+or to genuinely empty droplets that no longer fit to our distorted estimate of the ambient profile.
+
+We do not observe any enrichment for low $p$-values in any tested dataset (Supplementary Figure~\ref{fig:negative}). 
+This is true even when the $p$-values were weighted by $t_b$ to represent the contribution of each barcode to the ambient profile.
+If cell-containing droplets with low $p$-values and large $t_b$ were present, enrichment of low $p$-values should be more prominent in the weighted distribution.
+However, this is not the case, indicating that distortions of the ambient profile due to cell-containing droplets are not an issue with $T=100$.
+Instead, there is an enrichment at a $p$-value of 0.5, indicating that we were overstating the variance of the deviances in our model.
+This manifests as conservativeness -- most likely due to the fact that we were not conditioning on the total UMI count for each barcode -- and is acceptable.
+
+\newpage
+\begin{figure}[btp]
+    \begin{center}
+        \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_293t.pdf}
+        \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_jurkat.pdf}
+        \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_neuron_9k.pdf}
+        \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_neurons_900.pdf}
+        \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_pbmc4k.pdf}
+        \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_t_4k.pdf}
+    \end{center}
+    \caption{Distribution of $p$-values for all barcodes with total UMI counts less than or equal to the threshold $T=100$.
+        Each plot corresponds to a dataset in Supplementary Table~\ref{tab:datasets} where the $p$-value represents the deviation from the ambient profile.
+        Bars represent the number of barcodes for each $p$-value interval, while the dotted line represents the contribution of all barcodes in that interval to the ambient profile.
+        The contribution from each interval is calculated as the sum of counts across all of its barcodes and is shown as a percentage of the total count in the ambient profile.
+    }
+    \label{fig:negative}
+\end{figure}
+
+\begin{figure}[btp]
     \begin{center}
         \includegraphics[width=\textwidth]{../simulations/pics-sim/pbmc4k_2000_2000.pdf}
     \end{center}
@@ -68,7 +102,7 @@ Ranks are calculated from the entire set of barcodes in all plots, for ease of c
 All axes are on a log-scale.}
 \end{figure}
 
-\begin{table}
+\begin{table}[btp]
 \caption{Summary of the datasets used to assess the various cell detection methods.
     All datasets were obtained from the 10X Genomics website.
 The organism, cell type, estimated number of cells from CellRanger and the version of the CellRanger software used is shown for each dataset.}
@@ -86,6 +120,7 @@ The organism, cell type, estimated number of cells from CellRanger and the versi
 \hline
 \end{tabular}
 \end{center}
+\label{tab:datasets}
 \end{table}
 
 \end{document}
