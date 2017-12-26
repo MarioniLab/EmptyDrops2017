@@ -51,7 +51,7 @@ for (fname in ALLFILES) {
                 emp.res <- assessMethod(is.sig, out$identity)
                 
                 # Keeping everything above the knee point.
-                K <- findKneePoint(final)
+                K <- barcodeRanks(final)$knee
                 knee.res <- assessMethod(totals >= K, out$identity)
                 
                 # Using the CellRanger approach.

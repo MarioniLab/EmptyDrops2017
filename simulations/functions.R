@@ -13,7 +13,7 @@ SIMFUN <- function(raw.mat, group1=500, group2=500, down.rate=0.1, lower=100) {
 
     # Scrambling to generate resampled empty droplets.
     gene.ids <- rep(seq_along(ambient.prof), ambient.prof)
-    gene.ids <- sample(gene.ids, sum(empty.totals), replace=TRUE)
+    gene.ids <- sample(gene.ids)
     cell.ids <- rep(seq_along(empty.totals), empty.totals)
     resampled <- makeCountMatrix(gene.ids, cell.ids, all.genes=rownames(raw.mat))
 
