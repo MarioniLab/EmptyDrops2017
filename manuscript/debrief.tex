@@ -264,16 +264,27 @@ Barcodes corresponding to small cells with little RNA have similar total UMI cou
 The total UMI count cannot distinguish between these two possibilities, resulting in either reduced recall or a high false positive rate.
 In contrast, EmptyDrops exploits the expression profile for each droplet to detect small cells with greater power.
 
-\begin{figure}[bt]
+\begin{figure}[btp]
     \begin{center}
-        \includegraphics[width=0.49\textwidth,trim=0mm 10mm 0mm 19mm,clip]{../simulations/results-sim/pics/pbmc4k_G1.pdf}
-        \includegraphics[width=0.49\textwidth,trim=0mm 10mm 0mm 19mm,clip]{../simulations/results-sim/pics/pbmc4k_G2.pdf}
-        \includegraphics[width=0.49\textwidth,trim=0mm 10mm 0mm 19mm,clip]{../simulations/results-sim/pics/pbmc4k_FDR.pdf}
-        \includegraphics[width=0.49\textwidth,trim=0mm 19mm 0mm 10mm,clip]{../simulations/results-sim/pics/legend.pdf}
+        \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 10mm 0mm 19mm,clip]{../simulations/results-sim/pics/pbmc4k_G1.pdf}
+        \caption{}
+        \end{subfigure}
+        \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 10mm 0mm 19mm,clip]{../simulations/results-sim/pics/pbmc4k_G2.pdf}
+        \caption{}
+    \end{subfigure} \\[0.1in]
+        \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 10mm 0mm 19mm,clip]{../simulations/results-sim/pics/pbmc4k_FDR.pdf}
+        \caption{}
+        \end{subfigure}
+        \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 19mm 0mm 10mm,clip]{../simulations/results-sim/pics/legend.pdf}
+        \end{subfigure}
     \end{center}
 \caption{Results for the simulations based on the PBMC dataset, using three methods for detecting cell-containing droplets.    
 Different simulation scenarios are labelled as $G_1/G_2$ where $G_1$ and $G_2$ are the number of barcodes in the group of large and small cells, respectively.
-The recall for each group is shown as a proportion of the group size, and the FDR is calculated as the proportion of detected droplets that are empty.
+The recall for each group is shown as a proportion of the group size (a, b), and the FDR is calculated as the proportion of detected droplets that are empty (c).
 Each point represents the result of one simulation iteration, while the bar represents the mean across 10 iterations and the error bars represent the standard error of the mean.
 }
 \label{fig:simpbmc}
@@ -374,8 +385,12 @@ The various components of the simulation are visualized in Supplementary Figure~
 We applied our EmptyDrops method to the simulated data at a FDR of 1\%. 
 The recall was defined as the proportion of known cells from each group that were successfully detected.
 The observed false discovery rate was defined as the proportion of detected barcodes that were known empty droplets.
-We repeated this using the knee point approach, where all barcodes with total counts above the knee point were retained;
-and with the CellRanger approach, implemented as previously described \cite{zheng2017massively}.
+We repeated this evaluation using the knee point approach, where all barcodes with total counts above the knee point were retained;
+and with the CellRanger approach, implemented as described \cite{zheng2017massively}.
+
+We generated simulated data based on each real dataset in Supplementary Table~\supptabdataset{}.
+For each scenario and dataset, we repeated the simulation for 10 iterations.
+For each method, we collected performance metrics across all iterations for further examination. 
 
 \subsection*{Analysis of the 10X PBMC data set}
 We obtained one channel of the 10X PBMC data set from ???, and defined cells from the raw barcode counts using the EmptyDrops and CellRanger methods. 
