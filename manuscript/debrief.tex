@@ -93,7 +93,7 @@
 % title goes here:
 \begin{flushleft}
 {\Large
-    \textbf\newline{On the correct detection of empty droplets in droplet-based single-cell RNA sequencing protocols}
+    \textbf\newline{Detecting empty droplets in droplet-based single-cell RNA sequencing data}
 }
 \newline
 
@@ -225,15 +225,18 @@ This is defined as the log-rank that maximizes the curvature
     \frac{|f''|}{(1 + f'^2)^{1.5}} \;,
 \]
 and represents the point at which $f(.)$ begins to drop rapidly, marking the start of the transition between large and small totals.
-We use the knee point rather than the inflection point as the former is more conservative, thus avoiding empty droplets.
+In practice, we obtain $f(.)$ by fitting a smooth spline to $\log(t_b)$ against the log-rank.
+This avoids multiplication of errors during numerical differentiation, which could lead to unstable estimates of the knee point.
 
 Our assumption is that all barcodes with large totals must represent cell-containing droplets, regardless of whether its count profile resembles the ambient pool.
 This is based on the expectation that fluctuations in the size or capture efficiency of empty droplets should be smooth and not result in a distinct distribution of large totals.
 We define the upper threshold $U$ as the $t_b$ at the knee point and retain all barcodes with $t_b \ge U$, regardless of their $P_b$.
 This ensures recovery of barcodes corresponding to large cell-containing droplets. 
-We stress that this approach is different from existing methods due to the use of our testing procedure.
+We use the knee point rather than the inflection point as the former is larger and more conservative, thus avoiding retention of empty droplets.
+
+We stress that, despite the use of a threshold on $t_b$, our approach is different from existing methods due to the testing procedure.
 Barcodes with $t_b$ below the knee point can still be retained if the count profile is significantly different from the ambient pool.
-This is not be possible with existing methods that would simply discard these barcodes.
+This is not possible with existing methods that would simply discard these barcodes.
 
 \subsection*{Correcting for multiple testing across barcodes}
 We correct for multiple testing by controlling the false discovery rate (FDR) using the Benjamini-Hochberg method \cite{benjamini1995controlling}.
