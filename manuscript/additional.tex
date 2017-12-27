@@ -60,19 +60,20 @@ $^2$Blah blah blah \\[6pt]
 
 \section*{Motivating the choice of the total count threshold $T$}
 The threshold $T$ should be chosen so that cell-containing droplets are not used to estimate the ambient profile.
-Otherwise, our ambient profile estimate will be distorted and we will have less power to discriminate between cells and empty droplets.
-To check whether this occurs in real data, we calculated a $p$-value against the ambient null hypothesis for each barcode $b \in \mathcal{G}$, 
+Otherwise, our estimate will be distorted and we will have less power to discriminate between cells and empty droplets.
+To check if this occurs in real data, we calculated a $p$-value against the ambient null hypothesis for each barcode $b \in \mathcal{G}$, 
 i.e., with $t_b \le T$ where $T = 100$ by default.
-If many cell-containing droplets were present in $\mathcal{G}$, we should observe an enrichment of low $p$-values.
+Ideally, we should observe a uniform distribution of $p$-values under the assumption that all barcodes in $\mathcal{G}$ are genuinely empty.
+However, if cell-containing droplets are present in $\mathcal{G}$, we should observe an enrichment of low $p$-values.
 These low $p$-values either correspond to the cell-containing droplets themselves,
 or to genuinely empty droplets that no longer fit to our distorted estimate of the ambient profile.
 
-We do not observe any enrichment for low $p$-values in any tested dataset (Supplementary Figure~\ref{fig:negative}). 
-This is true even when the $p$-values were weighted by $t_b$ to represent the contribution of each barcode to the ambient profile.
-If cell-containing droplets with low $p$-values and large $t_b$ were present, enrichment of low $p$-values should be more prominent in the weighted distribution.
-However, this is not the case, indicating that distortions of the ambient profile due to cell-containing droplets are not an issue with $T=100$.
-Instead, there is an enrichment at a $p$-value of 0.5, indicating that we were overstating the variance of the deviances in our model.
-This manifests as conservativeness -- most likely due to the fact that we were not conditioning on the total UMI count for each barcode -- and is acceptable.
+In most datasets, we observed a minor enrichment of low $p$-values in an otherwise uniform distribution (Supplementary Figure~\ref{fig:negative}). 
+This demonstrates that our testing procedure mostly holds its size and suggests that distortions of the ambient profile due to cell-containing droplets are not a major issue when using $T=100$.
+The exception is the \code{neurons\_900} dataset where we see a clear enrichment of very low and very large $p$-values.
+Note that  this effect is not consistent with distortion of the ambient profile, which should only result in a skew towards low $p$-values.
+Rather, we hypothesize that it is driven by violations of the independent sampling assumption (e.g., if transcript molecules are complexed and sampled together into droplets).
+Positive correlations between molecules would increase the probability of obtaining droplets that are very similar or very different to the ambient profile.
 
 \newpage
 \begin{figure}[btp]
@@ -84,10 +85,8 @@ This manifests as conservativeness -- most likely due to the fact that we were n
         \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_pbmc4k.pdf}
         \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_t_4k.pdf}
     \end{center}
-    \caption{Distribution of $p$-values for all barcodes with total UMI counts less than or equal to the threshold $T=100$.
+    \caption{Histograms of $p$-values for all barcodes with total UMI counts less than or equal to the threshold $T=100$.
         Each plot corresponds to a dataset in Supplementary Table~\ref{tab:datasets} where the $p$-value represents the deviation from the ambient profile.
-        Bars represent the number of barcodes for each $p$-value interval, while the dotted line represents the contribution of all barcodes in that interval to the ambient profile.
-        The contribution from each interval is calculated as the sum of counts across all of its barcodes and is shown as a percentage of the total count in the ambient profile.
     }
     \label{fig:negative}
 \end{figure}
