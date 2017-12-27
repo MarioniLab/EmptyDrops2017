@@ -75,6 +75,39 @@ Note that  this effect is not consistent with distortion of the ambient profile,
 Rather, we hypothesize that it is driven by violations of the independent sampling assumption (e.g., if transcript molecules are complexed and sampled together into droplets).
 Positive correlations between molecules would increase the probability of obtaining droplets that are very similar or very different to the ambient profile.
 
+\section*{Efficient calculation of the Monte Carlo $p$-value}
+The naive approach to computing the Monte Carlo $p$-value for a barcode would be to directly sample $R$ count vectors from a multinomial distribution,
+compute the likelihood $L'_{bi}$ for each count vector, and count the number of vectors with $L'_{bi} \le L_{b}$.
+For $N$ genes, we would need $RN$ sampling operations to obtain the count vectors and the same number of multiplication operations to compute the likelihoods.
+For a dataset containing $B$ barcodes, this would amount to a total of $RNB$ operations.
+
+When dealing with multiple barcodes, we can improve efficiency by using pre-existing results for barcodes with lower $t_b$.
+Within a simulation iteration $i$, we sample a count vector and calculate the likelihood $L'_{b_1i}$ for the barcode $b_1$ with the lowest total count.
+For barcode $b_2$ with the total $t_{b_2}=t_{b_1}+1$, we update the count vector by sampling a new gene $k$ from the multinomial distribution with a size of 1 and probabilities equal to our ambient proportions.
+Similarly, we update the likelihood 
+\[
+    L'_{b_2i} = L'_{b_1i} \frac{t_{b_2} \tilde{p}_k}{y'_{ki}} \;,
+\]
+where $y'_{ki}$ is the frequency of $k$ in the updated count vector.
+(Iterative application of these updates can be used in cases where $t_{b_2} > t_{b_1}+1$.)
+The updated $L'_{b_2i}$ can be directly compared to $L_{b_2}$, and repeating this procedure for $R$ iterations allows us to compute the $p$-value for each $b$.
+This approach only requires $R \max\{t_b\}$ sampling and multiplication operations, 
+and for droplet-based data, the maximum $t_b$ across all barcodes in a dataset is much lower than $NB$.
+The former typically has values of 5000-10000, while the number of detected genes $N$ is around 3000-5000 and $B$ for all $t_b > T$ is often over 1000.
+This results in a considerable reduction in computational work compared to the naive approach.
+
+Our algorithm can be viewed as an extension of a more simple speed-up where the set of likelihoods from all iterations are re-used for all barcodes with the same $t_b$.
+As a result, though, the Monte Carlo $p$-values are not strictly independent across barcodes.
+Instead, they are positively correlated as the same sampling choices are effectively shared between barcodes.
+This poses a theoretical problem for multiple testing correction with the Benjamini-Hochberg (BH) method, which relies on independent $p$-values.
+In practice, this is not a major issue as the BH method is robust to dependencies.
+Moreover, increasing $R$ reduces the imprecision of the $p$-values caused by random sampling.
+This reduces the practical consequence of correlations between $p$-values.
+We use $R=10000$ by default, though this can be increased if the lower bound on the $p$-values \cite{phipson2010permutation} is greater than the threshold for significance.
+
+\bibliography{ref.bib}
+\bibliographystyle{unsrt}
+
 \newpage
 \begin{figure}[btp]
     \begin{center}
