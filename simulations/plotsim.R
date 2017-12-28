@@ -5,9 +5,9 @@ resdir <- "results-sim"
 newdir <- file.path(resdir, "pics")
 dir.create(newdir, showWarning=FALSE)
 
-for (f in list.files(resdir, pattern="sim.*\\.tsv$", full=TRUE)) { 
+for (f in list.files(resdir, pattern=".*\\.tsv$", full=TRUE)) { 
     tab <- read.table(f, header=TRUE, sep="\t", stringsAsFactors=FALSE)
-    stub <- sub("sim_(.+).tsv", "\\1", basename(f))
+    stub <- sub("(.+).tsv", "\\1", basename(f))
     scenario <- paste0(tab$G1Size, "/", tab$G2Size, "_", tab$Method)
 
     for (s in c("G1", "G2", "FDR")) {
@@ -20,7 +20,7 @@ for (f in list.files(resdir, pattern="sim.*\\.tsv$", full=TRUE)) {
             ylim <- range(all.values)
         } else {
             ylab <- s
-            ylim <- c(0, 0.01)
+            ylim <- c(0, max(0.01, all.values))
         }
         by.scenario <- split(all.values, scenario)
 
@@ -40,7 +40,7 @@ for (f in list.files(resdir, pattern="sim.*\\.tsv$", full=TRUE)) {
         for (g in names(Xgroup)) { 
             segments(left[[g]], Yline, right[[g]], lwd=2, xpd=TRUE)
             text(middle[[g]], Yline, labels=g, xpd=TRUE, pos=1, cex=1.2)
-            rect(left[[g]]-0.5, ylim[1]*0.5, right[[g]]+0.5, ylim[2]*2, border=NA, col="grey95")
+            rect(left[[g]]-0.5, ylim[1]-1, right[[g]]+1, ylim[2]*2, border=NA, col="grey95")
         }
         box()
 
@@ -61,6 +61,10 @@ for (f in list.files(resdir, pattern="sim.*\\.tsv$", full=TRUE)) {
             segments(curX, lower, curX, upper, col=curcol, lwd=2)
             segments(curX-0.25, lower, curX+0.25, col=curcol, lwd=2)
             segments(curX-0.25, upper, curX+0.25, col=curcol, lwd=2)
+        }
+
+        if (s=="FDR") {
+            abline(h=0.01, col="grey", lwd=1, lty=2)
         }
 
         dev.off()

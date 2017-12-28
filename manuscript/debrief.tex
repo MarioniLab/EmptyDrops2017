@@ -79,6 +79,7 @@
 \newcommand{\supptabdataset}{1}
 \newcommand{\suppfignegative}{1}
 \newcommand{\suppfigsimdesign}{2}
+\newcommand{\suppfigsimresults}{3-7}
 
 % document begins here
 \begin{document}
@@ -202,15 +203,19 @@ and represents the point at which $f(.)$ begins to drop rapidly, marking the sta
 In practice, we obtain $f(.)$ by fitting a smooth spline to $\log(t_b)$ against the log-rank.
 This avoids multiplication of errors during numerical differentiation, which could lead to unstable estimates of the knee point.
 
-Our assumption is that all barcodes with large totals must represent cell-containing droplets, regardless of whether its count profile resembles the ambient pool.
-This is based on the expectation that fluctuations in the size or capture efficiency of empty droplets should be smooth and not result in a distinct distribution of large totals.
+Our assumption is that all barcodes with large total counts must represent cell-containing droplets, regardless of whether its count profile resembles the ambient pool.
+This is based on the expectation that the distribution of the sizes of empty droplets should be unimodal, with a monotonic decreasing probability density as $t_b$ increases past the mode.
+A distinct peak of large totals would not be consistent with this expected distribution.
 We define the upper threshold $U$ as the $t_b$ at the knee point and retain all barcodes with $t_b \ge U$, regardless of their $P_b$.
-This ensures recovery of barcodes corresponding to large cell-containing droplets. 
-We use the knee point rather than the inflection point as the former is larger and more conservative, thus avoiding retention of empty droplets.
+This guarantees recovery of any barcodes with large total counts that potentially represent cell-containing droplets. 
+We use the knee point rather than the inflection point as the $t_b$ at the former is larger, providing a more conservative threshold that avoids retention of empty droplets.
 
 We stress that, despite the use of a threshold on $t_b$, our approach is different from existing methods due to the testing procedure.
 Barcodes with $t_b$ below the knee point can still be retained if the count profile is significantly different from the ambient pool.
 This is not possible with existing methods that would simply discard these barcodes.
+Users can also set $U$ manually if automatic detection of the knee point fails for complex $f(.)$.
+Alternatively, this mechanism can be disabled completely in favour of detecting cells solely based on their $p$-values.
+This is more statistically rigorous as it avoids the selection of an \textit{ad hoc} threshold, but may result in the failure to detect large cells.
 
 \subsection*{Correcting for multiple testing across barcodes}
 We correct for multiple testing by controlling the false discovery rate (FDR) using the Benjamini-Hochberg method \cite{benjamini1995controlling}.
@@ -235,14 +240,21 @@ or using the quantile-based approach \cite{zheng2017massively} in the CellRanger
 
 Results for a simulation based on a real dataset containing peripheral blood mononuclear cells (PBMCs) are shown in Figure~\ref{fig:simpbmc}.
 All methods consistently detected the large cells but recall for the group of small cells was much lower.
-EmptyDrops achieved the greatest recall for both groups, and detected approximately 10-fold more small cells than the other methods.
-EmptyDrops was also able to control the FDR below the specified threshold, detecting no empty droplets in most cases. 
-We observed similar performance in simulations based on other real datasets (Supplementary Material X).
+EmptyDrops achieved the highest recall for both groups of cells, and detected approximately 2-5-fold more small cells than the other methods.
+EmptyDrops was also able to control the FDR below the specified threshold of 1\%.
+We observed similar performance in simulations based on other real datasets (Supplementary Figures~\suppfigsimresults{}).
+Improved detection of small cells with EmptyDrops was particularly pronounced in simulations based on the neuronal and cell line datasets,
+with recall of 40-80\% compared to below 10\% with the other methods.
+Modest loss of FDR control ($\approx$ 2\%) with EmptyDrops was observed in some simulation scenarios, which is fully attributable to incorrect identification of the knee point.
+This motivates the choice to disable automatic retention of cells with $t_b \ge U$, as discussed above.
+By comparison, the observed FDR for the same scenarios was much higher (over 10\%) with CellRanger, indicating that EmptyDrops is still superior.
 
 The poor performance of the threshold-based methods for small cells is expected.
 Barcodes corresponding to small cells with little RNA have similar total UMI counts as barcodes corresponding to large empty droplets with high levels of ambient RNA.
 The total UMI count cannot distinguish between these two possibilities, resulting in either reduced recall or a high false positive rate.
-In contrast, EmptyDrops exploits the expression profile for each droplet to detect small cells with greater power.
+In contrast, EmptyDrops uses the expression profile for each droplet to distinguish small cells from the ambient profile with greater power.
+Another benefit of EmptyDrops is its statistical rigour, allowing users to increase the stringency of the output by using a lower FDR threshold.
+The effect of adjusting the parameters in the quantile-based CellRanger approach is less interpretable.
 
 \begin{figure}[btp]
     \begin{center}
@@ -262,10 +274,11 @@ In contrast, EmptyDrops exploits the expression profile for each droplet to dete
         \includegraphics[width=\textwidth,trim=0mm 19mm 0mm 10mm,clip]{../simulations/results-sim/pics/legend.pdf}
         \end{subfigure}
     \end{center}
-\caption{Results for the simulations based on the PBMC dataset, using three methods for detecting cell-containing droplets.    
-Different simulation scenarios are labelled as $G_1/G_2$ where $G_1$ and $G_2$ are the number of barcodes in the group of large and small cells, respectively.
+\caption{Results for the simulations based on the PBMC dataset, using three different methods for detecting cell-containing droplets.    
+Simulation scenarios are labelled as $G_1/G_2$ where $G_1$ and $G_2$ are the number of barcodes in the group of large and small cells, respectively.
 The recall for each group is shown as a proportion of the group size (a, b), and the FDR is calculated as the proportion of detected droplets that are empty (c).
 Each point represents the result of one simulation iteration, while the bar represents the mean across 10 iterations and the error bars represent the standard error of the mean.
+The dotted line represents the nominal FDR threshold (1\%) for EmptyDrops.
 }
 \label{fig:simpbmc}
 \end{figure}
