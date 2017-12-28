@@ -87,7 +87,7 @@ for (i in seq_along(ALLFILES)) {
         plotHistogramOutline(breaks+shift, collected.y[[mode]], col=colors[mode], lwd=2)
         shift <- shift + 0.005
     }
-    legend("topright", col=colors, legend=names(colors), lwd=2, cex=1.2)
+    legend("topleft", col=colors, legend=names(colors), lwd=2, cex=1.2)
     dev.off()
 
     # Examining the distribution of deviances.
