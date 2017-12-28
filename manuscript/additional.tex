@@ -15,7 +15,8 @@
 
 \usepackage{color}
 \newcommand{\revised}[1]{\textcolor{red}{#1}}
-\newcommand{\PlotThis}[2]{%
+
+\newcommand{\PlotSim}[2]{%
 \begin{figure}[btp]
     \begin{center}
         \begin{subfigure}{0.49\textwidth}
@@ -39,6 +40,37 @@ Simulation scenarios are labelled as $G_1/G_2$ where $G_1$ and $G_2$ are the num
 The recall for each group is shown as a proportion of the group size (a, b), and the FDR is calculated as the proportion of detected droplets that are empty (c).
 Each point represents the result of one simulation iteration, while the bar represents the mean across 10 iterations and the error bars represent the standard error of the mean.
 The dotted line represents the nominal FDR threshold (1\%) for EmptyDrops.}
+\end{figure}}
+
+\newcommand{\PlotReal}[2]{%
+\begin{figure}[btp]
+    \begin{center}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../simulations/pics-real/rank_#1.pdf}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../simulations/pics-real/dev_#1.pdf}
+        \caption{}
+    \end{subfigure}\\[0.1in]
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 5mm,clip]{../simulations/pics-real/intersect_#1.pdf}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../simulations/pics-real/kept_#1.pdf}
+        \caption{}
+    \end{subfigure}
+\end{center}
+    \caption{Results of applying EmptyDrops and the other cell detection methods to the #2 dataset.
+        (a) A barcode rank plot showing the fitted spline used for knee point detection in EmptyDrops. 
+        The detected inflection point is also shown.
+        (b) The negative log-probability for each barcode in the multinomial model of EmptyDrops, plotted against the total count.
+        Barcodes detected as putative cell-containing droplets at a FDR of 1\% are labelled in red.
+        Only barcodes with $t_b > T$ are shown.
+        (c) An UpSet plot of the barcodes detected by each combination of methods (vertical bars).
+        Horizontal bars represent the number of barcodes detected by each method.
+        (d) Histogram outlines of the log-total count for barcodes detected by each method.}
 \end{figure}}
 
 \begin{document}
@@ -180,10 +212,16 @@ The organism, cell type, estimated number of cells from CellRanger and the versi
 \label{tab:datasets}
 \end{table}
 
-\PlotThis{293t}{293T cell line}
-\PlotThis{jurkat}{Jurkat cell line}
-\PlotThis{neuron_9k}{9K brain cell}
-\PlotThis{neurons_900}{900 brain cell}
-\PlotThis{t_4k}{pan T cell}
+\PlotSim{293t}{293T cell line}
+\PlotSim{jurkat}{Jurkat cell line}
+\PlotSim{neuron_9k}{9K brain cell}
+\PlotSim{neurons_900}{900 brain cell}
+\PlotSim{t_4k}{pan T cell}
+
+\PlotReal{293t}{293T cell line}
+\PlotReal{jurkat}{Jurkat cell line}
+\PlotReal{neuron_9k}{9K brain cell}
+\PlotReal{neurons_900}{900 brain cell}
+\PlotReal{t_4k}{pan T cell}
 
 \end{document}

@@ -291,17 +291,36 @@ Droplets containing small cells are indistinguishable from large empty droplets 
 Conversely, CellRanger detects a number of cells with large UMI totals that are not detected by EmptyDrops.
 This is attributable to the conservativeness of the knee-point threshold in EmptyDrops, which ensures that empty droplets are not inadvertently retained.
 
-\begin{figure}[bt]
+\begin{figure}[btp]
     \begin{center}
-        \includegraphics[width=0.49\textwidth]{pics/pbmcs_calls.png}
-        \includegraphics[width=0.49\textwidth]{pics/pbmcs_Venn.png}
-    \end{center}
-    \caption{Behaviour of EmptyDrops and CellRanger on the 10X PBMC data set.
-        Left: deviance statistics for all barcodes in real data, where each barcode is coloured depending on whether it was detected by EmptyDrops.
-        The threshold defined by CellRanger is also shown.
-        Right: numbers of barcodes detected by either or both methods.
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../simulations/pics-real/rank_pbmc4k.pdf}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../simulations/pics-real/dev_pbmc4k.pdf}
+        \caption{}
+    \end{subfigure}\\[0.1in]
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 5mm,clip]{../simulations/pics-real/intersect_pbmc4k.pdf}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}[b]{0.49\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../simulations/pics-real/kept_pbmc4k.pdf}
+        \caption{}
+    \end{subfigure}
+\end{center}
+    \caption{Results of applying EmptyDrops and the other cell detection methods to the PBMC dataset.
+        (a) A barcode rank plot showing the fitted spline used for knee point detection in EmptyDrops. 
+        The detected inflection point is also shown.
+        (b) The negative log-probability for each barcode in the multinomial model of EmptyDrops, plotted against the total count.
+        Barcodes detected as putative cell-containing droplets at a FDR of 1\% are labelled in red.
+        Only barcodes with $t_b > T$ are shown.
+        (c) An UpSet plot \cite{lex2014upset} of the barcodes detected by each combination of methods (vertical bars).
+        Horizontal bars represent the number of barcodes detected by each method.
+        (d) Histogram outlines of the log-total count for barcodes detected by each method.
     }
-    \label{fig:realcall}
+\label{fig:realpbmc}
 \end{figure}
 
 To explore the differences between methods in more detail, we generated a $t$-stochastic neighbour embedding (t-SNE) plot \cite{van2008visualizing} of all barcodes that were detected by either method.
