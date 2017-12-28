@@ -249,13 +249,6 @@ Modest loss of FDR control ($\approx$ 2\%) with EmptyDrops was observed in some 
 This motivates the choice to disable automatic retention of cells with $t_b \ge U$, as discussed above.
 By comparison, the observed FDR for the same scenarios was much higher (over 10\%) with CellRanger, indicating that EmptyDrops is still superior.
 
-The poor performance of the threshold-based methods for small cells is expected.
-Barcodes corresponding to small cells with little RNA have similar total UMI counts as barcodes corresponding to large empty droplets with high levels of ambient RNA.
-The total UMI count cannot distinguish between these two possibilities, resulting in either reduced recall or a high false positive rate.
-In contrast, EmptyDrops uses the expression profile for each droplet to distinguish small cells from the ambient profile with greater power.
-Another benefit of EmptyDrops is its statistical rigour, allowing users to increase the stringency of the output by using a lower FDR threshold.
-The effect of adjusting the parameters in the quantile-based CellRanger approach is less interpretable.
-
 \begin{figure}[btp]
     \begin{center}
         \begin{subfigure}{0.49\textwidth}
@@ -282,6 +275,13 @@ The dotted line represents the nominal FDR threshold (1\%) for EmptyDrops.
 }
 \label{fig:simpbmc}
 \end{figure}
+
+The poor performance of the threshold-based methods for small cells is expected.
+Barcodes corresponding to small cells with little RNA have similar total UMI counts as barcodes corresponding to large empty droplets with high levels of ambient RNA.
+The total UMI count cannot distinguish between these two possibilities, resulting in either reduced recall or a high false positive rate.
+In contrast, EmptyDrops uses the expression profile for each droplet to distinguish small cells from the ambient profile with greater power.
+Another benefit of EmptyDrops is its statistical rigour, allowing users to increase the stringency of the output by using a lower FDR threshold.
+The effect of adjusting the parameters in the quantile-based CellRanger approach is less interpretable.
 
 \subsection*{Performance on real data}
 We applied EmptyDrops to one channel of the 10X peripheral blood mononuclear cell (PBMC) data set \cite{zheng2017massively}.
