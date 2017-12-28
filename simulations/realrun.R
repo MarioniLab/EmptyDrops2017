@@ -92,16 +92,18 @@ for (i in seq_along(ALLFILES)) {
 
     # Examining the distribution of deviances.
     pdf(file.path(ppath, paste0("dev_", stub, ".pdf")))
+    par(mar=c(5.1, 5.1, 4.1, 1.1))
     X <- e.out$Total/1000
-    plot(X, e.out$Deviance, log="xy", 
-         xlab=expression("Total count ("*10^3*")"), 
-         ylab="Deviance from ambient profile",
-         xlim=range(X[!is.na(e.out$Deviance)]), 
+    Y <- -e.out$LogProb/1000
+    plot(X, Y, log="xy", 
+         xlab=expression("Total count (x "*10^3*")"), 
+         ylab=expression("-Log probability (x "*10^3*")"), 
+         xlim=range(X[!is.na(e.out$LogProb)]), 
          col=ifelse(e.keep, "red", "grey80"), 
          cex.axis=1.2, cex.lab=1.4,
          pch=16, cex=0.5, main=stub, cex.main=1.4)
-    o <- order(e.out$Total)
-    lines(X[o], e.out$Expected[o], col="dodgerblue")
+    legend("bottomright", col=c("red", "grey80"), pch=16, cex=1.2,
+           legend=c("Putative cell", "Empty droplet"))
     dev.off()
 }   
 
