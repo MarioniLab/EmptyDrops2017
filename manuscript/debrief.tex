@@ -80,6 +80,7 @@
 \newcommand{\suppfignegative}{1}
 \newcommand{\suppfigsimdesign}{2}
 \newcommand{\suppfigsimresults}{3-7}
+\newcommand{\suppfigrealresults}{8-12}
 
 % document begins here
 \begin{document}
@@ -284,12 +285,13 @@ Another benefit of EmptyDrops is its statistical rigour, allowing users to incre
 The effect of adjusting the parameters in the quantile-based CellRanger approach is less interpretable.
 
 \subsection*{Performance on real data}
-We applied EmptyDrops to one channel of the 10X peripheral blood mononuclear cell (PBMC) data set \cite{zheng2017massively}.
-EmptyDrops was able to identify barcodes with low UMI totals, which would have been discarded by the CellRanger threshold (Figure~\ref{fig:realcall}). 
-This reflects the differences in performance observed in our simulations.
-Droplets containing small cells are indistinguishable from large empty droplets in terms of their total UMI counts, instead requiring a comparison of the expression profile to the ambient pool.
-Conversely, CellRanger detects a number of cells with large UMI totals that are not detected by EmptyDrops.
-This is attributable to the conservativeness of the knee-point threshold in EmptyDrops, which ensures that empty droplets are not inadvertently retained.
+To determine how EmptyDrops behaved on real data, we applied it to detect cells in the PBMC dataset at a FDR of 1\% (Figure~\ref{fig:realpbmc}).
+EmptyDrops was able to identify an appropriate $U$ using the knee point from the smoothed spline (Figure~\ref{fig:realpbmc}a).
+We were also able to detect significant barcodes as those with low probabilities under the null multinomial model (Figure~\ref{fig:realpbmc}b).
+Comparison of EmptyDrops to CellRanger indicated that most barcodes were detected by both methods (Figure~\ref{fig:realpbmc}c).
+Barcodes that were only detected by EmptyDrops had low total counts (Figure~\ref{fig:realpbmc}d), consistent with our simulation results.
+Conversely, CellRanger uniquely detected a number of cells with modest total counts.
+This is attributable to the conservativeness of the knee point threshold, which ensures that empty droplets are not inadvertently retained.
 
 \begin{figure}[btp]
     \begin{center}
@@ -322,6 +324,12 @@ This is attributable to the conservativeness of the knee-point threshold in Empt
     }
 \label{fig:realpbmc}
 \end{figure}
+
+We observed similar results in the other tested datasets (Supplementary Figures~\suppfigrealresults{}) where EmptyDrops consistently detected the greatest number of cells.
+Increased retention of small cells with EmptyDrops was particularly pronounced in the neuronal datasets, where EmptyDrops was able to uniquely detect over a thousand cells.
+Again, a small number of barcodes were uniquely detected by CellRanger in some datasets, though we note that this does not represent a fundamental deficiency of our method.
+EmptyDrops can always be made to report a superset of the barcodes identified by CellRanger, simply by setting $U$ to the CellRanger-identified threshold.
+This is not the default as the CellRanger threshold may not be appropriate -- moreover, it relies on knowledge of the expected number of cells, which may not be available or accurate.
 
 To explore the differences between methods in more detail, we generated a $t$-stochastic neighbour embedding (t-SNE) plot \cite{van2008visualizing} of all barcodes that were detected by either method.
 We observed that the CellRanger-only barcodes clustered with barcodes that were detected by both methods (Figure~\ref{fig:realtsne}).
@@ -375,7 +383,7 @@ All datasets were downloaded from the 10X Genomics website (\url{https://support
 Only the ``raw'' count matrices were used to ensure that CellRanger filtering was not already applied to the cell barcodes.
 Supplementary Table~\supptabdataset{} contains a brief summary of the datasets used in our study.
 
-\subsection*{Design of the simulations}
+\subsection*{Evaluating performance with simulated data}
 For a given real dataset, we computed the total sum of UMI counts $t_b$ for each barcode.
 We identified the inflection point in the curve of $\log(t_b)$ against the log-rank using the \code{barcodeRanks} function from the \textsf{DropletUtils} package.
 The set of all barcodes with $\log(t_b)$ below the inflection point was defined as the set of empty droplets $\mathcal{G}_0$.
@@ -398,13 +406,18 @@ We applied our EmptyDrops method to the simulated data at a FDR of 1\%.
 The recall was defined as the proportion of known cells from each group that were successfully detected.
 The observed false discovery rate was defined as the proportion of detected barcodes that were known empty droplets.
 We repeated this evaluation using the knee point approach, where all barcodes with total counts above the knee point were retained;
-and with the CellRanger approach, implemented as described \cite{zheng2017massively}.
+and with the CellRanger approach, implemented as described \cite{zheng2017massively} with the expected number of cells set to $G_1+G_2$ (i.e., the true number of simulated cells).
 
 We generated simulated data based on each real dataset in Supplementary Table~\supptabdataset{}.
 For each scenario and dataset, we repeated the simulation for 10 iterations.
-For each method, we collected performance metrics across all iterations for further examination. 
+We used each method in each iteration and collected performance metrics across all iterations.
 
-\subsection*{Analysis of the 10X PBMC data set}
+\subsection*{Detecting cells in real data}
+For each dataset in Supplementary Table~\supptabdataset{}, we applied EmptyDrops to detect cells at a FDR of 1\%. 
+We also used the knee point approach, as well as the CellRanger approach where the expected number of cells was set to the reported value in Supplementary Table~\supptabdataset{}.
+UpSet plots were created with using the \textsf{UpSetR} package \cite{lex2014upset}.
+
+\subsection*{Analysis of real data}
 We obtained one channel of the 10X PBMC data set from ???, and defined cells from the raw barcode counts using the EmptyDrops and CellRanger methods. 
 For the CellRanger method, the expected number of cells was estimated as the number of cells identified at a FDR of 1\% using EmptyDrops (8524 cells).
 This ensured a fair comparison between the two methods, though CellRanger was mostly robust to this parameter with 8318, 8381, and 8387 cells identified when the expected number of cells used was 5000, 8524, and 10000, respectively. 
