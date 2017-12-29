@@ -1,0 +1,331 @@
+---
+title: Analyzing the 4K PBMC dataset
+author: Aaron Lun and others
+date: 28 December 2017
+output: 
+  BiocStyle::html_document:
+    fig_caption: no
+---
+
+```{r, echo=FALSE, results="hide"}
+library(knitr)
+opts_chunk$set(error=FALSE, message=FALSE, warning=FALSE)
+opts_chunk$set(dpi=300, dev="png", dev.args=list(pointsize=15))
+options(bitmapType="cairo")
+```
+
+# Introduction
+
+This document performs a brief analysis of the 4K PBMC dataset, with particular focus on the cells that are uniquely detected by EmptyDrops or CellRanger.
+First, we load in the raw count matrix:
+
+```{r}
+library(DropletUtils)
+fname <- "../data/pbmc4k/raw_gene_bc_matrices/GRCh38"
+sce <- read10xResults(file.path("..", "data", fname), col.names=TRUE)
+sce
+```
+
+... and define the cells with `emptyDrops`:
+
+```{r}
+set.seed(100)
+e.out <- emptyDrops(counts(sce))
+e.keep <- e.out$FDR <= 0.01
+summary(e.keep)
+```
+
+... and CellRanger (with an expected 4000 cells, as the name of the dataset suggests):
+
+```{r}
+library(Matrix)
+totals <- colSums(counts(sce))
+expected.totals <- sort(totals, decreasing=TRUE)[1:4000]
+threshold <- quantile(expected.totals, 0.99)/10
+c.keep <- totals >= threshold
+summary(c.keep)
+```
+
+We retain all cells that are detected by either EmptyDrops or CellRanger.
+This makes it easier to compare the two methods later, rather than having to perform two separate analyses.
+
+```{r}
+keep <- c.keep | (e.keep & !is.na(e.keep))
+detection <- rep("Both", length(keep))
+detection[c.keep & !e.keep] <- "CellRanger"
+detection[!c.keep & e.keep] <- "EmptyDrops"
+table(detection)
+```
+
+Storing this in the metadata for future use.
+
+```{r}
+sce$Detection <- detection
+sce$LogProb <- e.out$LogProb
+sce <- sce[,keep]
+```
+
+# Adding gene-level annotation
+
+We add some gene-level annotation.
+
+```{r}
+library(EnsDb.Hsapiens.v86)
+symb <- mapIds(EnsDb.Hsapiens.v86, keys=rownames(sce), keytype="GENEID", column="SYMBOL")
+rowData(sce)$ENSEMBL <- rownames(sce)
+rowData(sce)$SYMBOL <- symb
+head(rowData(sce))
+```
+
+We relabel the rows with the gene symbols for easier reading.
+
+```{r}
+new.names <- rowData(sce)$SYMBOL
+missing.name <- is.na(new.names)
+new.names[missing.name] <- rowData(sce)$ENSEMBL[missing.name]
+dup.name <- new.names %in% new.names[duplicated(new.names)]
+new.names[dup.name] <- paste0(new.names, "_", rowData(sce)$ENSEMBL)[dup.name]
+rownames(sce) <- new.names
+head(rownames(sce))
+```
+
+We also determine the chromosomal location for each gene.
+
+```{r}
+location <- mapIds(EnsDb.Hsapiens.v86, keys=rowData(sce)$ENSEMBL, 
+    column="SEQNAME", keytype="GENEID")
+rowData(sce)$CHR <- location
+summary(location=="MT")
+```
+
+# Quality control on the cells
+
+Cell detection can be considered an implicit quality control step, so no extra steps are needed.
+Nonetheless, we examine some commonly used metrics.
+
+```{r qchist, fig.wide=TRUE, fig.asp=0.5}
+library(scater)
+sce <- calculateQCMetrics(sce, feature_controls=list(Mito=which(location=="MT")))
+par(mfrow=c(1,3))
+hist(log10(sce$total_counts), breaks=20, col="grey80")
+hist(log10(sce$total_features), breaks=20, col="grey80")
+hist(sce$pct_counts_Mito, breaks=20, col="grey80")
+```
+
+Interestingly, a large number of the features with low total counts also have high mitochondrial proportions.
+
+```{r qcscatter, fig.wide=TRUE}
+par(mfrow=c(1,2))
+plot(sce$total_features, sce$pct_counts_Mito)
+plot(sce$total_counts, sce$pct_counts_Mito)
+```
+
+This may indicate that the cells uniquely detected by EmptyDrops are, in fact, damaged.
+Thus, we remove cells with high mitochondrial percentages:
+
+```{r}
+lose <- isOutlier(sce$pct_counts_Mito, nmads=3, type="higher")
+sce <- sce[,!lose]
+table(sce$Detection)
+```
+
+# Examining gene expression
+
+We have a look at the average expression of each gene.
+
+```{r abhist}
+ave <- calcAverage(sce)
+rowData(sce)$AveCount <- ave
+hist(log10(ave), col="grey80")
+```
+
+We also examine the top-most expressed genes.
+This contains ribosomal protein genes and other usual suspects.
+
+```{r highexpr, fig.wide=TRUE, fig.asp=1.5}
+plotHighestExprs(sce)
+```
+
+# Normalizing for cell-specific biases
+
+All cells with outlier values for the library size are defined as one cluster.
+This is necessary to avoid problems when normalizing very small libraries with the large libraries.
+Everything else is used in clustering with `quickCluster`.
+
+```{r}
+library(scran)
+low.lib <- isOutlier(sce$total_counts, nmads=3, type="lower", log=TRUE)
+clusters <- numeric(length(low.lib))
+clusters[!low.lib] <- quickCluster(sce[,!low.lib], method="igraph",
+    subset.row=ave>=0.1, irlba.args=list(maxit=1000)) # for convergence.
+table(clusters)
+```
+
+We then use the deconvolution method to compute size factors for each cell.
+
+```{r}
+sce <- computeSumFactors(sce, min.mean=0.1, cluster=clusters)
+summary(sizeFactors(sce))
+```
+
+We can plot these against the library sizes to see how much of a difference it makes.
+
+```{r sfplot}
+plot(sce$total_counts, sizeFactors(sce), log="xy")
+```
+
+Finally, we compute normalized log-expresion values.
+
+```{r}
+sce <- normalize(sce)
+```
+
+# Modelling the mean-variance trend
+
+We assume that the technical noise is Poisson and create a fitted trend on that basis.
+
+```{r}
+means <- c(0:10, seq(11, max(ave), length.out=20))
+tol <- 1e-8
+collected.means <- collected.vars <- numeric(length(means))
+for (i in seq_along(means)) {
+    m <- means[i]
+    lower <- qpois(tol, lambda=m)
+    upper <- qpois(tol, lambda=m, lower=FALSE)
+    ranged <- lower:upper
+    p <- dpois(ranged, lambda=m)
+    lvals <- log2(ranged + 1)
+    lmean <- sum(lvals * p) / sum(p)
+    collected.means[i] <- lmean
+    collected.vars[i] <- sum((lvals - lmean)^2 * p) / sum(p)
+}
+new.trend <- splinefun(collected.means, collected.vars)
+```
+
+We actually estimate the variances and plot the trend against the original variances as well.
+
+```{r trendplot}
+fit <- trendVar(sce, use.spikes=FALSE, loess.args=list(span=0.05))
+plot(fit$mean, fit$var, pch=16)
+curve(fit$trend(x), col="dodgerblue", add=TRUE)
+curve(new.trend(x), col="red", add=TRUE)
+```
+
+We decompose the variance and have a look at the genes with the highest residual.
+
+```{r}
+dec <- decomposeVar(fit=fit)
+top.dec <- dec[order(dec$bio, decreasing=TRUE),] 
+head(top.dec)
+``` 
+
+We can plot the genes with the largest biological components, to verify that they are indeed highly variable.
+
+```{r hvgplot, fig.wide=TRUE}
+plotExpression(sce, feature=rownames(top.dec)[1:10])
+```
+
+# Dimensionality reduction
+
+We use the `denoisePCA` function to perform PCA, using the assumed Poisson technical trend.
+
+```{r}
+sce <- denoisePCA(sce, technical=new.trend, approx=TRUE)
+ncol(reducedDim(sce, "PCA"))
+plot(attr(reducedDim(sce), "percentVar"))
+```
+
+We can plot the first few components.
+
+```{r pcaplot}
+plotPCA(sce, ncomponents=3, color_by="Detection")
+```
+
+Same with using _t_-SNE for visualization.
+
+```{r}
+sce <- runTSNE(sce, use_dimred="PCA", perplexity=20, rand_seed=100)
+plotTSNE(sce, colour_by="Detection")
+```
+
+# Clustering and marker gene detection
+
+We use the shared nearest neighbour method for clustering.
+
+```{r}
+snn.gr <- buildSNNGraph(sce, use.dimred="PCA")
+clusters <- igraph::cluster_walktrap(snn.gr)
+table(clusters$membership)
+```
+
+Plotting them out to verify separateness.
+
+```{r}
+sce$Cluster <- factor(clusters$membership)
+plotTSNE(sce, colour_by="Cluster")
+```
+
+Detecting marker genes for each cluster.
+
+```{r}
+marker.out <- findMarkers(sce, clusters=sce$Cluster)
+```
+
+Having a look at how the clusters interact with the detection status, so we can focus on EmptyDrops-unique clusters.
+
+```{r}
+table(sce$Cluster, sce$Detection)
+```
+
+Focusing on cluster 9, which seems to be made of platelets:
+
+```{r heatmap6, fig.wide=TRUE}
+current <- marker.out[["1"]]
+cur.exprs <- logcounts(sce)[current$Gene[current$Top <= 10],]
+
+cur.exprs <- cur.exprs - rowMeans(cur.exprs)
+cur.exprs[cur.exprs > 5] <- 5
+cur.exprs[cur.exprs < -5] <- -5
+
+cols <- scater:::.get_palette("tableau20")[1:nlevels(sce$Cluster)]
+cols <- setNames(cols, levels(sce$Cluster))
+
+o <- order(sce$Cluster)
+library(pheatmap)
+pheatmap(cur.exprs[,o], cluster_cols=FALSE, 
+    breaks=seq(-5, 5, length.out=101),
+    annotation_col=as.data.frame(colData(sce)[,"Cluster",drop=FALSE]),
+    annotation_colors=list(Cluster=cols))
+```
+
+... and 12, the only defining characteristic of which is the loss of ribosomal proteins.
+
+```{r heatmap14, fig.wide=TRUE}
+current <- marker.out[["12"]]
+cur.exprs <- logcounts(sce)[current$Gene[current$Top <= 10],]
+
+cur.exprs <- cur.exprs - rowMeans(cur.exprs)
+cur.exprs[cur.exprs > 5] <- 5
+cur.exprs[cur.exprs < -5] <- -5
+
+o <- order(sce$Cluster)
+library(pheatmap)
+pheatmap(cur.exprs[,o], cluster_cols=FALSE, 
+    breaks=seq(-6, 6, length.out=101),
+    annotation_col=as.data.frame(colData(sce)[,"Cluster",drop=FALSE]),
+    annotation_colors=list(Cluster=cols))
+```
+
+# Wrapping up
+
+We save the various bits and pieces for further plotting.
+
+```{r}
+saveRDS(sce, file="sce.rds")
+```
+
+Printing the session information.
+
+```{r}
+sessionInfo()
+```
