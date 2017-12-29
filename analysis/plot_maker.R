@@ -1,0 +1,61 @@
+# This generates pretty plots of the t-SNEs.
+
+library(scran)
+sce <- readRDS("sce.rds")
+coords <- reducedDim(sce, "TSNE")
+dir.create("pics", showWarning=FALSE)
+
+# Defining arrow coordinates.
+by.9 <- colMeans(coords[sce$Cluster=="9",]) 
+by.12 <- colMeans(coords[sce$Cluster=="12",]) 
+FUN <- function(coloration, ...) {
+    plot(coords[,1], coords[,2], col=coloration, pch=16, xlab="t-SNE1", ylab="t-SNE2", cex.axis=1.2, cex.lab=1.4, ...)
+    arrows(by.9[1] - 5, by.9[2], by.9[1] - 1, angle=20, length=0.1, lwd=2)
+    arrows(by.12[1] - 5, by.12[2], by.12[1] - 1, angle=20, length=0.1, lwd=2)
+}
+
+COLBAR <- function(FUN) {
+    x <- max(coords[,1]) + diff(range(coords[,1])) * 0.1
+    y <- 1:100/5
+    y <- y - mean(y)
+    rect(x, y, x+5, y+diff(y)[1]*1.5, col=FUN(length(y)), border=NA)
+    text(x+2.5, max(y), "High", pos=3)
+    text(x+2.5, min(y), "Low", pos=1)
+}
+
+# Making a plot of detection status.
+coloration <- rep("grey", nrow(coords))
+coloration[sce$Detection=="EmptyDrops"] <- "salmon"
+coloration[sce$Detection=="CellRanger"] <- "dodgerblue"
+
+pdf("pics/by_detection.pdf")
+FUN(coloration)
+legend("topleft", legend=c("Both", "EmptyDrops", "CellRanger"), col=c("grey", "salmon", "dodgerblue"), pch=16, cex=1.4)
+dev.off()
+
+# Making a plot of PF4 and PPBP expression.
+library(viridis)
+
+by.gene <- Matrix::colSums(logcounts(sce)[c("GP9", "PPBP", "PF4"),])
+by.segment <- cut(by.gene, 100)
+coloration <- viridis(100)[by.segment]
+
+pdf("pics/by_platelet.pdf")
+par(mar=c(5.1, 4.1, 4.1, 4.1), xpd=TRUE)
+FUN(coloration, main="Platelet gene expression (GP9, PPBP, PF4)", cex.main=1.4)
+COLBAR(viridis)
+dev.off()
+
+# Making a plot of log-probabilities.
+all.ribo <- grep("^RP(L|S)[0-9]+", rownames(sce))
+by.gene <- Matrix::colSums(logcounts(sce)[all.ribo,])
+by.segment <- cut(by.gene, 100)
+coloration <- plasma(100)[by.segment]
+
+pdf("pics/by_ribo.pdf")
+par(mar=c(5.1, 4.1, 4.1, 4.1), xpd=TRUE)
+FUN(coloration, main="Ribosomal protein expression", cex.main=1.4)
+COLBAR(plasma)
+dev.off()
+
+

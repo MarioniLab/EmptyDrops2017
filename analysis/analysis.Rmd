@@ -61,7 +61,7 @@ Storing this in the metadata for future use.
 
 ```{r}
 sce$Detection <- detection
-sce$LogProb <- e.out$LogProb
+sce$PValue <- e.out$PValue
 sce <- sce[,keep]
 ```
 
@@ -238,7 +238,7 @@ plot(attr(reducedDim(sce), "percentVar"))
 We can plot the first few components.
 
 ```{r pcaplot}
-plotPCA(sce, ncomponents=3, color_by="Detection")
+plotPCA(sce, ncomponents=3, colour_by="Detection")
 ```
 
 Same with using _t_-SNE for visualization.
