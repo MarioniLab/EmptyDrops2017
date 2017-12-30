@@ -331,23 +331,36 @@ Again, a small number of barcodes were uniquely detected by CellRanger in some d
 EmptyDrops can always be made to report a superset of the barcodes identified by CellRanger, simply by setting $U$ to the CellRanger-identified threshold.
 This is not the default as the CellRanger threshold may not be appropriate -- moreover, it relies on knowledge of the expected number of cells, which may not be available or accurate.
 
-To explore the differences between methods in more detail, we generated a $t$-stochastic neighbour embedding (t-SNE) plot \cite{van2008visualizing} of all barcodes that were detected by either method.
-We observed that the CellRanger-only barcodes clustered with barcodes that were detected by both methods (Figure~\ref{fig:realtsne}).
+To explore the differences between methods in more detail, we generated a $t$-stochastic neighbour embedding (t-SNE) plot \cite{van2008visualizing} of all barcodes that were detected by either method in the PBMC dataset.
+We observed that the CellRanger-only barcodes clustered with barcodes that were detected by both methods (Figure~\ref{fig:realtsne}a).
 This suggests that the conservativeness of EmptyDrops can be largely ignored, as it only results in the loss of some cells from a cluster that would have been detected anyway.
-In contrast, the EmptyDrops-only barcodes formed three of their own clusters, such that the use of CellRanger would have resulted in the loss of entire groupsof cells. 
-These clusters were associated with 101, 28 and 2339 significant marker genes, respectively (from left to right). 
-The last group of cells we identified as platelets based on the expression of PF4 and PPBP (Figure~\ref{fig:realtsne}). 
+In contrast, the EmptyDrops-only barcodes formed a number of unique clusters.
+We identified one of these clusters as containing platelets, based on the expression of GP9, PF4 and PPBP (Figure~\ref{fig:realtsne}b). 
 This is not surprising as the total RNA content of a cell is often associated with its type/state.
 The ability of EmptyDrops to retain small cells means that it can capture biology that would have been lost with CellRanger.
 
-\begin{figure}
-    \begin{center}
-        \includegraphics[width=0.49\textwidth]{pics/pbmcs_ED_and_CR_tsne_NORMED.png}
-        \includegraphics[width=0.49\textwidth]{pics/PPBP_Expression_tsne.png}
-    \end{center}
-    \caption{t-SNE plot of barcodes detected by either EmptyDrops or CellRanger.
-        Each barcode is represented by a point, and is coloured based on whether it was detected by both methods (grey), EmptyDrops only (yellow) or CellRanger only (pink).
-    } 
+\begin{figure}[btp]
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../analysis/pics/by_detection.pdf}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../analysis/pics/by_platelet.pdf}
+        \caption{}
+    \end{subfigure} \\[0.05in]
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../analysis/pics/by_ribo.pdf}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../analysis/pics/by_mito.pdf}
+        \caption{}
+    \end{subfigure}
+    \caption{$t$-SNE plots generated for the PBMC dataset.
+        Each point represents a cell that is coloured by (a) detection status with either or both EmptyDrops and CellRanger, 
+        or expression of (b) platelet genes GP9, PF4 and PPBP, (c) ribosomal protein genes or (d) mitochondrial genes.
+        Expression in each cell was quantified as the sum of the normalized log-expression values across all genes in the relevant set.
+    }
     \label{fig:realtsne}
 \end{figure}
 
