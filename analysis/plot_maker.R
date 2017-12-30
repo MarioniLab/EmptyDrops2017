@@ -29,8 +29,8 @@ coloration[sce$Detection=="EmptyDrops"] <- "salmon"
 coloration[sce$Detection=="CellRanger"] <- "dodgerblue"
 
 pdf("pics/by_detection.pdf")
-FUN(coloration, ylim=c(min(coords[,2]), max(coords[,2])*1.1)
-legend("topleft", legend=c("Both", "EmptyDrops", "CellRanger"), col=c("grey", "salmon", "dodgerblue"), pch=16, cex=1.4)
+FUN(coloration)
+legend("bottomright", legend=c("Both", "EmptyDrops", "CellRanger"), col=c("grey", "salmon", "dodgerblue"), pch=16)
 dev.off()
 
 # Making a plot of PF4 and PPBP expression.
