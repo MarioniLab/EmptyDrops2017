@@ -82,6 +82,9 @@
 \newcommand{\suppfigsimresults}{3-7}
 \newcommand{\suppfigrealresults}{8-12}
 
+\newcommand{\suppsecthreshold}{1}
+\newcommand{\suppsecmontecarlo}{2}
+
 % document begins here
 \begin{document}
 \vspace*{0.35in}
@@ -152,7 +155,7 @@ To construct the profile for the ambient RNA pool, we consider a threshold $T$ o
 The set $\mathcal{G}$ of all barcodes with total counts less than or equal to $T$ are considered to represent empty droplets.
 The exact choice of $T$ does not matter, as long as (i) it is small enough so that droplets with genuine cells do not have total counts below $T$,
 and (ii) there are sufficient counts to obtain a precise estimate of the ambient profile.
-We set $T=100$ by default in our approach, motivated by examination of several real datasets (Supplementary Materials, Supplementary Figure~\suppfignegative{}).
+We set $T=100$ by default in our approach, motivated by examination of several real datasets (Supplementary Section~\suppsecthreshold{}, Supplementary Figure~\suppfignegative{}).
 We stress that $T$ is not the same as the threshold used in existing methods as barcodes with total counts greater than $T$ are not automatically considered to be cell-containing droplets.
 
 The ambient profile is constructed by summing counts for each gene across $\mathcal{G}$.
@@ -182,7 +185,7 @@ We use the method of Phipson and Smyth \cite{phipson2010permutation} to define t
 \]
 where $R_b$ is the number of iterations in which $L'_{bi} \le L_b$.
 This strategy avoids $p$-values of zero, which is important during multiple testing correction.
-$R$ is set to 10000 by default, and increasing this will yield more precise $p$-values at the cost of speed.
+See Supplementary Section~\suppsecmontecarlo{} for a description of how these $p$-values are efficiently computed.
 
 \subsection*{Detecting the knee point in the log-totals}
 The procedure described above will identify barcodes that have count profiles that are significantly different from the ambient pool of RNA.
@@ -364,6 +367,13 @@ The ability of EmptyDrops to retain small cells means that it can capture biolog
     \label{fig:realtsne}
 \end{figure}
 
+A notable side-effect of retaining barcodes with low UMI totals is that a higher number of low-quality cells are also recovered.
+This manifests as an EmptyDrops-only cluster with high expression of mitochondrial genes and low expression of ribosomal protein genes (Figures~\ref{fig:realtsne}c, d).
+Presumably, these cells were damaged during the scRNA-seq protocol, leaking cytoplasmic RNA and enriching for mitochondrial content \cite{ilicic2016classification}.
+EmptyDrops is technically correct in retaining the associated barcodes as even damaged cells are distinct from empty droplets.
+Nonetheless, such damaged cells are usually not of interest in downstream analyses, 
+and most of them can be easily removed by applying an appropriate threshold to the proportion of mitochondrial reads.
+
 \section*{Discussion}
 Droplet-based technologies are becoming increasingly popular for high-throughput single-cell transcriptomics.
 However, little work has been performed to develop computational methods for distinguishing genuine cells from empty droplets.
@@ -375,9 +385,9 @@ Our results indicate that EmptyDrops is effective for cell detection in droplet-
 A key assumption of our approach is that barcodes with very low UMI totals represent empty droplets.
 This allows us to use these barcodes to obtain an estimate of the ambient pool.
 However, this assumption may not be appropriate if the data set contains a subset of cells with very low RNA content.
-In such cases, the estimate of the ambient expression profile will be biased, though this bias is likely to be small as relatively few transcripts will be contributed by cells with low RNA content.
+In such cases, the estimate of the ambient expression profile will be biased, though this bias is likely to be small as relatively few transcripts will be contributed from cells with low RNA content.
 Another potential source of bias may arise from sequencing errors in the cell barcode, such that transcripts from a cell-containing droplet are misassigned to an otherwise empty droplet.
-This is mitigated to some extent by the use of designed cell barcodes in the GemCode protocol, which allow for error correction in the barcode \cite{zheng2017massively}.
+This is mitigated to some extent by the use of designed cell barcodes in the GemCode protocol, which allows for error correction to a ``whitelist" \cite{zheng2017massively}.
 However, it may be more of a problem in protocols where error correction of the barcodes is not possible \cite{macosko2015highly}.
 
 % Note that the detection drops down to a dribble near total=100 in the real data.
