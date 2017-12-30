@@ -231,7 +231,7 @@ Similarly, all barcodes with $t_b \ge U$ have their $p$-values set to zero durin
 
 \section*{Results}
 
-\subsection*{Performance on simulated data}
+\subsection*{Evaluating performance with simulated droplet-based data}
 We named our method ``EmptyDrops'' and tested it on simulated data involving cells with different RNA content (see Methods, Supplementary Figure~\suppfigsimdesign{}).
 Each simulated dataset was generated from real droplet-based scRNA-seq data (Supplementary Table~\supptabdataset{}) 
 and contained one group of large cells with high RNA content and large $t_b$;
@@ -287,7 +287,7 @@ In contrast, EmptyDrops uses the expression profile for each droplet to distingu
 Another benefit of EmptyDrops is its statistical rigour, allowing users to increase the stringency of the output by using a lower FDR threshold.
 The effect of adjusting the parameters in the quantile-based CellRanger approach is less interpretable.
 
-\subsection*{Performance on real data}
+\subsection*{Characterizing behaviour of EmptyDrops on real datasets}
 To determine how EmptyDrops behaved on real data, we applied it to detect cells in the PBMC dataset at a FDR of 1\% (Figure~\ref{fig:realpbmc}).
 EmptyDrops was able to identify an appropriate $U$ using the knee point from the smoothed spline (Figure~\ref{fig:realpbmc}a).
 We were also able to detect significant barcodes as those with low probabilities under the null multinomial model (Figure~\ref{fig:realpbmc}b).
@@ -418,7 +418,7 @@ We anticipate that it will be useful to researchers who want to extract much inf
 
 \section*{Methods}
 
-\subsection*{Obtaining the datasets}
+\subsection*{Obtaining droplet-based scRNA-seq datasets}
 All datasets were downloaded from the 10X Genomics website (\url{https://support.10xgenomics.com/single-cell-gene-expression/datasets}).
 Only the ``raw'' count matrices were used to ensure that CellRanger filtering was not already applied to the cell barcodes.
 Supplementary Table~\supptabdataset{} contains a brief summary of the datasets used in our study.
@@ -452,7 +452,7 @@ We generated simulated data based on each real dataset in Supplementary Table~\s
 For each scenario and dataset, we repeated the simulation for 10 iterations.
 We used each method in each iteration and collected performance metrics across all iterations.
 
-\subsection*{Detecting cells in real data}
+\subsection*{Detecting cells in real data from 10X Genomics}
 For each dataset in Supplementary Table~\supptabdataset{}, we applied EmptyDrops to detect cells at a FDR of 1\%. 
 We also used the knee point approach, as well as the CellRanger approach where the expected number of cells was set to the reported value in Supplementary Table~\supptabdataset{}.
 UpSet plots were created with using the \textsf{UpSetR} package \cite{lex2014upset}.
@@ -473,6 +473,18 @@ A $t$-SNE plot \cite{van2008visualizing} was generated using methods from the \t
 EmptyDrops is implemented as the \code{emptyDrops} function in the \textsf{DropletUtils} package, available from version 3.7 of the Bioconductor project (\url{https://bioconductor.org/packages/DropletUtils}).
 It is written in a combination of R and C++ and requires approximately 1-2 minutes to run on each of the tested datasets.
 All code for simulations and real data analysis were written in R and are available at \url{https://github.com/MarioniLab/EmptyDrops2017}.
+
+\section*{Author contributions}
+ATLL, SR, TA, TPD and TG developed the initial EmptyDrops algorithm and tested it on simulated data.
+TPD tested the algorithm on the PBMC dataset.
+ATLL improved the efficiency of the algorithm, incorporated it into a package, prepared new simulations for further testing, refined the real data analysis and wrote the manuscript.
+
+\section*{Funding statement}
+ATLL was supported by core funding from Cancer Research UK (award no. 17197 to John Marioni).
+
+\section*{Acknowledgements}
+We would like to thank Jonathan Griffiths for further testing of the algorithm;
+and to all participants of the Human Cell Atlas Jamboree in August 2017, where the algorithm was initially conceived.
 
 \bibliography{ref.bib}
 \bibliographystyle{unsrt}
