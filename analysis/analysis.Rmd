@@ -121,13 +121,7 @@ plot(sce$total_counts, sce$pct_counts_Mito)
 ```
 
 This may indicate that the cells uniquely detected by EmptyDrops are, in fact, damaged.
-Thus, we remove cells with high mitochondrial percentages:
-
-```{r}
-lose <- isOutlier(sce$pct_counts_Mito, nmads=3, type="higher")
-sce <- sce[,!lose]
-table(sce$Detection)
-```
+We'll have a look at this in more detail during the clustering step.
 
 # Examining gene expression
 
@@ -277,10 +271,10 @@ Having a look at how the clusters interact with the detection status, so we can 
 table(sce$Cluster, sce$Detection)
 ```
 
-Focusing on cluster 9, which seems to be made of platelets:
+Focusing on cluster 8, which seems to be made of platelets:
 
-```{r heatmap6, fig.wide=TRUE}
-current <- marker.out[["1"]]
+```{r heatmap8, fig.wide=TRUE}
+current <- marker.out[["8"]]
 cur.exprs <- logcounts(sce)[current$Gene[current$Top <= 10],]
 
 cur.exprs <- cur.exprs - rowMeans(cur.exprs)
@@ -298,10 +292,28 @@ pheatmap(cur.exprs[,o], cluster_cols=FALSE,
     annotation_colors=list(Cluster=cols))
 ```
 
-... and 12, the only defining characteristic of which is the loss of ribosomal proteins.
+... and 6, which seems to contain damaged cells with high mitochondrial content:
+
+```{r heatmap6, fig.wide=TRUE}
+current <- marker.out[["6"]]
+cur.exprs <- logcounts(sce)[current$Gene[current$Top <= 10],]
+
+cur.exprs <- cur.exprs - rowMeans(cur.exprs)
+cur.exprs[cur.exprs > 5] <- 5
+cur.exprs[cur.exprs < -5] <- -5
+
+o <- order(sce$Cluster)
+library(pheatmap)
+pheatmap(cur.exprs[,o], cluster_cols=FALSE, 
+    breaks=seq(-6, 6, length.out=101),
+    annotation_col=as.data.frame(colData(sce)[,"Cluster",drop=FALSE]),
+    annotation_colors=list(Cluster=cols))
+```
+
+... and 14, the only defining characteristic of which is the loss of ribosomal proteins.
 
 ```{r heatmap14, fig.wide=TRUE}
-current <- marker.out[["12"]]
+current <- marker.out[["14"]]
 cur.exprs <- logcounts(sce)[current$Gene[current$Top <= 10],]
 
 cur.exprs <- cur.exprs - rowMeans(cur.exprs)

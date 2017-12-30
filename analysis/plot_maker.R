@@ -6,12 +6,12 @@ coords <- reducedDim(sce, "TSNE")
 dir.create("pics", showWarning=FALSE)
 
 # Defining arrow coordinates.
-by.9 <- colMeans(coords[sce$Cluster=="9",]) 
-by.12 <- colMeans(coords[sce$Cluster=="12",]) 
+by.9 <- colMeans(coords[sce$Cluster=="6",]) 
+by.12 <- colMeans(coords[sce$Cluster=="8",]) 
 FUN <- function(coloration, ...) {
     plot(coords[,1], coords[,2], col=coloration, pch=16, xlab="t-SNE1", ylab="t-SNE2", cex.axis=1.2, cex.lab=1.4, ...)
-    arrows(by.9[1] - 5, by.9[2], by.9[1] - 1, angle=20, length=0.1, lwd=2)
-    arrows(by.12[1] - 5, by.12[2], by.12[1] - 1, angle=20, length=0.1, lwd=2)
+    arrows(by.9[1] - 9, by.9[2], by.9[1] - 5, angle=20, length=0.1, lwd=2)
+    arrows(by.12[1] - 6, by.12[2], by.12[1] - 2, angle=20, length=0.1, lwd=2)
 }
 
 COLBAR <- function(FUN) {
@@ -29,7 +29,7 @@ coloration[sce$Detection=="EmptyDrops"] <- "salmon"
 coloration[sce$Detection=="CellRanger"] <- "dodgerblue"
 
 pdf("pics/by_detection.pdf")
-FUN(coloration)
+FUN(coloration, ylim=c(min(coords[,2]), max(coords[,2])*1.1)
 legend("topleft", legend=c("Both", "EmptyDrops", "CellRanger"), col=c("grey", "salmon", "dodgerblue"), pch=16, cex=1.4)
 dev.off()
 
@@ -42,20 +42,32 @@ coloration <- viridis(100)[by.segment]
 
 pdf("pics/by_platelet.pdf")
 par(mar=c(5.1, 4.1, 4.1, 4.1), xpd=TRUE)
-FUN(coloration, main="Platelet gene expression (GP9, PPBP, PF4)", cex.main=1.4)
+FUN(coloration, main="Platelet gene expression", cex.main=1.4)
 COLBAR(viridis)
 dev.off()
 
-# Making a plot of log-probabilities.
+# Making a plot of ribosomal gene expression.
 all.ribo <- grep("^RP(L|S)[0-9]+", rownames(sce))
 by.gene <- Matrix::colSums(logcounts(sce)[all.ribo,])
 by.segment <- cut(by.gene, 100)
-coloration <- plasma(100)[by.segment]
+coloration <- inferno(100)[by.segment]
 
 pdf("pics/by_ribo.pdf")
 par(mar=c(5.1, 4.1, 4.1, 4.1), xpd=TRUE)
 FUN(coloration, main="Ribosomal protein expression", cex.main=1.4)
-COLBAR(plasma)
+COLBAR(inferno)
+dev.off()
+
+# Making a plot of mitochondrial gene expression.
+all.ribo <- grep("^MT-", rownames(sce))
+by.gene <- Matrix::colSums(logcounts(sce)[all.ribo,])
+by.segment <- cut(by.gene, 100)
+coloration <- magma(100)[by.segment]
+
+pdf("pics/by_mito.pdf")
+par(mar=c(5.1, 4.1, 4.1, 4.1), xpd=TRUE)
+FUN(coloration, main="Ribosomal protein expression", cex.main=1.4)
+COLBAR(magma)
 dev.off()
 
 
