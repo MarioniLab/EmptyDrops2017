@@ -275,7 +275,7 @@ Focusing on cluster 8, which seems to be made of platelets:
 
 ```{r heatmap8, fig.wide=TRUE}
 current <- marker.out[["8"]]
-cur.exprs <- logcounts(sce)[current$Gene[current$Top <= 10],]
+cur.exprs <- logcounts(sce)[rownames(current)[current$Top <= 10],]
 
 cur.exprs <- cur.exprs - rowMeans(cur.exprs)
 cur.exprs[cur.exprs > 5] <- 5
@@ -296,7 +296,7 @@ pheatmap(cur.exprs[,o], cluster_cols=FALSE,
 
 ```{r heatmap6, fig.wide=TRUE}
 current <- marker.out[["6"]]
-cur.exprs <- logcounts(sce)[current$Gene[current$Top <= 10],]
+cur.exprs <- logcounts(sce)[rownames(current)[current$Top <= 10],]
 
 cur.exprs <- cur.exprs - rowMeans(cur.exprs)
 cur.exprs[cur.exprs > 5] <- 5
@@ -310,20 +310,21 @@ pheatmap(cur.exprs[,o], cluster_cols=FALSE,
     annotation_colors=list(Cluster=cols))
 ```
 
-... and 14, the only defining characteristic of which is the loss of ribosomal proteins.
+... and 14, the only defining characteristic of which is the complete loss of a variety of proteins.
+This probably represents damaged cells that have lost cytoplasmic transcripts, and are in fact so damaged that even the mitochondria have been lost.
 
 ```{r heatmap14, fig.wide=TRUE}
 current <- marker.out[["14"]]
-cur.exprs <- logcounts(sce)[current$Gene[current$Top <= 10],]
+cur.exprs <- logcounts(sce)[rownames(current)[current$Top <= 10],]
 
 cur.exprs <- cur.exprs - rowMeans(cur.exprs)
-cur.exprs[cur.exprs > 5] <- 5
-cur.exprs[cur.exprs < -5] <- -5
+cur.exprs[cur.exprs > 3] <- 3
+cur.exprs[cur.exprs < -3] <- -3
 
 o <- order(sce$Cluster)
 library(pheatmap)
 pheatmap(cur.exprs[,o], cluster_cols=FALSE, 
-    breaks=seq(-6, 6, length.out=101),
+    breaks=seq(-3, 3, length.out=101),
     annotation_col=as.data.frame(colData(sce)[,"Cluster",drop=FALSE]),
     annotation_colors=list(Cluster=cols))
 ```
