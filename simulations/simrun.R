@@ -15,7 +15,7 @@ ALLFILES <- c("pbmc4k/raw_gene_bc_matrices/GRCh38",
               "neuron_9k/raw_gene_bc_matrices/mm10/")
 
 for (fname in ALLFILES) { 
-    sce <- read10xResults(file.path("..", "data", fname))
+    sce <- read10xCounts(file.path("..", "data", fname))
     stub <- sub("/.*", "", fname)
     ofile <- file.path(opath, paste0(stub, ".tsv"))
     unlinker <- TRUE 
@@ -56,9 +56,8 @@ for (fname in ALLFILES) {
                 
                 # Using the CellRanger approach.
                 expected <- sum(out$identity!=0)
-                expected.totals <- sort(totals, decreasing=TRUE)[seq_len(expected)]
-                threshold <- quantile(expected.totals, 0.99)/10
-                cell.res <- assessMethod(totals >= threshold, out$identity)
+                c.keep <- defaultDrops(final, expected=expected)
+                cell.res <- assessMethod(c.keep, out$identity)
     
                 # Saving the current set of results to file.
                 write.table(cbind(G1Size=g1, G2Size=g2, 

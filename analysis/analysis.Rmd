@@ -22,7 +22,7 @@ First, we load in the raw count matrix:
 ```{r}
 library(DropletUtils)
 fname <- "../data/pbmc4k/raw_gene_bc_matrices/GRCh38"
-sce <- read10xResults(file.path("..", "data", fname), col.names=TRUE)
+sce <- read10xCounts(file.path("..", "data", fname), col.names=TRUE)
 sce
 ```
 
@@ -38,11 +38,7 @@ summary(e.keep)
 ... and CellRanger (with an expected 4000 cells, as the name of the dataset suggests):
 
 ```{r}
-library(Matrix)
-totals <- colSums(counts(sce))
-expected.totals <- sort(totals, decreasing=TRUE)[1:4000]
-threshold <- quantile(expected.totals, 0.99)/10
-c.keep <- totals >= threshold
+c.keep <- defaultDrops(counts(sce), expected=4000)
 summary(c.keep)
 ```
 

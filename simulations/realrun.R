@@ -22,12 +22,11 @@ expected <- c(4000,
 # Looping through the files.
 for (i in seq_along(ALLFILES)) { 
     fname <- ALLFILES[i]
-    sce <- read10xResults(file.path("..", "data", fname))
+    sce <- read10xCounts(file.path("..", "data", fname))
     stub <- sub("/.*", "", fname)
 
     final <- counts(sce)
     stats <- barcodeRanks(final)
-    totals <- stats$total
 
     # Making a barcode plot for diagnostics.
     pdf(file.path(ppath, paste0("rank_", stub, ".pdf")))
@@ -44,13 +43,10 @@ for (i in seq_along(ALLFILES)) {
     e.keep[is.na(e.keep)] <- FALSE
     
     # Keeping everything above the knee point.
-    K <- stats$knee
-    k.keep <- totals > K
+    k.keep <- stats$total > stats$knee
     
     # Using the CellRanger approach.
-    expected.totals <- sort(totals, decreasing=TRUE)[seq_len(expected[i])]
-    threshold <- quantile(expected.totals, 0.99)/10
-    c.keep <- totals >= threshold
+    c.keep <- defaultDrops(final, expected=expected[i])
 
     # Quantifying the intersections.
     at.least.one <- k.keep | e.keep | c.keep
@@ -65,7 +61,7 @@ for (i in seq_along(ALLFILES)) {
     dev.off()
 
     # Having a look at the distribution of retained cells in more detail.
-    limits <- log10(range(totals[at.least.one]))
+    limits <- log10(range(stats$total[at.least.one]))
     breaks <- seq(limits[1], limits[2], length.out=21)
     modes <- list("emptyDrops"=e.keep, "Knee point"=k.keep, "CellRanger"=c.keep)
 
