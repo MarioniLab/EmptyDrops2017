@@ -199,13 +199,13 @@ If we apply our procedure directly, barcodes corresponding to ambient-like cell-
 To avoid this, we combine our procedure with a conventional threshold on the total UMI count.
 We rank all barcodes in order of decreasing $t_b$, and consider the function $f(.)$ of $\log(t_b)$ with respect to increasing log-rank.
 The first ``knee'' point in this function corresponds to a transition between a distinct subset of barcodes with large totals and the majority of barcodes with smaller totals.
-This is defined as the log-rank that maximizes the curvature
+This is defined at the log-rank that minimizes the signed curvature
 \[
-    \frac{|f''|}{(1 + f'^2)^{1.5}} \;,
+    \frac{f''}{(1 + f'^2)^{1.5}} \;,
 \]
 and represents the point at which $f(.)$ begins to drop rapidly, marking the start of the transition between large and small totals.
-In practice, we obtain $f(.)$ by fitting a smooth spline to $\log(t_b)$ against the log-rank.
-This avoids multiplication of errors during numerical differentiation, which could lead to unstable estimates of the knee point.
+In practice, we obtain $f(.)$ by fitting a smooth spline to $\log(t_b)$ against the log-rank in the interval containing the knee point.
+This avoids multiplication of errors during numerical differentiation, which would lead to instability in the curvature values and inaccurate estimates of the knee point.
 
 Our assumption is that all barcodes with large total counts must represent cell-containing droplets, regardless of whether its count profile resembles the ambient pool.
 This is based on the expectation that the distribution of the sizes of empty droplets should be unimodal, with a monotonic decreasing probability density as $t_b$ increases past the mode.
@@ -244,14 +244,12 @@ or using the quantile-based approach \cite{zheng2017massively} in the CellRanger
 
 Results for a simulation based on a real dataset containing peripheral blood mononuclear cells (PBMCs) are shown in Figure~\ref{fig:simpbmc}.
 All methods consistently detected the large cells but recall for the group of small cells was much lower.
-EmptyDrops achieved the highest recall for both groups of cells, and detected approximately 2-5-fold more small cells than the other methods.
-EmptyDrops was also able to control the FDR below the specified threshold of 1\%.
+Nonetheless, EmptyDrops was able to detect approximately 2-5-fold more small cells than the other methods in all scenarios.
+EmptyDrops also correctly controlled the FDR below the specified threshold of 1\%.
 We observed similar performance in simulations based on other real datasets (Supplementary Figures~\suppfigsimresults{}).
 Improved detection of small cells with EmptyDrops was particularly pronounced in simulations based on the neuronal and cell line datasets,
-with recall of 40-80\% compared to below 10\% with the other methods.
-Modest loss of FDR control ($\approx$ 2\%) with EmptyDrops was observed in some simulation scenarios, which is fully attributable to incorrect identification of the knee point.
-This motivates the choice to disable automatic retention of cells with $t_b \ge U$, as discussed above.
-By comparison, the observed FDR for the same scenarios was much higher (over 10\%) with CellRanger, indicating that EmptyDrops is still superior.
+with recall of 60-90\% compared to below 10\% with the other methods.
+The performance of CellRanger was especially poor for the simulations based on the 9K neuron dataset, where over 10\% of detected barcodes were false positives.
 
 \begin{figure}[btp]
     \begin{center}
@@ -287,14 +285,19 @@ In contrast, EmptyDrops uses the expression profile for each droplet to distingu
 Another benefit of EmptyDrops is its statistical rigour, allowing users to increase the stringency of the output by using a lower FDR threshold.
 The effect of adjusting the parameters in the quantile-based CellRanger approach is less interpretable.
 
+We note that CellRanger detects slightly more large cells than EmptyDrops in the PBMC-based simulation (Figure~\ref{fig:simpbmc}).
+We stress that this does not represent an inherent difference in performance between the two methods, and indeed, is not observed in many of the other simulations (Supplementary Figures~\suppfigsimresults{}).
+In fact, EmptyDrops can always be made to report a superset of the barcodes identified by CellRanger, simply by setting $U$ to the CellRanger-identified threshold.
+We do not do so as the CellRanger threshold may not be appropriate, as observed for the 9K neuron simulations.
+It also relies on knowledge of the expected number of cells, which may not be available or accurate.
+
 \subsection*{Characterizing behaviour of EmptyDrops on real datasets}
 To determine how EmptyDrops behaved on real data, we applied it to detect cells in the PBMC dataset at a FDR of 1\% (Figure~\ref{fig:realpbmc}).
-EmptyDrops was able to identify an appropriate $U$ using the knee point from the smoothed spline (Figure~\ref{fig:realpbmc}a).
-We were also able to detect significant barcodes as those with low probabilities under the null multinomial model (Figure~\ref{fig:realpbmc}b).
+EmptyDrops identified an appropriate $U$ using the knee point from the smoothed spline (Figure~\ref{fig:realpbmc}a),
+and detected significant barcodes as those with low probabilities under the null multinomial model (Figure~\ref{fig:realpbmc}b).
 Comparison of EmptyDrops to CellRanger indicated that most barcodes were detected by both methods (Figure~\ref{fig:realpbmc}c).
 Barcodes that were only detected by EmptyDrops had low total counts (Figure~\ref{fig:realpbmc}d), consistent with our simulation results.
-Conversely, CellRanger uniquely detected a number of cells with modest total counts.
-This is attributable to the conservativeness of the knee point threshold, which ensures that empty droplets are not inadvertently retained.
+Conversely, CellRanger uniquely detected a number of cells with moderate total counts.
 
 \begin{figure}[btp]
     \begin{center}
@@ -330,9 +333,8 @@ This is attributable to the conservativeness of the knee point threshold, which 
 
 We observed similar results in the other tested datasets (Supplementary Figures~\suppfigrealresults{}) where EmptyDrops consistently detected the greatest number of cells.
 Increased retention of small cells with EmptyDrops was particularly pronounced in the neuronal datasets, where EmptyDrops was able to uniquely detect over a thousand cells.
-Again, a small number of barcodes were uniquely detected by CellRanger in some datasets, though we note that this does not represent a fundamental deficiency of our method.
-EmptyDrops can always be made to report a superset of the barcodes identified by CellRanger, simply by setting $U$ to the CellRanger-identified threshold.
-This is not the default as the CellRanger threshold may not be appropriate -- moreover, it relies on knowledge of the expected number of cells, which may not be available or accurate.
+Again, a small number of barcodes were uniquely detected by CellRanger in some datasets.
+This is attributable to the conservativeness of the knee point threshold in EmptyDrops, which ensures that empty droplets are not inadvertently retained.
 
 To explore the differences between methods in more detail, we generated a $t$-stochastic neighbour embedding (t-SNE) plot \cite{van2008visualizing} of all barcodes that were detected by either method in the PBMC dataset.
 We observed that the CellRanger-only barcodes clustered with barcodes that were detected by both methods (Figure~\ref{fig:realtsne}a).
@@ -428,8 +430,7 @@ For a given real dataset, we computed the total sum of UMI counts $t_b$ for each
 We identified the inflection point in the curve of $\log(t_b)$ against the log-rank using the \code{barcodeRanks} function from the \textsf{DropletUtils} package.
 The set of all barcodes with $\log(t_b)$ below the inflection point was defined as the set of empty droplets $\mathcal{G}_0$.
 Counts for all $b \in \mathcal{G}_0$ were summed together to create an ambient pool of RNA molecules.
-(Here, we use the inflection point to be conservative with the definition of empty droplets.
-This avoids the inclusion of cell-containing droplets in the ambient pool.)
+(The inflection point provides a conservative definition of empty droplets, and avoids the inclusion of cell-containing droplets in the ambient pool.)
 To simulate known empty droplets, we constructed expression profiles for a new set of barcodes by sampling molecules from the ambient pool without replacement.
 This was done such that the distribution of $t_b$ in our set was the same as that in $\mathcal{G}_0$. 
 In this manner, we recapitulated the observed number of empty droplets and their total counts in our simulations.
