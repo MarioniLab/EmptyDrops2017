@@ -122,7 +122,7 @@ In these technologies, individual cells are captured into aqueous droplets in a 
 Each droplet also contains a co-captured bead with primers for reverse transcription, where all primers on a single bead contain a cell barcode that is (effectively) unique to that bead.
 The droplets serve as isolated reaction chambers in which cell lysis and reverse transcription are performed to obtain barcoded cDNA.
 This is followed by breaking of the emulsion, amplification of the cDNA and construction of a sequencing library.
-After sequencing, reads are assigned to individual droplets based on the cell barcode observed in each read sequence.
+After sequencing, transcripts are assigned to individual droplets based on the cell barcode observed in each read sequence.
 This yields an expression profile for each cell, typically in the form of unique molecular identifier (UMI) counts \cite{islam2014quantitative} for all annotated genes. 
 The use of droplets increases throughput by at least an order of magnitude compared to protocols based on plates \cite{picelli2013smartseq2} or conventional microfluidics \cite{pollen2014low}, which is appealing for large-scale projects such as the Human Cell Atlas \cite{regev2017human}.
 
@@ -156,7 +156,7 @@ The set $\mathcal{G}$ of all barcodes with total counts less than or equal to $T
 The exact choice of $T$ does not matter, as long as (i) it is small enough so that droplets with genuine cells do not have total counts below $T$,
 and (ii) there are sufficient counts to obtain a precise estimate of the ambient profile.
 We set $T=100$ by default in our approach, motivated by examination of several real datasets (Supplementary Section~\suppsecthreshold{}, Supplementary Figure~\suppfignegative{}).
-We stress that $T$ is not the same as the threshold used in existing methods as barcodes with total counts greater than $T$ are not automatically considered to be cell-containing droplets.
+We stress that $T$ is not the same as the threshold used in existing methods, as barcodes with total counts greater than $T$ are not automatically considered to be cell-containing droplets.
 
 The ambient profile is constructed by summing counts for each gene across $\mathcal{G}$.
 Let $y_{gb}$ be the count for gene $g$ in barcode $b$.
@@ -166,12 +166,12 @@ We define the ambient count as
 \]
 yielding a count vector $\mathbf{A} = (A_1, \dots, A_N)$ for all $N$ genes.
 (We assume that any gene with counts of zero for all barcodes has already been filtered out, as this provides no information for distiguishing between barcodes.)
-We apply the Good-Turing algorithm to $\mathbf{A}$ to obtain the posterior expectation $\tilde{p}_g$ of the proportion of counts assigned to $g$ \cite{gale1995good}, using the \code{goodTuringProportions} function in the \textsf{edgeR} package \cite{robinson2010edgeR}.
+We apply the Good-Turing algorithm to $\mathbf{A}$ to obtain the posterior expectation, $\tilde{p}_g$, of the proportion of counts assigned to $g$ \cite{gale1995good}, using the \code{goodTuringProportions} function in the \textsf{edgeR} package \cite{robinson2010edgeR}.
 This ensures that genes with zero counts in the ambient pool have non-zero proportions, avoiding the possibility of obtaining likelihoods of zero in downstream calculations.
 
-Our null hypothesis is that free-floating transcripts in solution are randomly sampled into the empty droplets.
-Each transcript molecule for gene $g$ is independently sampled with probability equal to the proportion $\tilde{p}_g$.
-If we condition on the total count $t_b$ for each barcode $b$, we can model the counts for each barcode with a multinomial distribution.
+Our null hypothesis is that free-floating transcripts in solution are randomly encapsulated into the empty droplets.
+For a given droplet, the probability of sampling a transcript molecule for gene $g$ is equal to $\tilde{p}_g$.
+If we condition on the total count $t_b$ for a cell barcode $b$, we can model the counts for each barcode with a multinomial distribution.
 We define the likelihood of obtaining the counts for barcode $b$ as 
 \[
     L_b = t_b! \prod_{g=1}^N \frac{\tilde{p}_g}{y_{gb}!} \;.
@@ -205,9 +205,10 @@ This is defined at the log-rank that minimizes the signed curvature
 \]
 and represents the point at which $f(.)$ begins to drop rapidly, marking the start of the transition between large and small totals.
 In practice, we obtain $f(.)$ by fitting a smooth spline to $\log(t_b)$ against the log-rank in the interval containing the knee point.
+The derivatives of $f(.)$ are then obtained by differentiation of the spline basis functions.
 This avoids multiplication of errors during numerical differentiation, which would lead to instability in the curvature values and inaccurate estimates of the knee point.
 
-Our assumption is that all barcodes with large total counts must represent cell-containing droplets, regardless of whether its count profile resembles the ambient pool.
+Our assumption is that any barcode with a large total count must represent a cell-containing droplet, regardless of whether its count profile resembles the ambient pool.
 This is based on the expectation that the distribution of the sizes of empty droplets should be unimodal, with a monotonic decreasing probability density as $t_b$ increases past the mode.
 A distinct peak of large totals would not be consistent with this expected distribution.
 We define the upper threshold $U$ as the $t_b$ at the knee point and retain all barcodes with $t_b \ge U$, regardless of their $P_b$.
@@ -222,12 +223,17 @@ Alternatively, this mechanism can be disabled completely in favour of detecting 
 This is more statistically rigorous as it avoids the selection of an \textit{ad hoc} threshold, but may result in the failure to detect large cells.
 
 \subsection*{Correcting for multiple testing across barcodes}
-We correct for multiple testing by controlling the false discovery rate (FDR) using the Benjamini-Hochberg method \cite{benjamini1995controlling}.
-Putative cells are defined as those that have significantly poor fits to the ambient model at a specified FDR threshold.
+We correct for multiple testing by controlling the false discovery rate (FDR) using the Benjamini-Hochberg (BH) method \cite{benjamini1995controlling}.
+Putative cells are defined as those barcodes that have significantly poor fits to the ambient model at a specified FDR threshold.
 We set the FDR threshold to 1\% by default, meaning that the expected proportion of empty droplets in the set of retained barcodes is no greater than 1\%.
-Note that we only perform the correction on the $p$-values for barcodes that have $t_b$ greater than $T$.
-This reduces the severity of the correction given that barcodes with lower $t_b$ will always be discarded.
-Similarly, all barcodes with $t_b \ge U$ have their $p$-values set to zero during correction, as these barcodes are considered to be known true positives.
+
+Note that we only perform the BH correction on the $p$-values for barcodes that have $t_b$ greater than $T$.
+This reduces the severity of the correction by discarding cells that were previously assumed to be droplets, thus improving detection power for barcodes with larger totals that are more likely to contain cells.
+In fact, $p$-values are not computed at all for barcodes with $t_b \le T$, to avoid unnecessary computational work.
+
+Conversely, all barcodes with $t_b \ge U$ are considered to be known true positives, regardless of how ambient-like their expression profiles are.
+These barcodes have their $p$-values set to zero during the BH correction.
+This approach is better than simply adding the barcodes with large totals to the detected set after correction with the original $p$-values, which does not account for the effect of addition on the FDR.
 
 \section*{Results}
 
