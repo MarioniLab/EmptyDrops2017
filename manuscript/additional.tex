@@ -164,10 +164,10 @@ Our algorithm can be viewed as an extension of a more simple speed-up where the 
 As a result, though, the Monte Carlo $p$-values are not strictly independent across barcodes.
 Instead, they are positively correlated as the same sampling choices are effectively shared between barcodes.
 This poses a theoretical problem for multiple testing correction with the Benjamini-Hochberg (BH) method, which relies on independent $p$-values.
-In practice, this is not a major issue as the BH method is robust to dependencies.
+In practice, this is not a major issue as the BH method is robust to dependencies \cite{reiner2003identifying,kim2008effects}.
 Moreover, increasing $R$ reduces the imprecision of the $p$-values caused by random sampling.
-This reduces the practical consequence of correlations between $p$-values.
-We use $R=10000$ by default, though this can be increased if the lower bound on the $p$-values \cite{phipson2010permutation} is greater than the threshold for significance.
+This means that the effect of correlated estimation errors between different $p$-values will become negligible at large $R$.
+We use $R=10000$ by default, though this can be increased if the lower bound on the $p$-values \cite{phipson2010permutation} is greater than the threshold for significance after the Benjamini-Hochberg correction.
 
 \bibliography{ref.bib}
 \bibliographystyle{unsrt}
