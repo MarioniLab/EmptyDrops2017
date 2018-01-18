@@ -14,13 +14,13 @@ FUN <- function(coloration, ...) {
     arrows(lowqual[1] - 7, lowqual[2], lowqual[1] - 3, angle=20, length=0.1, lwd=2)
 }
 
-COLBAR <- function(FUN) {
+COLBAR <- function(FUN, high.text="High", low.text="Low") {
     x <- max(coords[,1]) + diff(range(coords[,1])) * 0.1
     y <- 1:100/5
     y <- y - mean(y)
     rect(x, y, x+5, y+diff(y)[1]*1.5, col=FUN(length(y)), border=NA)
-    text(x+2.5, max(y), "High", pos=3)
-    text(x+2.5, min(y), "Low", pos=1)
+    text(x+2.5, max(y), high.text, pos=3)
+    text(x+2.5, min(y), low.text, pos=1)
 }
 
 # Making a plot of detection status.
@@ -61,13 +61,14 @@ dev.off()
 # Making a plot of mitochondrial gene expression.
 all.mito <- grep("^MT-", rownames(sce))
 by.gene <- Matrix::colSums(counts(sce)[all.mito,])/Matrix::colSums(counts(sce))
+by.gene <- pmin(by.gene, 0.2)
 by.segment <- cut(by.gene, 100)
-coloration <- magma(100)[by.segment]
+coloration <- plasma(100)[by.segment]
 
 pdf("pics/by_mito.pdf")
 par(mar=c(5.1, 4.1, 4.1, 4.1), xpd=TRUE)
 FUN(coloration, main="Mitochondrial proportion", cex.main=1.4)
-COLBAR(magma)
+COLBAR(magma, high.text=expression("" >= "20%"), low.text="0%")
 dev.off()
 
 

@@ -367,10 +367,11 @@ Thus, EmptyDrops can capture biology associated with small cells that would have
         \includegraphics[width=\textwidth]{../analysis/pics/by_mito.pdf}
         \caption{}
     \end{subfigure}
-    \caption{$t$-SNE plots generated for the PBMC dataset.
-        Each point represents a cell that is coloured by (a) detection status with either or both EmptyDrops and CellRanger, 
-        or expression of (b) platelet genes PF4 and PPBP, (c) ribosomal protein genes or (d) mitochondrial genes.
+    \caption{$t$-SNE plots for the PBMC dataset, constructed using the first 100 principal components of the normalized log-expression matrix.
+        Each point represents a cell that is coloured by (a) detection with either or both EmptyDrops and CellRanger, 
+        (b) expression of platelet genes PF4 and PPBP, (c) expression of ribosomal protein genes or (d) the proportion of counts assigned to mitochondrial genes.
         Expression in each cell was quantified as the sum of the normalized log-expression values across all genes in the relevant set.
+        Mitochondrial proportions are capped at 20\% to improve visibility.
     }
     \label{fig:realtsne}
 \end{figure}
@@ -473,8 +474,9 @@ We computed normalized log-expression values and modelled the mean-variance tren
 We performed principal components analysis on the expression matrix, taking the first 100 components as a low-rank approximation of the matrix in downstream steps.
 We clustered cells by creating a shared nearest neighbours graph \cite{xu2015identification} and detecting communities with the Walktrap algorithm from the \textsf{igraph} package.
 Clusters enriched for EmptyDrops-only cells were identified and characterised by detecting differentially expressed genes against every other cluster,
-using methods based on the \textsf{limma} package \cite{ritchie2015limma}.
+using pairwise $t$-tests in the \code{findMarkers} function from \textsf{scran}.
 A $t$-SNE plot \cite{van2008visualizing} was generated using methods from the \textsf{Rtsne} and \textsf{scater} packages \cite{mccarthy2017scater}.
+We used a perplexity of 20, though similar results were obtained with other values.
 
 \subsection*{Implementation details}
 EmptyDrops is implemented as the \code{emptyDrops} function in the \textsf{DropletUtils} package, available from version 3.7 of the Bioconductor project (\url{https://bioconductor.org/packages/DropletUtils}).
