@@ -59,14 +59,14 @@ COLBAR(inferno)
 dev.off()
 
 # Making a plot of mitochondrial gene expression.
-all.ribo <- grep("^MT-", rownames(sce))
-by.gene <- Matrix::colSums(logcounts(sce)[all.ribo,])
+all.mito <- grep("^MT-", rownames(sce))
+by.gene <- Matrix::colSums(counts(sce)[all.mito,])/Matrix::colSums(counts(sce))
 by.segment <- cut(by.gene, 100)
 coloration <- magma(100)[by.segment]
 
 pdf("pics/by_mito.pdf")
 par(mar=c(5.1, 4.1, 4.1, 4.1), xpd=TRUE)
-FUN(coloration, main="Ribosomal protein expression", cex.main=1.4)
+FUN(coloration, main="Mitochondrial proportion", cex.main=1.4)
 COLBAR(magma)
 dev.off()
 

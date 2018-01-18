@@ -19,7 +19,7 @@ ALLFILES <- c("pbmc4k/raw_gene_bc_matrices/GRCh38",
 set.seed(1000)
 plot.legend <- TRUE
 for (fname in ALLFILES) { 
-    sce <- read10xResults(file.path("..", "data", fname))
+    sce <- read10xCounts(file.path("..", "data", fname))
     totals <- colSums(counts(sce))
     ambient <- counts(sce)[,totals<=100 & totals > 0]
     out <- testEmptyDrops(ambient, test.ambient=TRUE)
