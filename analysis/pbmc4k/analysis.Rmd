@@ -76,12 +76,8 @@ head(rowData(sce))
 We relabel the rows with the gene symbols for easier reading.
 
 ```{r}
-new.names <- rowData(sce)$SYMBOL
-missing.name <- is.na(new.names)
-new.names[missing.name] <- rowData(sce)$ENSEMBL[missing.name]
-dup.name <- new.names %in% new.names[duplicated(new.names)]
-new.names[dup.name] <- paste0(new.names, "_", rowData(sce)$ENSEMBL)[dup.name]
-rownames(sce) <- new.names
+library(scater)
+rownames(sce) <- uniquifyFeatureNames(rowData(sce)$ENSEMBL, rowData(sce)$SYMBOL)
 head(rownames(sce))
 ```
 
@@ -100,11 +96,10 @@ Cell detection can be considered an implicit quality control step, so no extra s
 Nonetheless, we examine some commonly used metrics.
 
 ```{r qchist, fig.wide=TRUE, fig.asp=0.5}
-library(scater)
 sce <- calculateQCMetrics(sce, feature_controls=list(Mito=which(location=="MT")))
 par(mfrow=c(1,3))
 hist(log10(sce$total_counts), breaks=20, col="grey80")
-hist(log10(sce$total_features), breaks=20, col="grey80")
+hist(log10(sce$total_features_by_counts), breaks=20, col="grey80")
 hist(sce$pct_counts_Mito, breaks=20, col="grey80")
 ```
 
@@ -112,7 +107,7 @@ Interestingly, a large number of the features with low total counts also have hi
 
 ```{r qcscatter, fig.wide=TRUE}
 par(mfrow=c(1,2))
-plot(sce$total_features, sce$pct_counts_Mito)
+plot(sce$total_features_by_counts, sce$pct_counts_Mito)
 plot(sce$total_counts, sce$pct_counts_Mito)
 ```
 
@@ -256,11 +251,15 @@ plotTSNE(sce, colour_by="Cluster")
 ```
 
 Also examining their modularity scores.
+We look at the ratio of the observed and expected edge weights, as the raw modularity varies by orders of magnitudes across clusters.
 
 ```{r}
-cluster.mod <- clusterModularity(snn.gr, sce$Cluster)
+cluster.mod <- clusterModularity(snn.gr, sce$Cluster, get.values=TRUE)
+log.ratio <- log2(cluster.mod$observed/cluster.mod$expected + 1)
+library(pheatmap)
+pheatmap(log.ratio, cluster_rows=FALSE, cluster_cols=FALSE, 
+    color=colorRampPalette(c("white", "blue"))(100))
 ```
-
 
 # Marker gene detection
 

@@ -121,12 +121,8 @@ We relabel the rows with the gene symbols for easier reading.
 
 
 ```r
-new.names <- rowData(sce)$SYMBOL
-missing.name <- is.na(new.names)
-new.names[missing.name] <- rowData(sce)$ENSEMBL[missing.name]
-dup.name <- new.names %in% new.names[duplicated(new.names)]
-new.names[dup.name] <- paste0(new.names, "_", rowData(sce)$ENSEMBL)[dup.name]
-rownames(sce) <- new.names
+library(scater)
+rownames(sce) <- uniquifyFeatureNames(rowData(sce)$ENSEMBL, rowData(sce)$SYMBOL)
 head(rownames(sce))
 ```
 
@@ -157,11 +153,10 @@ Nonetheless, we examine some commonly used metrics.
 
 
 ```r
-library(scater)
 sce <- calculateQCMetrics(sce, feature_controls=list(Mito=which(location=="MT")))
 par(mfrow=c(1,3))
 hist(log10(sce$total_counts), breaks=20, col="grey80")
-hist(log10(sce$total_features), breaks=20, col="grey80")
+hist(log10(sce$total_features_by_counts), breaks=20, col="grey80")
 hist(sce$pct_counts_Mito, breaks=20, col="grey80")
 ```
 
@@ -172,7 +167,7 @@ Interestingly, a large number of the features with low total counts also have hi
 
 ```r
 par(mfrow=c(1,2))
-plot(sce$total_features, sce$pct_counts_Mito)
+plot(sce$total_features_by_counts, sce$pct_counts_Mito)
 plot(sce$total_counts, sce$pct_counts_Mito)
 ```
 
@@ -357,7 +352,7 @@ plotTSNE(sce, colour_by="Detection")
 
 <img src="analysis_files/figure-html/unnamed-chunk-16-1.png" width="100%" />
 
-# Clustering and marker gene detection
+# Clustering with graph-based methods
 
 We use the shared nearest neighbour method for clustering.
 
@@ -385,6 +380,22 @@ plotTSNE(sce, colour_by="Cluster")
 ```
 
 <img src="analysis_files/figure-html/unnamed-chunk-18-1.png" width="100%" />
+
+Also examining their modularity scores.
+We look at the ratio of the observed and expected edge weights, as the raw modularity varies by orders of magnitudes across clusters.
+
+
+```r
+cluster.mod <- clusterModularity(snn.gr, sce$Cluster, get.values=TRUE)
+log.ratio <- log2(cluster.mod$observed/cluster.mod$expected + 1)
+library(pheatmap)
+pheatmap(log.ratio, cluster_rows=FALSE, cluster_cols=FALSE, 
+    color=colorRampPalette(c("white", "blue"))(100))
+```
+
+<img src="analysis_files/figure-html/unnamed-chunk-19-1.png" width="100%" />
+
+# Marker gene detection
 
 Detecting marker genes for each cluster.
 
@@ -485,17 +496,18 @@ sessionInfo()
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] scran_1.7.13               scater_1.7.4              
-##  [3] ggplot2_2.2.1              EnsDb.Hsapiens.v86_2.99.0 
-##  [5] ensembldb_2.3.7            AnnotationFilter_1.3.0    
-##  [7] GenomicFeatures_1.31.1     AnnotationDbi_1.41.4      
-##  [9] DropletUtils_0.99.14       SingleCellExperiment_1.1.2
-## [11] SummarizedExperiment_1.9.7 DelayedArray_0.5.16       
-## [13] matrixStats_0.52.2         Biobase_2.39.1            
-## [15] GenomicRanges_1.31.6       GenomeInfoDb_1.15.1       
-## [17] IRanges_2.13.10            S4Vectors_0.17.22         
-## [19] BiocGenerics_0.25.1        BiocParallel_1.13.1       
-## [21] knitr_1.18                 BiocStyle_2.7.5           
+##  [1] pheatmap_1.0.8             scran_1.7.13              
+##  [3] scater_1.7.4               ggplot2_2.2.1             
+##  [5] EnsDb.Hsapiens.v86_2.99.0  ensembldb_2.3.7           
+##  [7] AnnotationFilter_1.3.0     GenomicFeatures_1.31.1    
+##  [9] AnnotationDbi_1.41.4       DropletUtils_0.99.14      
+## [11] SingleCellExperiment_1.1.2 SummarizedExperiment_1.9.7
+## [13] DelayedArray_0.5.16        matrixStats_0.52.2        
+## [15] Biobase_2.39.1             GenomicRanges_1.31.6      
+## [17] GenomeInfoDb_1.15.1        IRanges_2.13.10           
+## [19] S4Vectors_0.17.22          BiocGenerics_0.25.1       
+## [21] BiocParallel_1.13.1        knitr_1.18                
+## [23] BiocStyle_2.7.5           
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] ProtGenerics_1.11.0      bitops_1.0-6            
@@ -538,9 +550,8 @@ sessionInfo()
 ## [75] data.table_1.10.4-3      httpuv_1.3.5            
 ## [77] gtable_0.2.0             assertthat_0.2.0        
 ## [79] mime_0.5                 xtable_1.8-2            
-## [81] viridisLite_0.2.0        pheatmap_1.0.8          
-## [83] tibble_1.4.1             GenomicAlignments_1.15.4
-## [85] beeswarm_0.2.3           memoise_1.1.0           
-## [87] tximport_1.7.4           bindrcpp_0.2            
-## [89] statmod_1.4.30
+## [81] viridisLite_0.2.0        tibble_1.4.1            
+## [83] GenomicAlignments_1.15.4 beeswarm_0.2.3          
+## [85] memoise_1.1.0            tximport_1.7.4          
+## [87] bindrcpp_0.2             statmod_1.4.30
 ```
