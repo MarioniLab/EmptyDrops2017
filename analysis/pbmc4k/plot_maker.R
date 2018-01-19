@@ -36,7 +36,7 @@ dev.off()
 # Making a plot of PF4 and PPBP expression.
 library(viridis)
 
-by.gene <- Matrix::colSums(logcounts(sce)[c("GP9", "PPBP", "PF4"),])
+by.gene <- Matrix::colSums(logcounts(sce)[c("PPBP", "PF4"),])
 by.segment <- cut(by.gene, 100)
 coloration <- viridis(100)[by.segment]
 
@@ -59,16 +59,15 @@ COLBAR(inferno)
 dev.off()
 
 # Making a plot of mitochondrial gene expression.
-all.mito <- grep("^MT-", rownames(sce))
-by.gene <- Matrix::colSums(counts(sce)[all.mito,])/Matrix::colSums(counts(sce))
-by.gene <- pmin(by.gene, 0.2)
+by.gene <- sce$pct_counts_Mito
+by.gene <- pmin(by.gene, 20)
 by.segment <- cut(by.gene, 100)
 coloration <- plasma(100)[by.segment]
 
 pdf("pics/by_mito.pdf")
 par(mar=c(5.1, 4.1, 4.1, 4.1), xpd=TRUE)
 FUN(coloration, main="Mitochondrial proportion", cex.main=1.4)
-COLBAR(magma, high.text=expression("" >= "20%"), low.text="0%")
+COLBAR(plasma, high.text=expression("" >= "20%"), low.text="0%")
 dev.off()
 
 
