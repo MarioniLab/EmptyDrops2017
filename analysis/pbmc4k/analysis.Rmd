@@ -21,8 +21,8 @@ First, we load in the raw count matrix:
 
 ```{r}
 library(DropletUtils)
-fname <- "../data/pbmc4k/raw_gene_bc_matrices/GRCh38"
-sce <- read10xCounts(file.path("..", "data", fname), col.names=TRUE)
+fname <- "../../data/pbmc4k/raw_gene_bc_matrices/GRCh38"
+sce <- read10xCounts(fname, col.names=TRUE)
 sce
 ```
 
@@ -238,7 +238,7 @@ sce <- runTSNE(sce, use_dimred="PCA", perplexity=20, rand_seed=100)
 plotTSNE(sce, colour_by="Detection")
 ```
 
-# Clustering and marker gene detection
+# Clustering with graph-based methods
 
 We use the shared nearest neighbour method for clustering.
 
@@ -254,6 +254,15 @@ Plotting them out to verify separateness.
 sce$Cluster <- factor(clusters$membership)
 plotTSNE(sce, colour_by="Cluster")
 ```
+
+Also examining their modularity scores.
+
+```{r}
+cluster.mod <- clusterModularity(snn.gr, sce$Cluster)
+```
+
+
+# Marker gene detection
 
 Detecting marker genes for each cluster.
 
@@ -271,40 +280,20 @@ Focusing on cluster 10, which seems to be made of platelets:
 
 ```{r heatmap8, fig.wide=TRUE}
 current <- marker.out[["10"]]
-cur.exprs <- logcounts(sce)[rownames(current)[current$Top <= 10],]
-
-library(Matrix)
-cur.exprs <- cur.exprs - rowMeans(cur.exprs)
-cur.exprs[cur.exprs > 5] <- 5
-cur.exprs[cur.exprs < -5] <- -5
-
-cols <- scater:::.get_palette("tableau20")[1:nlevels(sce$Cluster)]
-cols <- setNames(cols, levels(sce$Cluster))
-
-o <- order(sce$Cluster)
-library(pheatmap)
-pheatmap(cur.exprs[,o], cluster_cols=FALSE, 
-    breaks=seq(-5, 5, length.out=101),
-    annotation_col=as.data.frame(colData(sce)[,"Cluster",drop=FALSE]),
-    annotation_colors=list(Cluster=cols))
+chosen <- rownames(current)[current$Top <= 10]
+plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
+    zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
+    colour_columns_by="Cluster", columns=order(sce$Cluster))
 ```
 
 ... and 5, which seems to contain damaged cells with high mitochondrial content:
 
 ```{r heatmap6, fig.wide=TRUE}
 current <- marker.out[["5"]]
-cur.exprs <- logcounts(sce)[rownames(current)[current$Top <= 10],]
-
-cur.exprs <- cur.exprs - rowMeans(cur.exprs)
-cur.exprs[cur.exprs > 5] <- 5
-cur.exprs[cur.exprs < -5] <- -5
-
-o <- order(sce$Cluster)
-library(pheatmap)
-pheatmap(cur.exprs[,o], cluster_cols=FALSE, 
-    breaks=seq(-6, 6, length.out=101),
-    annotation_col=as.data.frame(colData(sce)[,"Cluster",drop=FALSE]),
-    annotation_colors=list(Cluster=cols))
+chosen <- rownames(current)[current$Top <= 10]
+plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
+    zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
+    colour_columns_by="Cluster", columns=order(sce$Cluster))
 ```
 
 # Wrapping up
