@@ -152,7 +152,7 @@ We cluster cells together to improve the accuracy of the pooling later.
 
 ```{r}
 library(scran)
-clusters <- quickCluster(sce, method="igraph", irlba.args=list(maxit=1000))
+clusters <- quickCluster(sce, method="igraph", subset.row=ave >= 0.1)
 table(clusters)
 ```
 
@@ -225,7 +225,7 @@ plotPCA(sce, ncomponents=3, colour_by="Detection")
 Same with using _t_-SNE for visualization.
 
 ```{r}
-sce <- runTSNE(sce, use_dimred="PCA", perplexity=20, rand_seed=100)
+sce <- runTSNE(sce, use_dimred="PCA", perplexity=10, rand_seed=100)
 plotTSNE(sce, colour_by="Detection")
 ```
 
@@ -281,10 +281,10 @@ plotHeatmap(sce, features=chosen, exprs_values="logcounts",
     colour_columns_by="Cluster", columns=order(sce$Cluster))
 ```
 
-... and 2:
+... and 9, which seems to be interneurons:
 
 ```{r heatmap6, fig.wide=TRUE}
-current <- marker.out[["2"]]
+current <- marker.out[["9"]]
 chosen <- rownames(current)[current$Top <= 20]
 plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
     zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,

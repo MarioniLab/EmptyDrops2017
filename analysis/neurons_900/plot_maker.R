@@ -6,11 +6,13 @@ coords <- reducedDim(sce, "TSNE")
 dir.create("pics", showWarning=FALSE)
 
 # Defining arrow coordinates.
-interneuron <- colMeans(coords[sce$Cluster=="2",]) 
+interneuron <- colMeans(coords[sce$Cluster=="9",]) 
 FUN <- function(coloration, ...) {
     plot(coords[,1], coords[,2], col=coloration, pch=16, xlab="t-SNE1", ylab="t-SNE2", cex.axis=1.2, cex.lab=1.4, ...)
-    SHIFT <- 12
-    arrows(interneuron[1] - SHIFT - 4, interneuron[2], interneuron[1] - SHIFT, angle=20, length=0.1, lwd=2)
+    SHIFT <- c(0, -16)
+    WIDTH <- c(0, 4)
+    arrows(interneuron[1] - SHIFT[1] - WIDTH[1], interneuron[2] - SHIFT[2], 
+           interneuron[1] - SHIFT[1], interneuron[2] - SHIFT[2] - WIDTH[2], angle=20, length=0.1, lwd=2)
 }
 
 COLBAR <- function(FUN, high.text="High", low.text="Low") {
