@@ -477,19 +477,25 @@ UpSet plots were created with using the \textsf{UpSetR} package \cite{lex2014ups
 
 \subsection*{Characterizing detected cells in real datasets}
 We analyzed the 10X PBMC dataset by adapting an existing workflow for scRNA-seq data analysis \cite{lun2016stepbystep}.
-First, we took the union of all cells detected by either CellRanger or EmptyDrops to simplify downstream comparisons between the two methods.
-We calculated cell-specific size factors using the deconvolution method \cite{lun2016pooling}, with pre-clustering of cells based on the Spearman rank correlation.
-(Cells with very low total counts were also clustered together to avoid negative size factors when very large and small cells are pooled together.)
-We computed normalized log-expression values and modelled the mean-variance trend, assuming Poisson technical noise.
-We performed principal components analysis on the expression matrix, taking the first 100 components as a low-rank approximation of the matrix in downstream steps.
-We clustered cells by creating a shared nearest neighbours graph \cite{xu2015identification} and detecting communities with the Walktrap algorithm from the \textsf{igraph} package.
-Clusters enriched for EmptyDrops-only cells were identified and characterised by detecting differentially expressed genes against every other cluster,
-using pairwise $t$-tests in the \code{findMarkers} function from \textsf{scran}.
-A $t$-SNE plot \cite{van2008visualizing} was generated using methods from the \textsf{Rtsne} and \textsf{scater} packages \cite{mccarthy2017scater}.
-We used a perplexity of 20, though similar results were obtained with other values.
+We performed the analysis on the union of all cells detected by either CellRanger or EmptyDrops to simplify downstream comparisons between the two methods.
+First, we calculated cell-specific size factors using the deconvolution method \cite{lun2016pooling}, with pre-clustering of cells based on the Spearman rank correlation.
+We divided the counts by the size factors to obtain normalized log-expression values.
 
-We performed a similar analysis on the 900 brain cell dataset, with the only difference being that cells with high haemoglobin expression were removed \textit{a priori}.
+We calculated the biological contribution of the variance for each gene, assuming Poisson technical noise when modelling the mean-variance trend.
+We performed principal components analysis on the log-expression matrix using the \textsf{irlba} package.
+We used the first few components as a low-rank approximation of the matrix to speed up downstream steps.
+The exact number of components was determined using the \code{denoisePCA} function in \textsf{scran},
+which matches the sum of biological contributions across all genes to the variance explained by the chosen number of components.
+
+We clustered cells by creating a shared nearest neighbours graph \cite{xu2015identification} and detecting communities with the Walktrap algorithm from the \textsf{igraph} package.
+Clusters enriched for EmptyDrops-only cells were characterised by detecting differentially expressed genes against every other cluster,
+using pairwise $t$-tests in the \code{findMarkers} function from \textsf{scran}.
+A $t$-SNE plot \cite{van2008visualizing} was generated using from the \textsf{Rtsne} and \textsf{scater} packages \cite{mccarthy2017scater}.
+We used a perplexity of 30, though similar plots were obtained with other values.
+
+We performed a similar analysis on the 900 brain cell dataset, with the main difference being that cells with high haemoglobin expression were removed \textit{a priori}.
 These likely correspond to contaminating red blood cells that are not of interest.
+We also used a lower perplexity of 10 for the $t$-SNE plots as fewer cells were present.
 
 \subsection*{Implementation details}
 EmptyDrops is implemented as the \code{emptyDrops} function in the \textsf{DropletUtils} package, available from version 3.7 of the Bioconductor project (\url{https://bioconductor.org/packages/DropletUtils}).
