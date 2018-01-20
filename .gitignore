@@ -9,9 +9,10 @@
 *.out
 *.pdf
 
+analysis.utf8.md
+analysis_files/
 
 analysis/neurons_900/figure/
-analysis/pbmc4k/analysis_files/
 analysis/pbmc4k/figure/
 data/293t/
 data/jurkat/

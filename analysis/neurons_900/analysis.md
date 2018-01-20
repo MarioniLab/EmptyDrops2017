@@ -361,7 +361,7 @@ Same with using _t_-SNE for visualization.
 
 
 ```r
-sce <- runTSNE(sce, use_dimred="PCA", perplexity=20, rand_seed=100)
+sce <- runTSNE(sce, use_dimred="PCA", perplexity=10, rand_seed=100)
 plotTSNE(sce, colour_by="Detection")
 ```
 
@@ -451,11 +451,11 @@ plotHeatmap(sce, features=chosen, exprs_values="logcounts",
 
 <img src="analysis_files/figure-html/heatmap8-1.png" width="100%"  class="widefigure" />
 
-... and 2:
+... and 9, which seems to be interneurons:
 
 
 ```r
-current <- marker.out[["2"]]
+current <- marker.out[["9"]]
 chosen <- rownames(current)[current$Top <= 20]
 plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
     zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
