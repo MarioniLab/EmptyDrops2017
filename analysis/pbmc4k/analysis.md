@@ -148,7 +148,7 @@ summary(location=="MT")
 
 # Quality control on the cells
 
-Cell detection can be considered an implicit quality control step, so no extra steps are needed.
+Cell detection can be considered an implicit quality control step, so technically, no extra steps are needed.
 Nonetheless, we examine some commonly used metrics.
 
 
@@ -201,24 +201,20 @@ plotHighestExprs(sce)
 
 # Normalizing for cell-specific biases
 
-All cells with outlier values for the library size are defined as one cluster.
-This is necessary to avoid problems when normalizing very small libraries with the large libraries.
-Everything else is used in clustering with `quickCluster`.
+We perform some pre-clustering to break up obvious clusters.
 
 
 ```r
 library(scran)
-low.lib <- isOutlier(sce$total_counts, nmads=3, type="lower", log=TRUE)
-clusters <- numeric(length(low.lib))
-clusters[!low.lib] <- quickCluster(sce[,!low.lib], method="igraph",
-    subset.row=ave>=0.1, irlba.args=list(maxit=1000)) # for convergence.
+clusters <- quickCluster(sce, method="igraph", subset.row=ave>=0.1, 
+    irlba.args=list(maxit=1000)) # for convergence.
 table(clusters)
 ```
 
 ```
 ## clusters
-##    0    1    2    3    4 
-##  363  203  608 2488 1102
+##    1    2    3 
+##  415 2347 2002
 ```
 
 We then use the deconvolution method to compute size factors for each cell.
@@ -231,7 +227,7 @@ summary(sizeFactors(sce))
 
 ```
 ##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
-##  0.007114  0.682433  0.909410  1.000000  1.171121 13.484090
+## -0.004299  0.660967  0.913900  0.999158  1.162356 10.936650
 ```
 
 We can plot these against the library sizes to see how much of a difference it makes.
@@ -242,6 +238,30 @@ plot(sce$total_counts, sizeFactors(sce), log="xy")
 ```
 
 <img src="analysis_files/figure-html/sfplot-1.png" width="100%" />
+
+Note that some size factors are very small and negative. 
+This represents cells that have so few expressed features that it is not possible to obtain a sensible size factor.
+
+
+```r
+neg.sf <- sizeFactors(sce)<0
+summary(neg.sf)
+```
+
+```
+##    Mode   FALSE    TRUE 
+## logical    4760       4
+```
+
+Instead, we replace the size factor with the (scaled) library size.
+
+
+```r
+library(Matrix)
+lib.sizes <- colSums(counts(sce))
+scaled.lib.sizes <- lib.sizes/mean(lib.sizes)
+sizeFactors(sce)[neg.sf] <- scaled.lib.sizes[neg.sf]
+```
 
 Finally, we compute normalized log-expresion values.
 
@@ -256,21 +276,7 @@ We assume that the technical noise is Poisson and create a fitted trend on that 
 
 
 ```r
-means <- c(0:10, seq(11, max(ave), length.out=20))
-tol <- 1e-8
-collected.means <- collected.vars <- numeric(length(means))
-for (i in seq_along(means)) {
-    m <- means[i]
-    lower <- qpois(tol, lambda=m)
-    upper <- qpois(tol, lambda=m, lower=FALSE)
-    ranged <- lower:upper
-    p <- dpois(ranged, lambda=m)
-    lvals <- log2(ranged + 1)
-    lmean <- sum(lvals * p) / sum(p)
-    collected.means[i] <- lmean
-    collected.vars[i] <- sum((lvals - lmean)^2 * p) / sum(p)
-}
-new.trend <- splinefun(collected.means, collected.vars)
+new.trend <- makeTechTrend(x=sce)
 ```
 
 We actually estimate the variances and plot the trend against the original variances as well.
@@ -296,12 +302,12 @@ head(top.dec)
 
 ```
 ##             mean    total      bio      tech p.value FDR
-## LYZ     1.907466 5.057544 4.084819 0.9727253       0   0
-## S100A9  1.877589 4.571260 3.604340 0.9669195       0   0
-## S100A8  1.682848 4.504609 3.574976 0.9296337       0   0
-## HLA-DRA 1.998496 3.603509 2.613700 0.9898088       0   0
-## CD74    2.726807 3.403452 2.307571 1.0958811       0   0
-## CST3    1.405345 2.815407 1.945260 0.8701464       0   0
+## LYZ     1.913139 5.068595 4.056640 1.0119545       0   0
+## S100A9  1.886379 4.602469 3.595864 1.0066042       0   0
+## S100A8  1.693172 4.561085 3.592223 0.9688621       0   0
+## HLA-DRA 2.010263 3.686198 2.655423 1.0307744       0   0
+## CD74    2.739638 3.496692 2.359398 1.1372939       0   0
+## CST3    1.407413 2.824938 1.922024 0.9029148       0   0
 ```
 
 We can plot the genes with the largest biological components, to verify that they are indeed highly variable.
@@ -324,14 +330,14 @@ ncol(reducedDim(sce, "PCA"))
 ```
 
 ```
-## [1] 100
+## [1] 20
 ```
 
 ```r
 plot(attr(reducedDim(sce), "percentVar"))
 ```
 
-<img src="analysis_files/figure-html/unnamed-chunk-15-1.png" width="100%" />
+<img src="analysis_files/figure-html/unnamed-chunk-17-1.png" width="100%" />
 
 We can plot the first few components.
 
@@ -346,11 +352,11 @@ Same with using _t_-SNE for visualization.
 
 
 ```r
-sce <- runTSNE(sce, use_dimred="PCA", perplexity=20, rand_seed=100)
+sce <- runTSNE(sce, use_dimred="PCA", perplexity=30, rand_seed=100)
 plotTSNE(sce, colour_by="Detection")
 ```
 
-<img src="analysis_files/figure-html/unnamed-chunk-16-1.png" width="100%" />
+<img src="analysis_files/figure-html/unnamed-chunk-18-1.png" width="100%" />
 
 # Clustering with graph-based methods
 
@@ -366,7 +372,7 @@ table(clusters$membership)
 ```
 ## 
 ##    1    2    3    4    5    6    7    8    9   10   11   12   13   14   15 
-##   60 1015  400 1314  238  219  513   56   67   54  452  174   92   23   51 
+##  233  968  538  377  619  125 1151  174  102  211   93   35   32   55   15 
 ##   16 
 ##   36
 ```
@@ -379,7 +385,7 @@ sce$Cluster <- factor(clusters$membership)
 plotTSNE(sce, colour_by="Cluster")
 ```
 
-<img src="analysis_files/figure-html/unnamed-chunk-18-1.png" width="100%" />
+<img src="analysis_files/figure-html/unnamed-chunk-20-1.png" width="100%" />
 
 Also examining their modularity scores.
 We look at the ratio of the observed and expected edge weights, as the raw modularity varies by orders of magnitudes across clusters.
@@ -393,7 +399,7 @@ pheatmap(log.ratio, cluster_rows=FALSE, cluster_cols=FALSE,
     color=colorRampPalette(c("white", "blue"))(100))
 ```
 
-<img src="analysis_files/figure-html/unnamed-chunk-19-1.png" width="100%" />
+<img src="analysis_files/figure-html/unnamed-chunk-21-1.png" width="100%" />
 
 # Marker gene detection
 
@@ -414,29 +420,29 @@ table(sce$Cluster, sce$Detection)
 ```
 ##     
 ##      Both CellRanger EmptyDrops
-##   1    57          0          3
-##   2   903         12        100
-##   3   356         33         11
-##   4  1106        203          5
-##   5     6          0        232
-##   6   197         22          0
-##   7   499          6          8
-##   8    55          1          0
-##   9    67          0          0
-##   10    3          0         51
-##   11  418         31          3
-##   12  161          0         13
-##   13   91          0          1
-##   14   20          1          2
-##   15   49          2          0
+##   1    13          0        220
+##   2   939         14         15
+##   3   519         10          9
+##   4   356         18          3
+##   5   554         55         10
+##   6   124          1          0
+##   7   964        181          6
+##   8   161          0         13
+##   9    18          0         84
+##   10  179         31          1
+##   11   93          0          0
+##   12   35          0          0
+##   13   29          1          2
+##   14    4          0         51
+##   15    0          0         15
 ##   16   36          0          0
 ```
 
-Focusing on cluster 10, which seems to be made of platelets:
+Focusing on cluster 14, which seems to be made of platelets:
 
 
 ```r
-current <- marker.out[["10"]]
+current <- marker.out[["14"]]
 chosen <- rownames(current)[current$Top <= 10]
 plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
     zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
@@ -449,7 +455,7 @@ plotHeatmap(sce, features=chosen, exprs_values="logcounts",
 
 
 ```r
-current <- marker.out[["5"]]
+current <- marker.out[["1"]]
 chosen <- rownames(current)[current$Top <= 10]
 plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
     zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
@@ -496,18 +502,18 @@ sessionInfo()
 ## [8] methods   base     
 ## 
 ## other attached packages:
-##  [1] pheatmap_1.0.8             scran_1.7.13              
-##  [3] scater_1.7.4               ggplot2_2.2.1             
-##  [5] EnsDb.Hsapiens.v86_2.99.0  ensembldb_2.3.7           
-##  [7] AnnotationFilter_1.3.0     GenomicFeatures_1.31.1    
-##  [9] AnnotationDbi_1.41.4       DropletUtils_0.99.14      
-## [11] SingleCellExperiment_1.1.2 SummarizedExperiment_1.9.7
-## [13] DelayedArray_0.5.16        matrixStats_0.52.2        
-## [15] Biobase_2.39.1             GenomicRanges_1.31.6      
-## [17] GenomeInfoDb_1.15.1        IRanges_2.13.10           
-## [19] S4Vectors_0.17.22          BiocGenerics_0.25.1       
-## [21] BiocParallel_1.13.1        knitr_1.18                
-## [23] BiocStyle_2.7.5           
+##  [1] pheatmap_1.0.8             Matrix_1.2-12             
+##  [3] scran_1.7.13               scater_1.7.4              
+##  [5] ggplot2_2.2.1              EnsDb.Hsapiens.v86_2.99.0 
+##  [7] ensembldb_2.3.7            AnnotationFilter_1.3.0    
+##  [9] GenomicFeatures_1.31.1     AnnotationDbi_1.41.4      
+## [11] DropletUtils_0.99.14       SingleCellExperiment_1.1.2
+## [13] SummarizedExperiment_1.9.7 DelayedArray_0.5.16       
+## [15] matrixStats_0.52.2         Biobase_2.39.1            
+## [17] GenomicRanges_1.31.6       GenomeInfoDb_1.15.1       
+## [19] IRanges_2.13.10            S4Vectors_0.17.22         
+## [21] BiocGenerics_0.25.1        BiocParallel_1.13.1       
+## [23] knitr_1.18                 BiocStyle_2.7.5           
 ## 
 ## loaded via a namespace (and not attached):
 ##  [1] ProtGenerics_1.11.0      bitops_1.0-6            
@@ -533,25 +539,25 @@ sessionInfo()
 ## [41] DelayedMatrixStats_1.1.4 bindr_0.1               
 ## [43] dplyr_0.7.4              RCurl_1.95-4.10         
 ## [45] magrittr_1.5             GenomeInfoDbData_1.1.0  
-## [47] Matrix_1.2-12            Rcpp_0.12.14            
-## [49] ggbeeswarm_0.6.0         munsell_0.4.3           
-## [51] Rhdf5lib_1.1.5           viridis_0.4.1           
-## [53] stringi_1.1.6            yaml_2.1.16             
-## [55] edgeR_3.21.6             zlibbioc_1.25.0         
-## [57] Rtsne_0.13               rhdf5_2.23.4            
-## [59] plyr_1.8.4               grid_3.5.0              
-## [61] blob_1.1.0               shinydashboard_0.6.1    
-## [63] lattice_0.20-35          cowplot_0.9.2           
-## [65] Biostrings_2.47.2        locfit_1.5-9.1          
-## [67] pillar_1.1.0             igraph_1.1.2            
-## [69] rjson_0.2.15             reshape2_1.4.3          
-## [71] biomaRt_2.35.8           XML_3.98-1.9            
-## [73] glue_1.2.0               evaluate_0.10.1         
-## [75] data.table_1.10.4-3      httpuv_1.3.5            
-## [77] gtable_0.2.0             assertthat_0.2.0        
-## [79] mime_0.5                 xtable_1.8-2            
-## [81] viridisLite_0.2.0        tibble_1.4.1            
-## [83] GenomicAlignments_1.15.4 beeswarm_0.2.3          
-## [85] memoise_1.1.0            tximport_1.7.4          
-## [87] bindrcpp_0.2             statmod_1.4.30
+## [47] Rcpp_0.12.14             ggbeeswarm_0.6.0        
+## [49] munsell_0.4.3            Rhdf5lib_1.1.5          
+## [51] viridis_0.4.1            stringi_1.1.6           
+## [53] yaml_2.1.16              edgeR_3.21.6            
+## [55] zlibbioc_1.25.0          Rtsne_0.13              
+## [57] rhdf5_2.23.4             plyr_1.8.4              
+## [59] grid_3.5.0               blob_1.1.0              
+## [61] shinydashboard_0.6.1     lattice_0.20-35         
+## [63] cowplot_0.9.2            Biostrings_2.47.2       
+## [65] locfit_1.5-9.1           pillar_1.1.0            
+## [67] igraph_1.1.2             rjson_0.2.15            
+## [69] reshape2_1.4.3           biomaRt_2.35.8          
+## [71] XML_3.98-1.9             glue_1.2.0              
+## [73] evaluate_0.10.1          data.table_1.10.4-3     
+## [75] httpuv_1.3.5             gtable_0.2.0            
+## [77] assertthat_0.2.0         mime_0.5                
+## [79] xtable_1.8-2             viridisLite_0.2.0       
+## [81] tibble_1.4.1             GenomicAlignments_1.15.4
+## [83] beeswarm_0.2.3           memoise_1.1.0           
+## [85] tximport_1.7.4           bindrcpp_0.2            
+## [87] statmod_1.4.30
 ```

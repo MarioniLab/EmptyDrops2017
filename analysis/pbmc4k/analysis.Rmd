@@ -92,7 +92,7 @@ summary(location=="MT")
 
 # Quality control on the cells
 
-Cell detection can be considered an implicit quality control step, so no extra steps are needed.
+Cell detection can be considered an implicit quality control step, so technically, no extra steps are needed.
 Nonetheless, we examine some commonly used metrics.
 
 ```{r qchist, fig.wide=TRUE, fig.asp=0.5}
@@ -133,16 +133,12 @@ plotHighestExprs(sce)
 
 # Normalizing for cell-specific biases
 
-All cells with outlier values for the library size are defined as one cluster.
-This is necessary to avoid problems when normalizing very small libraries with the large libraries.
-Everything else is used in clustering with `quickCluster`.
+We perform some pre-clustering to break up obvious clusters.
 
 ```{r}
 library(scran)
-low.lib <- isOutlier(sce$total_counts, nmads=3, type="lower", log=TRUE)
-clusters <- numeric(length(low.lib))
-clusters[!low.lib] <- quickCluster(sce[,!low.lib], method="igraph",
-    subset.row=ave>=0.1, irlba.args=list(maxit=1000)) # for convergence.
+clusters <- quickCluster(sce, method="igraph", subset.row=ave>=0.1, 
+    irlba.args=list(maxit=1000)) # for convergence.
 table(clusters)
 ```
 
@@ -159,6 +155,23 @@ We can plot these against the library sizes to see how much of a difference it m
 plot(sce$total_counts, sizeFactors(sce), log="xy")
 ```
 
+Note that some size factors are very small and negative. 
+This represents cells that have so few expressed features that it is not possible to obtain a sensible size factor.
+
+```{r}
+neg.sf <- sizeFactors(sce)<0
+summary(neg.sf)
+```
+
+Instead, we replace the size factor with the (scaled) library size.
+
+```{r}
+library(Matrix)
+lib.sizes <- colSums(counts(sce))
+scaled.lib.sizes <- lib.sizes/mean(lib.sizes)
+sizeFactors(sce)[neg.sf] <- scaled.lib.sizes[neg.sf]
+```
+
 Finally, we compute normalized log-expresion values.
 
 ```{r}
@@ -170,21 +183,7 @@ sce <- normalize(sce)
 We assume that the technical noise is Poisson and create a fitted trend on that basis.
 
 ```{r}
-means <- c(0:10, seq(11, max(ave), length.out=20))
-tol <- 1e-8
-collected.means <- collected.vars <- numeric(length(means))
-for (i in seq_along(means)) {
-    m <- means[i]
-    lower <- qpois(tol, lambda=m)
-    upper <- qpois(tol, lambda=m, lower=FALSE)
-    ranged <- lower:upper
-    p <- dpois(ranged, lambda=m)
-    lvals <- log2(ranged + 1)
-    lmean <- sum(lvals * p) / sum(p)
-    collected.means[i] <- lmean
-    collected.vars[i] <- sum((lvals - lmean)^2 * p) / sum(p)
-}
-new.trend <- splinefun(collected.means, collected.vars)
+new.trend <- makeTechTrend(x=sce)
 ```
 
 We actually estimate the variances and plot the trend against the original variances as well.
@@ -229,7 +228,7 @@ plotPCA(sce, ncomponents=3, colour_by="Detection")
 Same with using _t_-SNE for visualization.
 
 ```{r}
-sce <- runTSNE(sce, use_dimred="PCA", perplexity=20, rand_seed=100)
+sce <- runTSNE(sce, use_dimred="PCA", perplexity=30, rand_seed=100)
 plotTSNE(sce, colour_by="Detection")
 ```
 
@@ -275,10 +274,10 @@ Having a look at how the clusters interact with the detection status, so we can 
 table(sce$Cluster, sce$Detection)
 ```
 
-Focusing on cluster 10, which seems to be made of platelets:
+Focusing on cluster 14, which seems to be made of platelets:
 
 ```{r heatmap8, fig.wide=TRUE}
-current <- marker.out[["10"]]
+current <- marker.out[["14"]]
 chosen <- rownames(current)[current$Top <= 10]
 plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
     zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
@@ -288,7 +287,7 @@ plotHeatmap(sce, features=chosen, exprs_values="logcounts",
 ... and 5, which seems to contain damaged cells with high mitochondrial content:
 
 ```{r heatmap6, fig.wide=TRUE}
-current <- marker.out[["5"]]
+current <- marker.out[["1"]]
 chosen <- rownames(current)[current$Top <= 10]
 plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
     zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,

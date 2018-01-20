@@ -6,12 +6,20 @@ coords <- reducedDim(sce, "TSNE")
 dir.create("pics", showWarning=FALSE)
 
 # Defining arrow coordinates.
-platelets <- colMeans(coords[sce$Cluster=="10",]) 
-lowqual <- colMeans(coords[sce$Cluster=="5",]) 
+platelets <- colMeans(coords[sce$Cluster=="14",]) 
+lowqual <- colMeans(coords[sce$Cluster=="1",]) 
 FUN <- function(coloration, ...) {
     plot(coords[,1], coords[,2], col=coloration, pch=16, xlab="t-SNE1", ylab="t-SNE2", cex.axis=1.2, cex.lab=1.4, ...)
-    arrows(platelets[1] - 5, platelets[2], platelets[1] - 1, angle=20, length=0.1, lwd=2)
-    arrows(lowqual[1] - 7, lowqual[2], lowqual[1] - 3, angle=20, length=0.1, lwd=2)
+    SHIFT <- c(0, -7)
+    WIDTH <- c(0, 4)
+    arrows(platelets[1] - SHIFT[1] - WIDTH[1], platelets[2] - SHIFT[2],
+           platelets[1] - SHIFT[1], platelets[2] - SHIFT[2] - WIDTH[2],
+           angle=20, length=0.1, lwd=2, col="black")
+    SHIFT <- c(8, 3)
+    WIDTH <- c(4, 0)
+    arrows(lowqual[1] - SHIFT[1] - WIDTH[1], lowqual[2] - SHIFT[2], 
+           lowqual[1] - SHIFT[1], lowqual[2] - SHIFT[2] - WIDTH[2],
+           angle=20, length=0.1, lwd=2, col="black")
 }
 
 COLBAR <- function(FUN, high.text="High", low.text="Low") {
