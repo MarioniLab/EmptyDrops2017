@@ -231,4 +231,33 @@ The organism, cell type, expected number of cells and the version of the CellRan
 \PlotReal{neurons_900}{900 brain cell}
 \PlotReal{t_4k}{pan T cell}
 
+
+\begin{figure}[btp]
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../analysis/neurons_900/pics/by_detection.pdf}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../analysis/neurons_900/pics/by_interneuron.pdf}
+        \caption{}
+    \end{subfigure} \\[0.05in]
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../analysis/neurons_900/pics/by_ribo.pdf}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../analysis/neurons_900/pics/by_mito.pdf}
+        \caption{}
+    \end{subfigure}
+    \caption{$t$-SNE plots for the 900 brain cell dataset, constructed using the first 100 principal components of the normalized log-expression matrix.
+        Each point represents a cell that is coloured by (a) detection with EmptyDrops alone or both CellRanger and EmptyDrops, 
+        (b) expression of interneuron markers \textit{Gad1}, \textit{Gad2} and \textit{Sla6c1}, (c) expression of ribosomal protein genes or (d) the proportion of counts assigned to mitochondrial genes.
+        Expression in each cell was quantified as the sum of the normalized log-expression values across all genes in the relevant set.
+        Mitochondrial proportions are capped at 20\% to improve visibility.     
+        The arrow marks the putative interneuron population.
+    }
+    \label{fig:realtsne}
+\end{figure}
+
+
 \end{document}
