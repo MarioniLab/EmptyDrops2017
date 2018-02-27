@@ -6,7 +6,7 @@ To reproduce the results in the manuscript:
 1. Enter `data` and run `download.sh`, which will download publicly available data fromn the 10X Genomics website.
 2. Enter `simulations` and run `simrun.R`, which will perform simulations based on the real datasets to assess cell detection methods.
 Run `plotsim.R` to recreate the plots in the manuscript for the simulation results.
-3. Enter `simulations` and run `negcheck.R`, which will apply cell detection methods to the real datasets.
+3. Enter `simulations` and run `realrun.R`, which will apply cell detection methods to the real datasets.
 4. Enter `simulations` and run `negcheck.R`, which will examine the p-value distribution reported by _EmptyDrops_ for low-count barcodes.
 5. Enter `analysis/pbmc4k` and run `analysis.Rmd`, which will perform the analysis of the PBMC dataset.
 Compare to the expected results in `analysis.md`.
