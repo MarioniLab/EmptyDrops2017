@@ -213,7 +213,7 @@ This avoids multiplication of errors during numerical differentiation, which wou
 Our assumption is that any barcode with a large total count must represent a cell-containing droplet, regardless of whether its count profile resembles the ambient pool.
 This is based on the expectation that the distribution of the sizes of empty droplets should be unimodal, with a monotonic decreasing probability density as $t_b$ increases past the mode.
 A distinct peak of large totals would not be consistent with this expected distribution.
-We define the upper threshold $U$ as the $t_b$ at the knee point and retain all barcodes with $t_b \ge U$, regardless of their $P_b$.
+We define the upper threshold $U$ as the $t_b$ at the knee point and retain all barcodes with $t_b \ge U$, irrespective of their $P_b$.
 This guarantees recovery of any barcodes with large total counts that potentially represent cell-containing droplets. 
 We use the knee point rather than the inflection point as the $t_b$ at the former is larger, providing a more conservative threshold that avoids retention of empty droplets.
 
@@ -346,7 +346,7 @@ This is attributable to the conservativeness of the knee point threshold in Empt
 
 To explore the differences between methods in more detail, we generated a $t$-stochastic neighbour embedding (t-SNE) plot \cite{van2008visualizing} of all barcodes that were detected by either method in the PBMC dataset.
 We observed that the CellRanger-only barcodes clustered with barcodes that were detected by both methods (Figure~\ref{fig:realtsne}a).
-This suggests that the conservativeness of EmptyDrops can be largely ignored, as it only results in the loss of some cells from a cluster that would have been detected irrespectively.
+This suggests that the conservativeness of EmptyDrops is not a major problem, as it only results in the loss of some cells from a cluster that would have been detected irrespectively.
 In contrast, the EmptyDrops-only barcodes formed a number of unique clusters.
 One of these clusters likely contains platelets, based on the expression of platelet factor 4 (\textit{PF4}) and pro-platelet basic protein (\textit{PPBP}) (Figure~\ref{fig:realtsne}b). 
 This is not surprising as the total RNA content of a cell is often associated with its type/state, and platelets have much less RNA than other cell types \cite{rowley2012platelet}.
@@ -511,6 +511,7 @@ JCM provided guidance for the project direction.
 
 \section*{Funding statement}
 ATLL and JCM were supported by core funding from Cancer Research UK (award no. 17197 to JCM).
+TG was supported by the European Union's H2020 research and innovation programme ``ENLIGHT-TEN'' under the Marie Sklodowska-Curie grant agreement 675395.
 
 \section*{Acknowledgements}
 We would like to thank Jonathan Griffiths for further testing of the algorithm;
