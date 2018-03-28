@@ -131,20 +131,21 @@ After sequencing, transcripts are assigned to individual droplets based on the c
 This yields an expression profile for each cell, typically in the form of unique molecular identifier (UMI) counts \cite{islam2014quantitative} for all annotated genes. 
 The use of droplets increases throughput by at least an order of magnitude compared to protocols based on plates \cite{picelli2013smartseq2} or conventional microfluidics \cite{pollen2014low}, which is appealing for large-scale projects such as the Human Cell Atlas \cite{regev2017human}.
 
-That said, the complexity of the sequencing data from droplet-based technologies poses a number of interesting challenges for low-level data processing.
+The complexity of the sequencing data from droplet-based technologies poses a number of interesting challenges for low-level data processing.
 One such challenge is the identification and removal of cell barcodes corresponding to empty droplets.
 An empty droplet does not contain a cell but will still contain ``ambient'' RNA \cite{macosko2015highly}, i.e., cell-free transcripts in the solution in which the cells are suspended.
-Ambient RNA may be actively secreted by cells or released upon cell lysis, the latter of which is particularly likely given the stresses of dissociation.
+Ambient RNA can be actively secreted by cells or released upon cell lysis (possibly induced by the stresses of dissociation and microfluidics).
 The presence of ambient RNA means that many empty droplets will contain material for reverse transcription and library preparation, resulting in non-zero total UMI counts for the corresponding barcodes.
-However, the resulting expression profiles do not originate from any single cell and need to be removed prior to further analysis to avoid misleading conclusions.
+However, the expression profiles for these barcodes do not originate from any individual cell and need to be removed prior to further analysis to avoid misleading biological conclusions.
 
 Existing methods for removing empty droplets assume that droplets containing genuine cells should have more RNA, resulting in larger total UMI counts for the corresponding barcodes.
 Zheng \textit{et al.} \cite{zheng2017massively} remove all barcodes with total counts below 10\% of the 99\textsuperscript{th} percentile of the $Y$ largest total counts, where $Y$ is defined as the expected number of cells to be captured in the experiment.
 Macosko \textit{et al.} \cite{macosko2015highly} set the threshold at the knee point in the cumulative fraction of reads with respect to increasing total count.
-While simple, the use of a one-dimensional filter on the total UMI count is suboptimal as it may discard small cells with low RNA content.
-Droplets containing small cells may not be easily distinguishable from large empty droplets in terms of the total number of transcripts.
+While simple, the use of a one-dimensional filter on the total UMI count is suboptimal as it discards small cells with low RNA content.
+Droplets containing small cells are not easily distinguishable from large empty droplets in terms of the total number of transcripts.
 This problem is exacerbated by variable capture and amplification efficiency across droplets, which further mixes the distributions of total counts between empty and non-empty droplets.
-Applying a simple threshold on the total count may force the researcher to choose between the loss of small cells or an increase in the number of artifactual ``cells'' composed of ambient RNA.
+Applying a simple threshold on the total count forces the researcher to choose between the loss of small cells or an increase in the number of artifactual ``cells'' composed of ambient RNA.
+This is especially problematic if small cells represent distinct cell types or functional states.
 
 In this report, we propose a new method for detecting empty droplets in droplet-based single-cell RNA sequencing (scRNA-seq) data.
 We construct a profile of the ambient pool of RNA, and test each barcode for deviations from this profile using a Poisson-based model for the count distribution.
