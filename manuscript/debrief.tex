@@ -166,7 +166,7 @@ We stress that $T$ is not the same as the threshold used in existing methods, as
 
 The ambient profile is constructed by summing counts for each gene across $\mathcal{G}$.
 Let $y_{gb}$ be the count for gene $g$ in barcode $b$.
-We define the ambient count as 
+We define the ambient count for $g$ as 
 \[
     A_{g} = \sum_{b \in \mathcal{G}} y_{gb} \;,
 \]
@@ -194,16 +194,16 @@ This strategy avoids $p$-values of zero, which is important during multiple test
 See Supplementary Section~\suppsecmontecarlo{} for a description of how these $p$-values are efficiently computed.
 
 \subsection*{Detecting the knee point in the log-totals}
-The procedure described above will identify barcodes that have count profiles that are significantly different from the ambient pool of RNA.
-This will be the case for most cell-containing droplets, as the ambient pool is formed from many (lysed) cells and is unlikely to be representative of any single cell.
+Applying a threshold on the $p$-value will identify barcodes that have count profiles that are significantly different from the ambient pool of RNA.
+We assume that this will be the case for most cell-containing droplets, as the ambient pool is formed from many (lysed) cells and is unlikely to be representative of any single cell.
 However, it is possible for some cell-containing droplets to have ambient-like expression profiles.
 This can occur if the cell population is highly homogeneous or if one cell subpopulation contributes disproportionately to the ambient pool, e.g., if it is more prone to lysis.
 Sequencing errors in the cell barcodes may also bias the estimates of the ambient proportions, by misassigning counts from cell-containing droplets to barcodes with low UMI totals.
 This may result in spurious similarities between cells and the estimated ambient profile.
 
-If we apply our procedure directly, barcodes corresponding to ambient-like cell-containing droplets will be incorrectly filtered out.
-To avoid this, we combine our procedure with a conventional threshold on the total UMI count.
-We rank all barcodes in order of decreasing $t_b$, and consider the function $f(.)$ of $\log(t_b)$ with respect to increasing log-rank.
+To avoid incorrectly calling ambient-like cells as empty droplets, we combine our procedure with a conventional threshold on the total UMI count.
+We rank all barcodes in order of decreasing $t_b$, and consider $\log(t_b)$ as a function $f(.)$ of the log-transformed rank,
+i.e., $\log(t_b) = f(\log r_b)$ where $r_b$ is the rank of $b$ in the ordered sequence of barcodes.
 The first ``knee'' point in this function corresponds to a transition between a distinct subset of barcodes with large totals and the majority of barcodes with smaller totals.
 This is defined at the log-rank that minimizes the signed curvature
 \[
@@ -234,12 +234,12 @@ Putative cells are defined as those barcodes that have significantly poor fits t
 We set the FDR threshold to 1\% by default, meaning that the expected proportion of empty droplets in the set of retained barcodes is no greater than 1\%.
 
 Note that we only perform the BH correction on the $p$-values for barcodes that have $t_b$ greater than $T$.
-This reduces the severity of the correction by discarding cells that were previously assumed to be droplets, thus improving detection power for barcodes with larger totals that are more likely to contain cells.
-In fact, $p$-values are not computed at all for barcodes with $t_b \le T$, to avoid unnecessary computational work.
+This reduces the severity of the correction by discarding barcodes that were previously assumed to be empty droplets, thus improving detection power for barcodes with larger totals that are more likely to contain cells.
+In fact, $p$-values are not computed at all for barcodes with $t_b \le T$ to avoid unnecessary computational work.
 
 Conversely, all barcodes with $t_b \ge U$ are considered to be known true positives, regardless of how ambient-like their expression profiles are.
 These barcodes have their $p$-values set to zero during the BH correction.
-This approach is better than simply adding the barcodes with large totals to the detected set after correction with the original $p$-values, which does not account for the effect of addition on the FDR.
+This approach improves power by reducing the severity of the correction in the presence of a set of known positives.
 
 \section*{Results}
 
