@@ -1,6 +1,7 @@
 library(DropletUtils)
 library(Matrix)
 source("functions.R")
+set.seed(73953024)
 
 opath <- "results-sim"
 dir.create(opath)
@@ -53,6 +54,10 @@ for (fname in ALLFILES) {
                 # Keeping everything above the knee point.
                 K <- barcodeRanks(final)$knee
                 knee.res <- assessMethod(totals >= K, out$identity)
+
+                # Not using the knee point safeguard.
+                E2 <- p.adjust(e.out$PValue, method="BH")
+                emp2.res <- assessMethod(E2 <= 0.01, out$identity)
                 
                 # Using the CellRanger approach.
                 expected <- sum(out$identity!=0)
@@ -61,8 +66,8 @@ for (fname in ALLFILES) {
     
                 # Saving the current set of results to file.
                 write.table(cbind(G1Size=g1, G2Size=g2, 
-                                  Method=c("emptyDrops", "Knee point", "CellRanger"),
-                                  rbind(emp.res, knee.res, cell.res)),
+                                  Method=c("emptyDrops", "Knee point", "No knee", "CellRanger"),
+                                  rbind(emp.res, knee.res, emp2.res, cell.res)),
                             file=ofile, append=!unlinker, col.names=unlinker, 
                             row.names=FALSE, quote=FALSE, sep="\t")
                 unlinker <- FALSE
