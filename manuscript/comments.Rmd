@@ -1,0 +1,47 @@
+# Effect of ambient RNA on downstream analyses
+
+`emptyDrops` allows us to identify the non-empty droplets but does not remove the ambient RNA from them.
+This has some implications for the downstream analysis as the ambient RNA will alter the expression profiles.
+
+Firstly, if cells have the same RNA content, ambient RNA does nothing except homogenize the cells.
+This results in smaller log-fold changes between clusters and less pronounced heterogeneity.
+This is not an ideal outcome, but it is tolerable and can possibly be ignored in the presence of strong biological differences.
+
+However, if cells have different RNA content, adding the same quantity of ambient RNA will introduce spurious differences between cells after library size-related normalization.
+Imagine two cells where one has twice as much RNA as the other (but are otherwise identical).
+After normalization by the library size $l$, a gene with expression $x$ in the smaller cell will have a normalized expression of $(x + a)/l$.
+However, in the larger cell, the same gene will have a normalized expression of $(2x + a)/2l$, which is only the same when $a=0$.
+
+# Subtraction of ambient RNA
+
+The problems above motivate the subtraction of the ambient profile from the expression of each droplet.
+However, this is difficult as we cannot easily estimate the contribution of ambient RNA to each droplet. 
+
+The most direct approach would require spike-ins that are known to be absent from the endogenous pool of transcripts.
+The ambient contribution can be obtained by scaling the ambient profile such that the coverage of the spike-ins is equal to that in each cell.
+This approach is arguably expensive, requiring addition of spike-in _and_ deeper sequencing to get enough counts for stable estimation.
+(Low spike-in counts indicate a low ambient contribution, so it would be tempting to ignore errors in the estimated contribution in such cases.
+However, errors will still have a major effect if the estimate is used for scaling high-abundance genes in the ambient profile.)
+
+Perhaps the problem of low spike-in counts can be resolved using nearest neighbours to share information between cells.
+Among neighbouring cells, we might assume that the ambient contribution is the same (as a percentage of the library size).
+This would allow a stable contribution to be obtained for each cell.
+Indeed, cells with different proportional ambient contributions should be further apart due to the issues with differential expression described above.
+
+Of course, there are issues with any subtraction of counts in the first place.
+If it is to have any significant effect, the value to subtract must be large relative to the expected count.
+(Ideally these would be the same, if the estimation has worked properly.)
+Due to the variance of large counts, subtraction will either produce zeros or large positive values.
+This may end up being a stronger driver of heterogeneity than if the ambient noise had just been left in!
+
+The other approach would be probabilistic subtraction to account for the uncertainty, but this would involve an unpleasant identity-link count model.
+
+# Ambient RNA and plate-based protocols
+
+It is worth thinking about the effect of ambient RNA in plate-based protocols.
+In some respects, we have much more experimental power to control for this.
+We can generate empty wells where we _know_ there is no cell to estimate the ambient profile;
+we can use spike-ins to accurately estimate the ambient contribution to each cell;
+and we can relatively easily adjust the sequencing depth of different wells to get sufficient coverage of each cell.
+The "problem" is that, in most plate-based protocols, the amount of ambient RNA is negligible (10^3^-fold lower) compared to the coverage of endogenous RNA.
+This suggests that it is not much of a problem in plate-based protocols, despite our greater ability to fix it!
