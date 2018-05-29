@@ -172,7 +172,7 @@ scaled.lib.sizes <- lib.sizes/mean(lib.sizes)
 sizeFactors(sce)[neg.sf] <- scaled.lib.sizes[neg.sf]
 ```
 
-Finally, we compute normalized log-expresion values.
+Finally, we compute normalized log-expression values.
 
 ```{r}
 sce <- normalize(sce)
@@ -206,7 +206,7 @@ head(top.dec)
 We can plot the genes with the largest biological components, to verify that they are indeed highly variable.
 
 ```{r hvgplot, fig.wide=TRUE}
-plotExpression(sce, feature=rownames(top.dec)[1:10])
+plotExpression(sce, features=rownames(top.dec)[1:10])
 ```
 
 # Dimensionality reduction
