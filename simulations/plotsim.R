@@ -5,75 +5,70 @@ resdir <- "results-sim"
 newdir <- file.path(resdir, "pics")
 dir.create(newdir, showWarning=FALSE)
 
-for (f in list.files(resdir, pattern=".*\\.tsv$", full=TRUE)) { 
+for (f in list.files(resdir, pattern=".*-res\\.tsv$", full=TRUE)) { 
     tab <- read.table(f, header=TRUE, sep="\t", stringsAsFactors=FALSE)
-    stub <- sub("(.+).tsv", "\\1", basename(f))
-    scenario <- paste0(tab$G1Size, "/", tab$G2Size, "_", tab$Method)
+    tab <- tab[tab$Method %in% c("emptyDrops", "CellRanger"),]
+    stub <- sub("(.+)-res.tsv", "\\1", basename(f))
+    scenario <- paste0(tab$G1Size, "/", tab$G2Size)
 
-    for (s in c("G1", "G2", "FDR")) {
-        all.values <- tab[[s]]
-        if (s=="G1") {
-            ylab <- "Recall (large cells)"
-            ylim <- range(all.values)
-        } else if (s=="G2") {
-            ylab <- "Recall (small cells)"
-            ylim <- range(all.values)
-        } else {
-            ylab <- s
-            ylim <- c(0, max(0.01, all.values))
-        }
-        by.scenario <- split(all.values, scenario)
+    combined.recall <- c(tab$G1, tab$G2)
+    combined.scenario <- c(paste0(scenario, "_G1_", tab$Method), paste0(scenario, "_G2_", tab$Method))
+    by.scenario <- split(combined.recall, combined.scenario)
 
-        # Creating a bar plot, with points.
-        scenarios <-  sub("_.*", "", names(by.scenario))
-        methods <- sub(".*_", "", names(by.scenario))
-        Xcoords <- seq_along(by.scenario) + cumsum(as.integer(methods==methods[1])*2)
-        pdf(file.path(newdir, paste0(stub, "_", s, ".pdf")))
-        plot(0,0,type="n", xlim=range(Xcoords), ylim=ylim, ylab=ylab, xlab="", xaxt="n", cex.axis=1.2, cex.lab=1.4)
+    # Creating a bar plot, with points.
+    scenarios <-  sub("_.*", "", names(by.scenario))
+    methods <- sub(".*_", "", names(by.scenario))
+    poptype <- sub(".*_(.*)_.*", "\\1", names(by.scenario))
+    Xcoords <- seq_along(by.scenario) + cumsum(as.integer(methods==methods[1]))
+    ylim <- range(combined.recall)
 
-        # Creating the other axis.
-        Xgroup <- split(Xcoords, scenarios)
-        left <- unlist(lapply(Xgroup, min)) - 0.4
-        right <- unlist(lapply(Xgroup, max)) + 0.4
-        middle <- unlist(lapply(Xgroup, mean))
-        Yline <- ylim[1] - diff(ylim) * 0.07
-        for (g in names(Xgroup)) { 
-            segments(left[[g]], Yline, right[[g]], lwd=2, xpd=TRUE)
-            text(middle[[g]], Yline, labels=g, xpd=TRUE, pos=1, cex=1.2)
-            rect(left[[g]]-0.5, ylim[1]-1, right[[g]]+1, ylim[2]*2, border=NA, col="grey95")
-        }
-        box()
+    pdf(file.path(newdir, paste0(stub, "-recall.pdf")), width=8, height=6)
+    par(mar=c(5.1, 4.1, 2.1, 11.1))
+    CONSTANT <- 0.4
+    plot(0,0,type="n", xlim=range(Xcoords) + c(-CONSTANT, CONSTANT)*2, ylim=ylim, 
+        ylab="Recall", xlab="", xaxt="n", cex.axis=1.2, cex.lab=1.4, xaxs="i")
 
-        for (i in seq_along(by.scenario)) {
-            current <- by.scenario[[i]]
-            curcol <- colors[methods[i]]
-            curX <- Xcoords[i]
-            points(rep(curX, length(current)), current, col=curcol)
-
-            # Specifying the mean.
-            mean.val <- mean(current)
-            se.val <- sd(current)/sqrt(length(current))
-            segments(curX-0.4, mean.val, curX+0.4, col=curcol, lwd=3)
-
-            # Adding error bars.
-            lower <- mean.val - se.val
-            upper <- mean.val + se.val
-            segments(curX, lower, curX, upper, col=curcol, lwd=2)
-            segments(curX-0.25, lower, curX+0.25, col=curcol, lwd=2)
-            segments(curX-0.25, upper, curX+0.25, col=curcol, lwd=2)
-        }
-
-        if (s=="FDR") {
-            abline(h=0.01, col="grey", lwd=1, lty=2)
-        }
-
-        dev.off()
+    # Creating the other axis.
+    Xgroup <- split(Xcoords, scenarios)
+    left <- unlist(lapply(Xgroup, min)) - CONSTANT
+    right <- unlist(lapply(Xgroup, max)) + CONSTANT
+    middle <- unlist(lapply(Xgroup, mean))
+    Yline <- ylim[1] - diff(ylim) * 0.07
+    for (g in names(Xgroup)) { 
+        segments(left[[g]], Yline, right[[g]], lwd=2, xpd=TRUE)
+        text(middle[[g]], Yline, labels=g, xpd=TRUE, pos=1, cex=1.2)
+        rect(left[[g]]-CONSTANT, ylim[1]-1, right[[g]]+CONSTANT, ylim[2]*2, border=NA, col="grey95")
     }
+    box()
+
+    for (i in seq_along(by.scenario)) {
+        current <- by.scenario[[i]]
+        curcol <- colors[methods[i]]
+        pch <- ifelse(poptype[i]=="G1", 16, 4)
+        curX <- Xcoords[i]
+        points(rep(curX, length(current)), current, col=curcol, pch=pch)
+
+        # Specifying the mean.
+        mean.val <- mean(current)
+        se.val <- sd(current)/sqrt(length(current))
+        segments(curX-0.4, mean.val, curX+0.4, col=curcol, lwd=3)
+
+        # Adding error bars.
+        lower <- mean.val - se.val
+        upper <- mean.val + se.val
+        segments(curX, lower, curX, upper, col=curcol, lwd=2)
+        segments(curX-0.25, lower, curX+0.25, col=curcol, lwd=2)
+        segments(curX-0.25, upper, curX+0.25, col=curcol, lwd=2)
+    }
+
+    par(xpd=TRUE)
+    legend(max(Xcoords)+CONSTANT*3, max(combined.recall),
+        col=rep(colors[c("CellRanger", "emptyDrops")], 2),
+        pch=rep(c(16, 4), each=2),
+        legend=c("CellRanger (large)", "emptyDrops (large)", "CellRanger (small)", "emptyDrops (small)"),
+        lwd=2)
+
+    dev.off()
 }
 
-pdf(file.path(newdir, "legend.pdf"))
-plot.new()
-re.colors <- colors[order(names(colors))]
-legend("topleft", col=re.colors, legend=names(re.colors), cex=1.2, lwd=2, pch=1)
-dev.off()
 
