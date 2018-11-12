@@ -2,7 +2,7 @@
 
 library(DropletUtils)
 
-SIMFUN <- function(raw.mat, group1=500, group2=500, down.rate=0.1, lower=100) {
+SIMFUN <- function(raw.mat, group1=500, group2=500, reorder.rate=0.1, down.rate=0.1, lower=100) {
     stats <- barcodeRanks(raw.mat)
 
     # Assuming all cells below the inflection point are empty droplets.
@@ -18,16 +18,27 @@ SIMFUN <- function(raw.mat, group1=500, group2=500, down.rate=0.1, lower=100) {
     resampled <- makeCountMatrix(gene.ids, cell.ids, all.genes=rownames(raw.mat))
 
     # Sampling real cells in group 1.
-    # All things above the knee point are assumed to be real.
+    # All things above the inflection point are assumed to be real.
+    # We shuffle 10% of the genes to break any remaining "ambience".
     is.real <- which(empty.limit <= totals)
     mat1 <- raw.mat[,sample(is.real, group1, replace=TRUE)]
+    mat1 <- reorderRows(mat1, round(nrow(mat1) * reorder.rate))
 
     # Sampling cells in group 2, with downsampling.
-    mat2 <- downsampleMatrix(raw.mat[,sample(is.real, group2, replace=TRUE)], prop=down.rate)
+    mat2 <- raw.mat[,sample(is.real, group2, replace=TRUE)]
+    mat2 <- reorderRows(mat2, round(nrow(mat2) * reorder.rate))
+    mat2 <- downsampleMatrix(mat2, prop=down.rate)
     
     # Completed.
     return(list(counts=cbind(resampled, mat1, mat2),
                 identity=rep(0:2, c(ncol(resampled), ncol(mat1), ncol(mat2)))))
+}
+
+reorderRows <- function(mat, N) {
+    i <- seq_len(nrow(mat))
+    choice <- sample(nrow(mat), N)
+    i[choice] <- sample(choice)
+    mat[i,,drop=FALSE]
 }
 
 assessMethod <- function(keep, identity) {
@@ -35,6 +46,18 @@ assessMethod <- function(keep, identity) {
     g2 <- sum(keep & identity==2, na.rm=TRUE)/sum(identity==2)
     fdr <- sum(identity==0 & keep, na.rm=TRUE)/sum(keep, na.rm=TRUE)
     return(c(G1=g1, G2=g2, FDR=fdr))
+}
+
+createRocPts <- function(stats, identity, n=50) {
+    o <- order(stats)
+    stats <- stats[o]
+    identity <- factor(identity[o])
+
+    chunked <- cut(stats, n)
+    by.chunk <- split(identity, chunked)
+    N <- do.call(rbind, lapply(by.chunk, table))
+    
+    apply(N, 2, cumsum)
 }
 
 plotBarcodes <- function(ranks, totals, fitted=NULL, subset=NULL, ...) {
