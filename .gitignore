@@ -7,7 +7,10 @@
 *.blg
 *.log
 *.out
+
 *.pdf
+*.png
+*.tsv
 
 analysis.utf8.md
 analysis_files/
@@ -20,5 +23,3 @@ data/neuron_9k/
 data/neurons_900/
 data/pbmc4k/
 data/t_4k/
-simulations/pics-negcheck/
-simulations/results-sim/
