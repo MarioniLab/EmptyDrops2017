@@ -102,9 +102,10 @@ for (i in seq_along(ALLFILES)) {
     dev.off()
 
     # Creating a MA plot, with some rastering dark magic to keep the file size small.
-    ambient.prof <- rowMeans(final[,colSums(final) <= 100])
-    cell.prof <- rowMeans(final[,e.keep])
-    vals <- edgeR::cpm(cbind(ambient.prof, cell.prof), log=TRUE, prior.count=5)
+    ambient.prof <- rowSums(final[,colSums(final) <= 100])
+    cell.prof <- rowSums(final[,e.keep])
+    summed <- cbind(ambient.prof, cell.prof)
+    vals <- edgeR::cpm(summed, log=TRUE, prior.count=5)
     M <- vals[,1] - vals[,2]
     A <- (vals[,1] + vals[,2])/2
 
@@ -112,20 +113,34 @@ for (i in seq_along(ALLFILES)) {
 	png(tmp, width=7, height=7, units="in", res=300, pointsize=12)
     par(mar=c(0,0,0,0))
     options(bitmapType="cairo")
-    plot(A, M, xlab="", ylab="", pch=16, axes=FALSE)
+    plot(A, M, xlab="", ylab="", pch=16, axes=FALSE, cex=0.5)
     dev.off()
 
     pdf(file.path(ppath, paste0("ma_", stub, ".pdf")))
+	par(mar=c(5.1, 4.1, 2.1, 5.1))
     plot(A, M, xlab="A", ylab="M (ambient - cells)",
         cex.axis=1.2, cex.lab=1.4, pch=16, cex=0.2, type="n")
     limits <- par("usr")
     img <- png::readPNG(tmp)
     rasterImage(img, limits[1], limits[3], limits[2], limits[4])
 
-    R <- rank(M)
-    to.see <- 5 
-    extreme <- R <= to.see | R >= length(R) - to.see + 1
-    text(A[extreme], M[extreme], rowData(sce)$Symbol[match(names(M)[extreme], rownames(sce))], pos=2)
+	# Choosing the top 10 DE genes to show, by fitting a Poisson GLM.
+    library(edgeR)
+    y <- DGEList(summed)
+    retained <- which(aveLogCPM(y) > 1)
+    y <- y[retained,]
+    y <- calcNormFactors(y)
+    design <- cbind(1, c(0, 1))
+    fit <- glmFit(y, design, dispersion=0) 
+    res <- glmLRT(fit)
+    o <- order(res$table$PValue)
+	extreme <- retained[head(o, 10)]
+
+    ypos <- rank(M[extreme]) / length(extreme) * diff(range(M)) + min(M)
+    xpos <- limits[2] + 0.01 * (limits[2] - limits[1])
+    text(xpos, ypos, col="red", pos=4, xpd=TRUE, offset=0.1,
+        rowData(sce)$Symbol[match(names(M)[extreme], rownames(sce))])
+    segments(xpos, ypos, A[extreme], M[extreme], col="red", xpd=TRUE)
     box()
     dev.off()
 }
