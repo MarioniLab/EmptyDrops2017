@@ -31,7 +31,7 @@ sce
 ```{r}
 set.seed(100)
 e.out <- emptyDrops(counts(sce))
-e.keep <- e.out$FDR <= 0.01
+e.keep <- e.out$FDR <= 0.001
 summary(e.keep)
 ```
 
@@ -111,7 +111,15 @@ plot(sce$total_features_by_counts, sce$pct_counts_Mito)
 plot(sce$total_counts, sce$pct_counts_Mito)
 ```
 
-This may indicate that the cells uniquely detected by EmptyDrops are, in fact, damaged.
+This may indicate that some of the cells uniquely detected by EmptyDrops are actually damaged.
+We'll remove these cells prior to downstream analysis.
+
+```{r}
+discard <- isOutlier(sce$pct_counts_Mito, type="higher", nmads=3)
+sce <- sce[,!discard]
+summary(discard)
+```
+
 We'll have a look at this in more detail during the clustering step.
 
 # Examining gene expression
@@ -137,8 +145,8 @@ We perform some pre-clustering to break up obvious clusters.
 
 ```{r}
 library(scran)
-clusters <- quickCluster(sce, method="igraph", subset.row=ave>=0.1, 
-    irlba.args=list(maxit=1000)) # for convergence.
+set.seed(1000)
+clusters <- quickCluster(sce, pc.approx=TRUE)
 table(clusters)
 ```
 
@@ -153,23 +161,6 @@ We can plot these against the library sizes to see how much of a difference it m
 
 ```{r sfplot}
 plot(sce$total_counts, sizeFactors(sce), log="xy")
-```
-
-Note that some size factors are very small and negative. 
-This represents cells that have so few expressed features that it is not possible to obtain a sensible size factor.
-
-```{r}
-neg.sf <- sizeFactors(sce)<0
-summary(neg.sf)
-```
-
-Instead, we replace the size factor with the (scaled) library size.
-
-```{r}
-library(Matrix)
-lib.sizes <- colSums(counts(sce))
-scaled.lib.sizes <- lib.sizes/mean(lib.sizes)
-sizeFactors(sce)[neg.sf] <- scaled.lib.sizes[neg.sf]
 ```
 
 Finally, we compute normalized log-expression values.
@@ -265,30 +256,20 @@ pheatmap(log.ratio, cluster_rows=FALSE, cluster_cols=FALSE,
 Detecting marker genes for each cluster.
 
 ```{r}
-marker.out <- findMarkers(sce, clusters=sce$Cluster)
+marker.out <- findMarkers(sce, clusters=sce$Cluster, direction="up")
 ```
 
-Having a look at how the clusters interact with the detection status, so we can focus on EmptyDrops-unique clusters.
+Having a look at how the clusters interact with the detection status, so we can focus on `emptyDrops`-unique clusters.
 
 ```{r}
 table(sce$Cluster, sce$Detection)
 ```
 
-Focusing on cluster 14, which seems to be made of platelets:
+Focusing on cluster 13, which seems to be made of platelets:
 
 ```{r heatmap8, fig.wide=TRUE}
-current <- marker.out[["14"]]
-chosen <- rownames(current)[current$Top <= 10]
-plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
-    zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
-    colour_columns_by="Cluster", columns=order(sce$Cluster))
-```
-
-... and 5, which seems to contain damaged cells with high mitochondrial content:
-
-```{r heatmap6, fig.wide=TRUE}
-current <- marker.out[["1"]]
-chosen <- rownames(current)[current$Top <= 10]
+current <- marker.out[["13"]]
+chosen <- rownames(current)[current$Top <= 5]
 plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
     zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
     colour_columns_by="Cluster", columns=order(sce$Cluster))
