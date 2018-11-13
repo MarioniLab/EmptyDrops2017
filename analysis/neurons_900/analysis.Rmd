@@ -31,11 +31,11 @@ sce
 ```{r}
 set.seed(100)
 e.out <- emptyDrops(counts(sce))
-e.keep <- e.out$FDR <= 0.01
+e.keep <- e.out$FDR <= 0.001
 summary(e.keep)
 ```
 
-... and CellRanger (with an expected 4000 cells, as the name of the dataset suggests):
+... and CellRanger (with an expected 900 cells, as the name of the dataset suggests):
 
 ```{r}
 c.keep <- defaultDrops(counts(sce), expected=900)
@@ -111,20 +111,7 @@ This is unsurprising and probably corresponds to damaged cells - we'll filter th
 par(mfrow=c(1,2))
 plot(sce$total_features_by_counts, sce$pct_counts_Mito)
 plot(sce$total_counts, sce$pct_counts_Mito)
-discard <- isOutlier(sce$pct_counts_Mito)
-sce <- sce[,!discard]
-summary(discard)
-```
-
-We remove a few cells that have high haemoglobin expression; these are probably red blood cells that slipped through.
-We'll remove them because (i) we're looking at brain cells and (ii) RBCs have so few features that they cause problems later.
-
-```{r haemscatter}
-library(Matrix)
-haem.genes <- grep("^Hbb", rownames(sce))
-haem.prop <- colSums(counts(sce)[haem.genes,])/colSums(counts(sce))
-plot(sce$total_counts, haem.prop)
-discard <- haem.prop > 0.1
+discard <- isOutlier(sce$pct_counts_Mito, nmads=3, type="higher")
 sce <- sce[,!discard]
 summary(discard)
 ```
@@ -152,7 +139,8 @@ We cluster cells together to improve the accuracy of the pooling later.
 
 ```{r}
 library(scran)
-clusters <- quickCluster(sce, method="igraph", subset.row=ave >= 0.1)
+set.seed(1000)
+clusters <- quickCluster(sce, pc.approx=TRUE)
 table(clusters)
 ```
 
@@ -203,7 +191,7 @@ head(top.dec)
 We can plot the genes with the largest biological components, to verify that they are indeed highly variable.
 
 ```{r hvgplot, fig.wide=TRUE}
-plotExpression(sce, feature=rownames(top.dec)[1:10])
+plotExpression(sce, features=rownames(top.dec)[1:10])
 ```
 
 # Dimensionality reduction
@@ -225,7 +213,8 @@ plotPCA(sce, ncomponents=3, colour_by="Detection")
 Same with using _t_-SNE for visualization.
 
 ```{r}
-sce <- runTSNE(sce, use_dimred="PCA", perplexity=10, rand_seed=100)
+set.seed(1000)
+sce <- runTSNE(sce, use_dimred="PCA", perplexity=30)
 plotTSNE(sce, colour_by="Detection")
 ```
 
@@ -262,7 +251,7 @@ pheatmap(log.ratio, cluster_rows=FALSE, cluster_cols=FALSE,
 Detecting marker genes for each cluster.
 
 ```{r}
-marker.out <- findMarkers(sce, clusters=sce$Cluster)
+marker.out <- findMarkers(sce, clusters=sce$Cluster, direction="up")
 ```
 
 Having a look at how the clusters interact with the detection status, so we can focus on EmptyDrops-unique clusters.
@@ -271,20 +260,20 @@ Having a look at how the clusters interact with the detection status, so we can 
 table(sce$Cluster, sce$Detection)
 ```
 
-Focusing on cluster 1:
+Focusing on cluster 10:
 
 ```{r heatmap8, fig.wide=TRUE}
-current <- marker.out[["1"]]
-chosen <- rownames(current)[current$Top <= 10]
+current <- marker.out[["10"]]
+chosen <- rownames(current)[current$Top <= 20]
 plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
     zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
     colour_columns_by="Cluster", columns=order(sce$Cluster))
 ```
 
-... and 9, which seems to be interneurons:
+... and 8, which seem to be interneurons:
 
 ```{r heatmap6, fig.wide=TRUE}
-current <- marker.out[["9"]]
+current <- marker.out[["8"]]
 chosen <- rownames(current)[current$Top <= 20]
 plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
     zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
