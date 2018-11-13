@@ -47,7 +47,13 @@ for (fname in ALLFILES) {
                 }
 
                 # Testing emptyDrops.
-                e.out <- emptyDrops(final)
+                if (stub=="neuron_9k") {
+                    # Using more iterations for the 9K neuron data set to avoid lower-bounded p-values.
+                    # Switching to parallel mode because otherwise it takes too long.
+                    e.out <- emptyDrops(final, niters=100000, BPPARAM=MulticoreParam())
+                } else {
+                    e.out <- emptyDrops(final)
+                }
                 is.sig <- e.out$FDR <= 0.001
                 emp.res <- assessMethod(is.sig, out$identity)
 
