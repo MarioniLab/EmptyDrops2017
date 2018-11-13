@@ -1,7 +1,7 @@
 library(DropletUtils)
 library(Matrix)
 library(UpSetR)
-source("functions.R")
+source("../simulations/functions.R")
 ppath <- "pics-real"
 dir.create(ppath)
 
@@ -19,7 +19,6 @@ expected <- c(4000,
               4000,
               9000)
 
-# Looping through the files.
 for (i in seq_along(ALLFILES)) { 
     fname <- ALLFILES[i]
     sce <- read10xCounts(file.path("..", "data", fname))
@@ -39,7 +38,7 @@ for (i in seq_along(ALLFILES)) {
 
     # Testing emptyDrops.
     e.out <- emptyDrops(final)
-    e.keep <- e.out$FDR <= 0.01
+    e.keep <- e.out$FDR <= 0.001
     e.keep[is.na(e.keep)] <- FALSE
     
     # Keeping everything above the knee point.
@@ -101,5 +100,32 @@ for (i in seq_along(ALLFILES)) {
     legend("bottomright", col=c("red", "grey80"), pch=16, cex=1.2,
            legend=c("Putative cell", "Empty droplet"))
     dev.off()
-}   
 
+    # Creating a MA plot, with some rastering dark magic to keep the file size small.
+    ambient.prof <- rowMeans(final[,colSums(final) <= 100])
+    cell.prof <- rowMeans(final[,e.keep])
+    vals <- edgeR::cpm(cbind(ambient.prof, cell.prof), log=TRUE, prior.count=5)
+    M <- vals[,1] - vals[,2]
+    A <- (vals[,1] + vals[,2])/2
+
+    tmp <- tempfile(fileext=".png")
+	png(tmp, width=7, height=7, units="in", res=300, pointsize=12)
+    par(mar=c(0,0,0,0))
+    options(bitmapType="cairo")
+    plot(A, M, xlab="", ylab="", pch=16, axes=FALSE)
+    dev.off()
+
+    pdf(file.path(ppath, paste0("ma_", stub, ".pdf")))
+    plot(A, M, xlab="A", ylab="M (ambient - cells)",
+        cex.axis=1.2, cex.lab=1.4, pch=16, cex=0.2, type="n")
+    limits <- par("usr")
+    img <- png::readPNG(tmp)
+    rasterImage(img, limits[1], limits[3], limits[2], limits[4])
+
+    R <- rank(M)
+    to.see <- 5 
+    extreme <- R <= to.see | R >= length(R) - to.see + 1
+    text(A[extreme], M[extreme], rowData(sce)$Symbol[match(names(M)[extreme], rownames(sce))], pos=2)
+    box()
+    dev.off()
+}
