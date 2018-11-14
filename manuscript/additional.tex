@@ -28,7 +28,7 @@
         \caption{}
         \end{subfigure}
     \end{center}
-\caption{Results for the simulations based on the #2 dataset, using either EmptyDrops or the default CellRanger method for detecting cell-containing droplets.
+\caption{Cell-calling results in simulations based on the #2 dataset using either EmptyDrops or CellRanger.
 Simulation scenarios are labelled as $G_1/G_2$ where $G_1$ and $G_2$ are the number of barcodes in the group of large and small cells, respectively.
 (a) The recall for each method, defined as the proportion of detected cells from each group.
 EmptyDrops was used with a FDR threshold of 0.1\%.
@@ -61,7 +61,7 @@ In both plots, each point represents the result of one simulation iteration, the
         (a) A barcode rank plot showing the fitted spline used for knee point detection in EmptyDrops. 
         The detected knee and inflection points are also shown.
         (b) The negative log-probability for each barcode in the multinomial model of EmptyDrops, plotted against the total count.
-        Barcodes detected as putative cell-containing droplets at a FDR of 1\% are labelled in red.
+        Barcodes detected as putative cell-containing droplets at a FDR of 0.1\% are labelled in red.
         Only barcodes with $t_b > T$ are shown.
         (c) An UpSet plot of the barcodes detected by each combination of methods (vertical bars).
         Horizontal bars represent the number of barcodes detected by each method.
