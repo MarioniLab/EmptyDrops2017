@@ -76,14 +76,13 @@
 \captionsetup[subfigure]{justification=centering}
 \newcommand{\code}[1]{\texttt{#1}}
 
-\newcommand{\supptabdataset}{1}
+\newcommand{\supptabdataset}{2}
 \newcommand{\suppfignegative}{1}
-\newcommand{\suppfigambientma}{WHEE}
-\newcommand{\suppfigsimdesign}{2}
-\newcommand{\suppfigsimresults}{3-7}
-\newcommand{\suppfigsimrocs}{WHEE}
-\newcommand{\suppfigrealresults}{8-12}
-\newcommand{\suppfigneuron}{13}
+\newcommand{\suppfigambientma}{2}
+\newcommand{\suppfigsimdesign}{3}
+\newcommand{\suppfigsimresults}{4-8}
+\newcommand{\suppfigsimrocs}{9}
+\newcommand{\suppfigrealresults}{10-14}
 
 \newcommand{\suppsecthreshold}{1}
 \newcommand{\suppsecmontecarlo}{2}
@@ -312,18 +311,14 @@ for example, we would be satistifed that a clustering result was not driven by e
 By comparison, the effect of the total count threshold on the cell calling error rate is less obvious.
 CellRanger also relies on knowledge of the expected number of cells, which may not be available or accurate.
 
-We note that CellRanger detects slightly more large cells than EmptyDrops in the PBMC-based simulation (Figure~\ref{fig:simpbmc}).
-We stress that this does not represent an inherent difference in performance between the two methods, and indeed, is not observed in many of the other simulations (Supplementary Figures~\suppfigsimresults{}).
-In fact, EmptyDrops can always be made to report a superset of the barcodes identified by CellRanger, simply by setting $U$ to the CellRanger-identified threshold.
-We do not do so as the CellRanger threshold may not be appropriate, as observed for the 9K neuron simulations.
-
 \subsection*{Characterizing behaviour of EmptyDrops on real datasets}
-To determine how EmptyDrops behaved on real data, we applied it to detect cells in the PBMC dataset at a FDR of 1\% (Figure~\ref{fig:realpbmc}).
+To determine how EmptyDrops behaved on real data, we applied it to detect cells in the PBMC dataset at a FDR of 0.1\% (Figure~\ref{fig:realpbmc}).
 EmptyDrops identified a visually appropriate $U$ using the knee point from the smoothed spline (Figure~\ref{fig:realpbmc}a),
-and detected significant barcodes as those with low probabilities under the null multinomial model (Figure~\ref{fig:realpbmc}b).
-Comparison of EmptyDrops to CellRanger indicated that most barcodes were detected by both methods (Figure~\ref{fig:realpbmc}c).
-Barcodes that were only detected by EmptyDrops had low total counts (Figure~\ref{fig:realpbmc}d), consistent with our simulation results.
-Conversely, CellRanger uniquely detected a number of cells with moderate total counts.
+and detected significant barcodes as those with low likelihoods under the null Dirichlet-multinomial model (Figure~\ref{fig:realpbmc}b).
+Most of the barcodes detected as cells by EmptyDrops had large total counts and were also detected using CellRanger (Figure~\ref{fig:realpbmc}c). 
+Barcodes that were only detected by EmptyDrops had low total counts (Figure~\ref{fig:realpbmc}d), consistent with the expected differences between methods.
+In the other tested datasets from Supplementary Table~\supptabdataset{}, EmptyDrops consistently detected the greatest number of cells (Supplementary Figures~\suppfigrealresults{}).
+Increased retention of small cells was particularly pronounced in the neuronal datasets where EmptyDrops uniquely detected over a thousand cells.
 
 \begin{figure}[btp]
     \begin{center}
@@ -357,16 +352,17 @@ Conversely, CellRanger uniquely detected a number of cells with moderate total c
 \label{fig:realpbmc}
 \end{figure}
 
-We observed similar results in the other tested datasets (Supplementary Figures~\suppfigrealresults{}) where EmptyDrops consistently detected the greatest number of cells.
-Increased retention of small cells with EmptyDrops was particularly pronounced in the neuronal datasets, where EmptyDrops was able to uniquely detect over a thousand cells.
-Again, a small number of barcodes were uniquely detected by CellRanger in some datasets.
-This is attributable to the conservativeness of the knee point threshold in EmptyDrops, which ensures that empty droplets are not inadvertently retained.
+CellRanger also uniquely detects a number of barcodes with moderate total counts in some tested datasets (Figure~\ref{fig:realpbmc}c, Supplementary Figures~\suppfigrealresults{}).
+This is attributable to the fact that these barcodes have expression profiles similar to the ambient pool, which prevents their detection by EmptyDrops.
+Without further information, it is difficult to determine whether the lack of detection is correct (i.e., the missing barcodes are empty droplets) or if this represents a minor loss of power with EmptyDrops.
+We note that EmptyDrops can always be made to report a superset of the barcodes identified by CellRanger, simply by setting $U$ to the CellRanger-identified threshold.
+However, we do not do so as the CellRanger threshold may not be appropriate -- for example, CellRanger yields an observed FDR of 10-40\% in simulations based on the T-cell dataset.
 
 To explore the differences between methods in more detail, we generated a $t$-stochastic neighbour embedding (t-SNE) plot \cite{van2008visualizing} of all barcodes that were detected by either method in the PBMC dataset.
-We observed that the CellRanger-only barcodes clustered with barcodes that were detected by both methods (Figure~\ref{fig:realtsne}a).
+We observed that the CellRanger-only barcodes generally clustered with barcodes that were detected by both methods (Figure~\ref{fig:realtsne}a).
 This suggests that the conservativeness of EmptyDrops is not a major problem, as it only results in the loss of some cells from a cluster that would have been detected irrespectively.
-In contrast, the EmptyDrops-only barcodes formed a number of unique clusters.
-One of these clusters likely contains platelets, based on the expression of platelet factor 4 (\textit{PF4}) and pro-platelet basic protein (\textit{PPBP}) (Figure~\ref{fig:realtsne}b). 
+In contrast, the EmptyDrops-only barcodes formed a unique cluster (Figure~\ref{fig:realtsne}b). 
+This likely contains platelets based on the expression of platelet factor 4 (\textit{PF4}) and pro-platelet basic protein (\textit{PPBP}).
 This is not surprising as the total RNA content of a cell is often associated with its type/state, and platelets have much less RNA than other cell types \cite{rowley2012platelet}.
 Thus, EmptyDrops can capture biology associated with small cells that would have been lost with CellRanger.
 
@@ -397,20 +393,10 @@ Thus, EmptyDrops can capture biology associated with small cells that would have
     \label{fig:realtsne}
 \end{figure}
 
-A notable side-effect of retaining barcodes with low UMI totals is that a higher number of low-quality cells are also recovered.
-This manifests as an EmptyDrops-only cluster with high expression of mitochondrial genes and low expression of ribosomal protein genes (Figures~\ref{fig:realtsne}c, d).
-Presumably, these cells were damaged during the scRNA-seq protocol, leaking cytoplasmic RNA and enriching for mitochondrial RNA \cite{ilicic2016classification}.
-EmptyDrops is technically correct in retaining the associated barcodes as even damaged cells are distinct from empty droplets.
-Nonetheless, such damaged cells are usually not of interest in downstream analyses, 
-and most of them can be easily removed by applying an appropriate threshold to the proportion of mitochondrial reads.
-
 We repeated our analysis on another 10X dataset containing approximately 900 brain cells.
 Here, the set of cells detected by EmptyDrops was a superset of those detected by CellRanger.
-In particular, EmptyDrops was able to uniquely retain a cluster expressing \textit{Gad1}, \textit{Gad2} and \textit{Slc6a1} (Supplementary Figure~\suppfigneuron{}).
-This likely corresponds to a population of interneurons, which would have been almost completely lost using CellRanger.
-As in the PBMC dataset, we detected a cluster with high mitochondrial RNA content, probably representing damaged cells.
-We also detected a large population that was primarily characterized by widespread downregulation of genes such as those coding for ribosomal proteins.
-We hypothesize that these are cells that are so badly damaged that they have lost all cytoplasmic content, including the mitochondria.
+In particular, EmptyDrops was able to uniquely retain a cluster expressing \textit{Gad1}, \textit{Gad2} and \textit{Slc6a1} (Figures~\ref{fig:realtsne}c, d).
+This likely corresponds to a population of interneurons that would have been almost completely lost by CellRanger.
 
 \section*{Discussion}
 Droplet-based technologies are becoming increasingly popular for high-throughput single-cell transcriptomics.
