@@ -78,6 +78,7 @@
 
 \newcommand{\supptabdataset}{1}
 \newcommand{\suppfignegative}{1}
+\newcommand{\suppfigambientma}{WHEE}
 \newcommand{\suppfigsimdesign}{2}
 \newcommand{\suppfigsimresults}{3-7}
 \newcommand{\suppfigsimrocs}{WHEE}
@@ -185,7 +186,9 @@ We define the ambient count for $g$ as
 yielding a count vector $\mathbf{A} = (A_1, \dots, A_N)$ for all $N$ genes.
 (We assume that any gene with counts of zero for all barcodes has already been filtered out, as this provides no information for distiguishing between barcodes.)
 We apply the Good-Turing algorithm to $\mathbf{A}$ to obtain the posterior expectation, $\tilde{p}_g$, of the proportion of counts assigned to $g$ \cite{gale1995good}, using the \code{goodTuringProportions} function in the \textsf{edgeR} package \cite{robinson2010edgeR}.
-This ensures that genes with zero counts in the ambient pool have non-zero proportions, avoiding the possibility of obtaining likelihoods of zero in downstream calculations.
+This ensures that genes with zero counts in the ambient pool have non-zero proportions, avoiding likelihoods of zero in downstream calculations.
+In general, we do not observe strong differential expression between $\mathbf{A}$ and the average of the cell-containing droplets (Supplementary Figure~\suppfigambientma{}).
+This suggests that the ambient pool contains RNA from multiple cell types, possibly from widespread stress and lysis during dissociation.
 
 Our null hypothesis is that free-floating transcripts in solution are randomly encapsulated into the empty droplets.
 For a given droplet, the probability of sampling a transcript molecule for gene $g$ is equal to $\tilde{p}_g$.

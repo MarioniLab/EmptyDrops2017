@@ -204,6 +204,22 @@ We use $R=10000$ by default, though this can be increased if the lower bound on 
 
 \begin{figure}[btp]
     \begin{center}
+        \includegraphics[width=0.4\textwidth]{../real/pics-real/ma_293t.pdf}
+        \includegraphics[width=0.4\textwidth]{../real/pics-real/ma_jurkat.pdf}
+        \includegraphics[width=0.4\textwidth]{../real/pics-real/ma_neuron_9k.pdf}
+        \includegraphics[width=0.4\textwidth]{../real/pics-real/ma_neurons_900.pdf}
+        \includegraphics[width=0.4\textwidth]{../real/pics-real/ma_pbmc4k.pdf}
+        \includegraphics[width=0.4\textwidth]{../real/pics-real/ma_t_4k.pdf}
+    \end{center}
+    \caption{MA plots for all genes comparing the mean expression profile of the ambient pool (all barcodes with total counts less than or equal to $T$) with the mean expression profile of all barcodes called as cells by EmptyDrops at a FDR of 0.1\%.
+        Each plot corresponds to a dataset in Supplementary Table~\ref{tab:datasets}.
+        The top 10 genes with the strongest differential expression are also highlighted, based on a likelihood ratio test with a Poisson generalized linear model.
+    }
+    \label{fig:negative}
+\end{figure}
+
+\begin{figure}[btp]
+    \begin{center}
         \includegraphics[width=\textwidth]{../simulations/pics-sim/pbmc4k_2000_2000.pdf}
     \end{center}
 \caption{Total count against the rank for each barcode in a simulation based on the PBMC dataset with $G_1=G_2=2000$.
