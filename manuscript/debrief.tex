@@ -246,12 +246,14 @@ This is more statistically rigorous as it avoids the selection of an \textit{ad 
 \subsection*{Correcting for multiple testing across barcodes}
 We correct for multiple testing by controlling the false discovery rate (FDR) using the Benjamini-Hochberg (BH) method \cite{benjamini1995controlling}.
 Putative cells are defined as those barcodes that have significantly poor fits to the ambient model at a specified FDR threshold.
-We set the FDR threshold to 1\% by default, meaning that the expected proportion of empty droplets in the set of retained barcodes is no greater than 1\%.
+In the following text, we will use a FDR threshold to 0.1\% unless otherwise mentioned.
+This means that the expected proportion of empty droplets in the set of retained barcodes is no greater than 0.1\%,
+which we consider to be acceptably low for downstream analyses.
+Users are also free to choose their own thresholds, with more relaxed thresholds favouring sensitivity in cell detection at the cost of specificity.
 
 Note that we only perform the BH correction on the $p$-values for barcodes that have $t_b$ greater than $T$.
 This reduces the severity of the correction by discarding barcodes that were previously assumed to be empty droplets, thus improving detection power for barcodes with larger totals that are more likely to contain cells.
 In fact, $p$-values are not computed at all for barcodes with $t_b \le T$ to avoid unnecessary computational work.
-
 Conversely, all barcodes with $t_b \ge U$ are considered to be known true positives, regardless of how ambient-like their expression profiles are.
 These barcodes have their $p$-values set to zero during the BH correction.
 This approach improves power by reducing the severity of the correction in the presence of a set of known positives.
