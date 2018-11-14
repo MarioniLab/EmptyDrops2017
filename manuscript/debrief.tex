@@ -158,9 +158,9 @@ This problem is exacerbated by variable capture and amplification efficiency acr
 Applying a simple threshold on the total count forces the researcher to choose between the loss of small cells or an increase in the number of artifactual ``cells'' composed of ambient RNA.
 This is especially problematic if small cells represent distinct cell types or functional states.
 
-In this report, we propose a new method for detecting empty droplets in droplet-based single-cell RNA sequencing (scRNA-seq) data.
-We construct a profile of the ambient pool of RNA, and test each barcode for deviations from this profile using a Poisson-based model for the count distribution.
-Barcodes with significant deviations are considered to be genuine cells, thus allowing recovery of cells with low total RNA content and small total UMI counts.
+Here, we propose a new method for detecting empty droplets in droplet-based single-cell RNA sequencing (scRNA-seq) data.
+We estimate the profile of the ambient RNA pool and test each barcode for deviations from this profile using a Dirichlet-multinomial model of UMI count sampling.
+Barcodes with significant deviations are considered to be genuine cells, thus allowing recovery of cells with low total RNA content and small total counts.
 We combine our approach with a knee point filter to ensure that barcodes with large total counts are always retained.
 Using a variety of simulations, we demonstrate that our method outperforms methods based on a simple threshold on the total UMI count.
 We also apply our method to several real data sets where we are able to recover more cells from both existing and new cell types.
