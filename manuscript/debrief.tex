@@ -276,27 +276,21 @@ The performance of CellRanger was especially poor for the simulations based on t
 
 \begin{figure}[btp]
     \begin{center}
-        \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 10mm 0mm 19mm,clip]{../simulations/results-sim/pics/pbmc4k_G1.pdf}
+        \begin{subfigure}{\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 15mm 0mm 0mm,clip]{../simulations/results-sim/pics/pbmc4k-recall.pdf}
         \caption{}
         \end{subfigure}
-        \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 10mm 0mm 19mm,clip]{../simulations/results-sim/pics/pbmc4k_G2.pdf}
+        \begin{subfigure}{\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 0mm,clip]{../simulations/results-sim/pics/pbmc4k-fdr.pdf}
         \caption{}
-    \end{subfigure} \\[0.1in]
-        \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 10mm 0mm 19mm,clip]{../simulations/results-sim/pics/pbmc4k_FDR.pdf}
-        \caption{}
-        \end{subfigure}
-        \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 19mm 0mm 10mm,clip]{../simulations/results-sim/pics/legend.pdf}
         \end{subfigure}
     \end{center}
-\caption{Results for the simulations based on the PBMC dataset, using three different methods for detecting cell-containing droplets.    
+\caption{Results for the simulations based on the PBMC dataset, using either EmptyDrops or the default CellRanger method for detecting cell-containing droplets.
 Simulation scenarios are labelled as $G_1/G_2$ where $G_1$ and $G_2$ are the number of barcodes in the group of large and small cells, respectively.
-The recall for each group is shown as a proportion of the group size (a, b), and the FDR is calculated as the proportion of detected droplets that are empty (c).
-Each point represents the result of one simulation iteration, while the bar represents the mean across 10 iterations and the error bars represent the standard error of the mean.
-The dotted line represents the nominal FDR threshold (1\%) for EmptyDrops.
+(a) The recall for each method, defined as the proportion of detected cells from each group.
+EmptyDrops was used with a FDR threshold of 0.1\%.
+(b) The observed FDR in the set of libraries detected by EmptyDrops at a range of nominal FDR thresholds (dotted lines), defined as the proportion of detected droplets that are empty.
+In both plots, each point represents the result of one simulation iteration, the bar represents the mean value across 10 iterations and the error bars represent the standard error of the mean.
 }
 \label{fig:simpbmc}
 \end{figure}
@@ -325,19 +319,19 @@ Conversely, CellRanger uniquely detected a number of cells with moderate total c
 \begin{figure}[btp]
     \begin{center}
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../simulations/pics-real/rank_pbmc4k.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../real/pics-real/rank_pbmc4k.pdf}
         \caption{}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../simulations/pics-real/dev_pbmc4k.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../real/pics-real/dev_pbmc4k.pdf}
         \caption{}
     \end{subfigure}\\[0.1in]
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 5mm,clip]{../simulations/pics-real/intersect_pbmc4k.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 5mm,clip]{../real/pics-real/intersect_pbmc4k.pdf}
         \caption{}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../simulations/pics-real/kept_pbmc4k.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../real/pics-real/kept_pbmc4k.pdf}
         \caption{}
     \end{subfigure}
 \end{center}

@@ -19,46 +19,41 @@
 \newcommand{\PlotSim}[2]{%
 \begin{figure}[btp]
     \begin{center}
-        \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 10mm 0mm 19mm,clip]{../simulations/results-sim/pics/#1_G1.pdf}
+        \begin{subfigure}{0.8\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 15mm 0mm 0mm,clip]{../simulations/results-sim/pics/#1-recall.pdf}
         \caption{}
         \end{subfigure}
-        \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 10mm 0mm 19mm,clip]{../simulations/results-sim/pics/#1_G2.pdf}
+        \begin{subfigure}{0.8\textwidth}
+        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 0mm,clip]{../simulations/results-sim/pics/#1-fdr.pdf}
         \caption{}
-    \end{subfigure} \\[0.1in]
-        \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 10mm 0mm 19mm,clip]{../simulations/results-sim/pics/#1_FDR.pdf}
-        \caption{}
-        \end{subfigure}
-        \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 19mm 0mm 10mm,clip]{../simulations/results-sim/pics/legend.pdf}
         \end{subfigure}
     \end{center}
-\caption{Results for simulations based on the #2 dataset, using three methods for detecting cell-containing droplets.    
+\caption{Results for the simulations based on the #2 dataset, using either EmptyDrops or the default CellRanger method for detecting cell-containing droplets.
 Simulation scenarios are labelled as $G_1/G_2$ where $G_1$ and $G_2$ are the number of barcodes in the group of large and small cells, respectively.
-The recall for each group is shown as a proportion of the group size (a, b), and the FDR is calculated as the proportion of detected droplets that are empty (c).
-Each point represents the result of one simulation iteration, while the bar represents the mean across 10 iterations and the error bars represent the standard error of the mean.
-The dotted line represents the nominal FDR threshold (1\%) for EmptyDrops.}
+(a) The recall for each method, defined as the proportion of detected cells from each group.
+EmptyDrops was used with a FDR threshold of 0.1\%.
+(b) The observed FDR in the set of libraries detected by EmptyDrops at a range of nominal FDR thresholds (dotted lines), defined as the proportion of detected droplets that are empty.
+In both plots, each point represents the result of one simulation iteration, the bar represents the mean value across 10 iterations and the error bars represent the standard error of the mean.
+}
 \end{figure}}
 
 \newcommand{\PlotReal}[2]{%
 \begin{figure}[btp]
     \begin{center}
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../simulations/pics-real/rank_#1.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../real/pics-real/rank_#1.pdf}
         \caption{}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../simulations/pics-real/dev_#1.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../real/pics-real/dev_#1.pdf}
         \caption{}
     \end{subfigure}\\[0.1in]
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 5mm,clip]{../simulations/pics-real/intersect_#1.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 5mm,clip]{../real/pics-real/intersect_#1.pdf}
         \caption{}
     \end{subfigure}
     \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../simulations/pics-real/kept_#1.pdf}
+        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../real/pics-real/kept_#1.pdf}
         \caption{}
     \end{subfigure}
 \end{center}
@@ -184,12 +179,12 @@ We use $R=10000$ by default, though this can be increased if the lower bound on 
 \newpage
 \begin{figure}[btp]
     \begin{center}
-        \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_293t.pdf}
-        \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_jurkat.pdf}
-        \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_neuron_9k.pdf}
-        \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_neurons_900.pdf}
-        \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_pbmc4k.pdf}
-        \includegraphics[width=0.4\textwidth]{../simulations/pics-negcheck/hist_t_4k.pdf}
+        \includegraphics[width=0.4\textwidth]{../real/pics-negcheck/hist_293t.pdf}
+        \includegraphics[width=0.4\textwidth]{../real/pics-negcheck/hist_jurkat.pdf}
+        \includegraphics[width=0.4\textwidth]{../real/pics-negcheck/hist_neuron_9k.pdf}
+        \includegraphics[width=0.4\textwidth]{../real/pics-negcheck/hist_neurons_900.pdf}
+        \includegraphics[width=0.4\textwidth]{../real/pics-negcheck/hist_pbmc4k.pdf}
+        \includegraphics[width=0.4\textwidth]{../real/pics-negcheck/hist_t_4k.pdf}
     \end{center}
     \caption{Histograms of $p$-values for all barcodes with total UMI counts less than or equal to the threshold $T=100$.
         Each plot corresponds to a dataset in Supplementary Table~\ref{tab:datasets} where the $p$-value represents the deviation from the ambient profile.
