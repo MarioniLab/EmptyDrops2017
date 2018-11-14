@@ -215,12 +215,12 @@ We use $R=10000$ by default, though this can be increased if the lower bound on 
         Each plot corresponds to a dataset in Supplementary Table~\ref{tab:datasets}.
         The top 10 genes with the strongest differential expression are also highlighted, based on a likelihood ratio test with a Poisson generalized linear model.
     }
-    \label{fig:negative}
+    \label{fig:ma}
 \end{figure}
 
 \begin{figure}[btp]
     \begin{center}
-        \includegraphics[width=\textwidth]{../simulations/pics-sim/pbmc4k_2000_2000.pdf}
+        \includegraphics[width=\textwidth]{../simulations/pics-sim/pbmc4k_2000_2000-sim.pdf}
     \end{center}
 \caption{Total count against the rank for each barcode in a simulation based on the PBMC dataset with $G_1=G_2=2000$.
 Plots are shown for all barcodes, barcodes corresponding to empty droplets, and barcodes corresponding to large or small cells.
@@ -254,6 +254,24 @@ The organism, cell type, expected number of cells and the version of the CellRan
 \PlotSim{neuron_9k}{9K brain cell}
 \PlotSim{neurons_900}{900 brain cell}
 \PlotSim{t_4k}{pan T cell}
+
+\begin{figure}[btp]
+    \begin{center}
+        \includegraphics[width=0.4\textwidth,trim=0mm 0mm 56mm 0mm,clip]{../simulations/pics-sim/293t_2000_2000-roc.pdf}
+        \includegraphics[width=0.4\textwidth,trim=0mm 0mm 56mm 0mm,clip]{../simulations/pics-sim/jurkat_2000_2000-roc.pdf}
+        \includegraphics[width=0.4\textwidth,trim=0mm 0mm 56mm 0mm,clip]{../simulations/pics-sim/neuron_9k_2000_2000-roc.pdf}
+        \includegraphics[width=0.4\textwidth,trim=0mm 0mm 56mm 0mm,clip]{../simulations/pics-sim/neurons_900_2000_2000-roc.pdf}
+        \includegraphics[width=0.4\textwidth,trim=0mm 0mm 56mm 0mm,clip]{../simulations/pics-sim/pbmc4k_2000_2000-roc.pdf}
+        \includegraphics[width=0.4\textwidth,trim=0mm 0mm 56mm 0mm,clip]{../simulations/pics-sim/t_4k_2000_2000-roc.pdf}
+    \end{center}
+    \caption{Recall as a function of the observed FDR upon applying different cell calling strategies in simulations based on real data sets.
+        For EmptyDrops (pink), the recall and observed FDR were computed at varying nominal FDR thresholds.
+        For total count-based methods (grey), metrics were computed after increasing the total count threshold. 
+        Each simulation contained 2000 cells in both the large group (unbroken lines) and small group (dashed).
+    }
+    \label{fig:rocs}
+\end{figure}
+
 
 \PlotReal{293t}{293T cell line}
 \PlotReal{jurkat}{Jurkat cell line}
