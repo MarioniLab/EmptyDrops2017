@@ -79,12 +79,15 @@ for (i in seq_along(ALLFILES)) {
     pdf(file.path(ppath, paste0("kept_", stub, ".pdf")))
     plot(0,0,type="n", xlim=xrange, ylim=yrange, xlab=expression(Log[10]~"Total count"), 
          ylab="Number of cells", cex.axis=1.2, cex.lab=1.4, main=stub, cex.main=1.4)
+
     shift <- 0
+    ltys <- c(EmptyDrops=1, "EmptyDrops (II)"=2, CellRanger=1)
     for (mode in names(modes)) { 
-        plotHistogramOutline(breaks+shift, collected.y[[mode]], col=colors[mode], lwd=2)
-        shift <- shift + 0.005
+        plotHistogramOutline(breaks+shift, collected.y[[mode]], col=colors[mode], lwd=2, lty=ltys[mode])
+        shift <- shift + 0.01
     }
-    legend("topleft", col=colors, legend=names(colors), lwd=2, cex=1.2)
+
+    legend("topleft", col=colors[names(modes)], legend=names(modes), lty=ltys[names(modes)], lwd=2, cex=1.2)
     dev.off()
 
     ############################
