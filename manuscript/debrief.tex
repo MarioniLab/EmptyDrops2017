@@ -188,11 +188,15 @@ This ensures that genes with zero counts in the ambient pool have non-zero propo
 
 Our null hypothesis is that free-floating transcripts in solution are randomly encapsulated into the empty droplets.
 For a given droplet, the probability of sampling a transcript molecule for gene $g$ is equal to $\tilde{p}_g$.
-If we condition on the total count $t_b$ for a cell barcode $b$, we can model the counts for each barcode with a multinomial distribution.
+If we condition on the total count $t_b$ for a cell barcode $b$, we can model the counts for each barcode with a Dirichlet-multinomial distribution.
 We define the likelihood of obtaining the counts for barcode $b$ as 
 \[
-    L_b = t_b! \prod_{g=1}^N \frac{\tilde{p}_g}{y_{gb}!} \;.
+    L_b = \frac{t_b!\Gamma(\alpha_g)}{\Gamma(t_b + \alpha_g)} \prod_{g=1}^N \frac{\Gamma(y_{gb}+\alpha_g)}{y_{gb}!\Gamma(\alpha_g)} \;,
 \]
+where $\alpha_g = \alpha\tilde{p}_g$ for a scaling factor $\alpha$.
+A maximum likelihood estimate of $\alpha$ is obtained from $\mathcal{G}$ by treating $\tilde{p}_g$ as known.
+Low estimates of $\alpha$ model overdispersion in the counts, e.g., due to amplification biases or correlated sampling of transcript molecules.
+
 We use a Monte Carlo approach to compute the $p$-value for $b$.
 We generate a new set of counts by randomly sampling from a multinomial distribution with probabilities set to $\tilde{p}_g$ for all $g$ and size equal to $t_b$.
 We use the above formula to calculate the likelihood for this set of counts (denoted $L'_{bi}$, for iteration $i$), and we repeat this process for $R$ iterations. 
