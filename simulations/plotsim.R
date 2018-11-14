@@ -9,7 +9,7 @@ dir.create(newdir, showWarning=FALSE)
 
 for (f in list.files(resdir, pattern=".*-res\\.tsv$", full=TRUE)) { 
     tab <- read.table(f, header=TRUE, sep="\t", stringsAsFactors=FALSE)
-    tab <- tab[tab$Method %in% c("emptyDrops", "CellRanger"),]
+    tab <- tab[tab$Method %in% c("EmptyDrops", "CellRanger"),]
     stub <- sub("(.+)-res.tsv", "\\1", basename(f))
     scenario <- paste0(tab$G1Size, "/", tab$G2Size)
 
@@ -64,9 +64,9 @@ for (f in list.files(resdir, pattern=".*-res\\.tsv$", full=TRUE)) {
     }
 
     legend(max(Xcoords)+CONSTANT*3, max(combined.recall),
-        col=rep(colors[c("CellRanger", "emptyDrops")], 2),
+        col=rep(colors[c("CellRanger", "EmptyDrops")], 2),
         pch=rep(c(16, 4), each=2),
-        legend=c("CellRanger (large)", "emptyDrops (large)", "CellRanger (small)", "emptyDrops (small)"),
+        legend=c("CellRanger (large)", "EmptyDrops (large)", "CellRanger (small)", "EmptyDrops (small)"),
         lwd=2, xpd=TRUE)
 
     dev.off()

@@ -109,4 +109,4 @@ loadRaster <- function(fpath, log=TRUE) {
     invisible(limits)
 }
 
-colors <- c("emptyDrops"="salmon", "CellRanger"="dodgerblue", "Knee point"="orange")
+colors <- c("EmptyDrops"="salmon", "CellRanger"="dodgerblue", "EmptyDrops (II)"="orange")

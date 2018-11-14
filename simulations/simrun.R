@@ -72,7 +72,7 @@ for (fname in ALLFILES) {
 
                 # Saving the default assessment results to file.
                 write.table(cbind(G1Size=g1, G2Size=g2, 
-                                  Method=c("emptyDrops", "Knee point", "No knee", "CellRanger"),
+                                  Method=c("EmptyDrops", "Knee point", "EmptyDrops (II)", "CellRanger"),
                                   rbind(emp.res, knee.res, emp2.res, cell.res)),
                             file=ofile, append=!unlinker, col.names=unlinker, 
                             row.names=FALSE, quote=FALSE, sep="\t")
@@ -102,7 +102,7 @@ for (fname in ALLFILES) {
 
                     par(xpd=TRUE)
                     legend(0.011, 1, lwd=3, col=rep(c(emp.col, lib.col), each=2), lty=rep(1:2, 2),
-                        legend=c("emptyDrops (large)", "emptyDrops (small)", "Total count (large)", "Total count (small)"))
+                        legend=c("EmptyDrops (large)", "EmptyDrops (small)", "Total count (large)", "Total count (small)"))
                     dev.off()
                 }
 
