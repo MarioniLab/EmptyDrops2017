@@ -80,7 +80,7 @@ plotBarcodes <- function(ranks, totals, fitted=NULL, subset=NULL, ...) {
     if (!is.null(fitted)) {  
         Fx <- fitted[keep]
         o <- order(Rx)
-        lines(Rx[o], Fx[o], col="red")
+        lines(Rx[o], Fx[o], col="red", lwd=2)
     }
     return(invisible(NULL))
 }
@@ -89,6 +89,24 @@ plotHistogramOutline <- function(breaks, heights, ...) {
     x <- rep(breaks, each=2)
     y <- c(0, rep(heights, each=2), 0)
     lines(x, y, ...)
+}
+
+saveRaster <- function(...) {
+    tmp <- tempfile(fileext=".png")
+    png(tmp, width=7, height=7, units="in", res=300, pointsize=12)
+    par(mar=c(0,0,0,0))
+    options(bitmapType="cairo")
+    plot(..., xlab="", ylab="", axes=FALSE)
+    dev.off()
+    tmp
+}
+
+loadRaster <- function(fpath, log=TRUE) {
+    limits <- par("usr")
+    img <- png::readPNG(fpath)
+    if (log) { limits <- 10^limits }
+    rasterImage(img, limits[1], limits[3], limits[2], limits[4])
+    invisible(limits)
 }
 
 colors <- c("emptyDrops"="salmon", "CellRanger"="dodgerblue", "Knee point"="orange")

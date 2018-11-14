@@ -29,7 +29,7 @@ for (i in seq_along(ALLFILES)) {
 
     # Making a barcode plot for diagnostics.
     pdf(file.path(ppath, paste0("rank_", stub, ".pdf")))
-    plotBarcodes(stats$rank, stats$total, fitted=stats$fitted, cex.axis=1.2, cex.lab=1.4, main=stub)
+    plotBarcodes(stats$rank, stats$total, fitted=stats$fitted, cex.axis=1.2, cex.lab=1.4, main=stub, col="grey70", pch=16)
     abline(h=stats$knee, col="dodgerblue", lty=2, lwd=2)
     abline(h=stats$inflection, col="forestgreen", lty=2, lwd=2)
     legend("bottomleft", lty=c(1,2,2), col=c("red", "dodgerblue", "forestgreen"),
@@ -42,15 +42,16 @@ for (i in seq_along(ALLFILES)) {
     e.keep[is.na(e.keep)] <- FALSE
     
     # Keeping everything above the knee point.
-    k.keep <- stats$total > stats$knee
-    
+    k.keep <- p.adjust(e.out$PValue, method="BH") <= 0.001 & !is.na(e.out$PValue)
+
     # Using the CellRanger approach.
     c.keep <- defaultDrops(final, expected=expected[i])
 
+    ############################
     # Quantifying the intersections.
     at.least.one <- k.keep | e.keep | c.keep
-    collected <- data.frame(emptyDrops=as.integer(e.keep), 
-                            `Knee point`=as.integer(k.keep), 
+    collected <- data.frame(EmptyDrops=as.integer(e.keep), 
+                            `EmptyDrops (II)`=as.integer(k.keep), 
                             CellRanger=as.integer(c.keep),
                             check.names=FALSE)[at.least.one,]
 
@@ -59,10 +60,11 @@ for (i in seq_along(ALLFILES)) {
           text.scale=c(2, 1.5, 1, 1, 1.5, 1.5))
     dev.off()
 
+    ############################
     # Having a look at the distribution of retained cells in more detail.
     limits <- log10(range(stats$total[at.least.one]))
     breaks <- seq(limits[1], limits[2], length.out=21)
-    modes <- list("emptyDrops"=e.keep, "Knee point"=k.keep, "CellRanger"=c.keep)
+    modes <- list("EmptyDrops"=e.keep, "EmptyDrops (II)"=k.keep, "CellRanger"=c.keep)
 
     collected.x <- collected.y <- list()
     for (mode in names(modes)) {
@@ -85,23 +87,30 @@ for (i in seq_along(ALLFILES)) {
     legend("topleft", col=colors, legend=names(colors), lwd=2, cex=1.2)
     dev.off()
 
+    ############################
     # Examining the distribution of deviances.
-    pdf(file.path(ppath, paste0("dev_", stub, ".pdf")))
-    par(mar=c(5.1, 5.1, 4.1, 1.1))
     X <- e.out$Total/1000
     Y <- -e.out$LogProb/1000
+    xlim <- range(X[!is.na(e.out$LogProb)]) 
+    tmp <- saveRaster(X, Y, pch=16, cex=0.5, col=ifelse(e.keep, "red", "grey80"), log="xy", xlim=xlim)
+
+    pdf(file.path(ppath, paste0("dev_", stub, ".pdf")))
+    par(mar=c(5.1, 5.1, 4.1, 1.1))
+    
     plot(X, Y, log="xy", 
          xlab=expression("Total count (x "*10^3*")"), 
          ylab=expression("-Log probability (x "*10^3*")"), 
-         xlim=range(X[!is.na(e.out$LogProb)]), 
-         col=ifelse(e.keep, "red", "grey80"), 
-         cex.axis=1.2, cex.lab=1.4,
-         pch=16, cex=0.5, main=stub, cex.main=1.4)
+         xlim=xlim, type="n", cex.axis=1.2, cex.lab=1.4,
+         main=stub, cex.main=1.4)
+    loadRaster(tmp)
+    box()
+
     legend("bottomright", col=c("red", "grey80"), pch=16, cex=1.2,
            legend=c("Putative cell", "Empty droplet"))
     dev.off()
 
-    # Creating a MA plot, with some rastering dark magic to keep the file size small.
+    ############################
+    # Creating a MA plot.
     ambient.prof <- rowSums(final[,colSums(final) <= 100])
     cell.prof <- rowSums(final[,e.keep])
     summed <- cbind(ambient.prof, cell.prof)
@@ -109,20 +118,13 @@ for (i in seq_along(ALLFILES)) {
     M <- vals[,1] - vals[,2]
     A <- (vals[,1] + vals[,2])/2
 
-    tmp <- tempfile(fileext=".png")
-	png(tmp, width=7, height=7, units="in", res=300, pointsize=12)
-    par(mar=c(0,0,0,0))
-    options(bitmapType="cairo")
-    plot(A, M, xlab="", ylab="", pch=16, axes=FALSE, cex=0.5)
-    dev.off()
+    tmp <- saveRaster(A, M, pch=16, cex=0.5)
 
     pdf(file.path(ppath, paste0("ma_", stub, ".pdf")))
 	par(mar=c(5.1, 4.1, 2.1, 5.1))
     plot(A, M, xlab="A", ylab="M (ambient - cells)",
         cex.axis=1.2, cex.lab=1.4, pch=16, cex=0.2, type="n")
-    limits <- par("usr")
-    img <- png::readPNG(tmp)
-    rasterImage(img, limits[1], limits[3], limits[2], limits[4])
+    limits <- loadRaster(tmp)
 
 	# Choosing the top 10 DE genes to show, by fitting a Poisson GLM.
     library(edgeR)
