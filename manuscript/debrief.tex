@@ -80,6 +80,7 @@
 \newcommand{\suppfignegative}{1}
 \newcommand{\suppfigsimdesign}{2}
 \newcommand{\suppfigsimresults}{3-7}
+\newcommand{\suppfigsimrocs}{WHEE}
 \newcommand{\suppfigrealresults}{8-12}
 \newcommand{\suppfigneuron}{13}
 
@@ -266,19 +267,19 @@ Each simulated dataset was generated from real droplet-based scRNA-seq data (Sup
 and contained one group of large cells with high RNA content and large $t_b$;
 one group of small cells with low RNA content and small $t_b$; 
 and a set of empty droplets with counts sampled from an ambient pool of RNA.
-We applied EmptyDrops at a FDR of 1\% to determine the recall for each group of cells and the FDR among the detected barcodes.
+We applied EmptyDrops at a FDR of 0.1\% to determine the recall for each group of cells and the FDR among the detected barcodes.
 We also tested methods that retain all cells with total UMI counts above a threshold.
 The threshold was defined as the total $U$ at the knee point, as described above;
 or using the quantile-based approach \cite{zheng2017massively} in the CellRanger software from 10X Genomics.
 
-Results for a simulation based on a real dataset containing peripheral blood mononuclear cells (PBMCs) are shown in Figure~\ref{fig:simpbmc}.
+Cell-calling results for a simulation based on a real dataset containing peripheral blood mononuclear cells (PBMCs) are shown in Figure~\ref{fig:simpbmc}.
 All methods consistently detected the large cells but recall for the group of small cells was much lower.
-Nonetheless, EmptyDrops was able to detect approximately 2-5-fold more small cells than the other methods in all scenarios.
-EmptyDrops also correctly controlled the FDR below the specified threshold of 1\%.
-We observed similar performance in simulations based on other real datasets (Supplementary Figures~\suppfigsimresults{}).
-Improved detection of small cells with EmptyDrops was particularly pronounced in simulations based on the neuronal and cell line datasets,
-with recall of 60-90\% compared to below 10\% with the other methods.
-The performance of CellRanger was especially poor for the simulations based on the 9K neuron dataset, where over 10\% of detected barcodes were false positives.
+Nonetheless, EmptyDrops was able to detect more small cells than the other methods in all scenarios.
+We observed similar results in simulations based on other real datasets (Supplementary Figures~\suppfigsimresults{}).
+The poor performance of the total count-based methods for small cells is expected.
+Barcodes corresponding to small cells with little RNA have similar total counts as barcodes corresponding to large empty droplets with many ambient molecules.
+A method based on the total count alone cannot distinguish between these two possibilities, either reducing recall or increasing false positives (Supplementary Figures~\suppfigsimrocs{}).
+In contrast, EmptyDrops uses the expression profile for each droplet to distinguish small cells from the ambient profile with greater power.
 
 \begin{figure}[btp]
     \begin{center}
@@ -291,7 +292,7 @@ The performance of CellRanger was especially poor for the simulations based on t
         \caption{}
         \end{subfigure}
     \end{center}
-\caption{Cell-calling results in simulations based on the PBMC dataset using either EmptyDrops or CellRanger.
+\caption{Cell-calling results from different algorithms in simulations based on the PBMC dataset.
 Simulation scenarios are labelled as $G_1/G_2$ where $G_1$ and $G_2$ are the number of barcodes in the group of large and small cells, respectively.
 (a) The recall for each method, defined as the proportion of detected cells from each group.
 EmptyDrops was used with a FDR threshold of 0.1\%.
@@ -301,18 +302,17 @@ In both plots, each point represents the result of one simulation iteration, the
 \label{fig:simpbmc}
 \end{figure}
 
-The poor performance of the threshold-based methods for small cells is expected.
-Barcodes corresponding to small cells with little RNA have similar total UMI counts as barcodes corresponding to large empty droplets with high levels of ambient RNA.
-The total UMI count cannot distinguish between these two possibilities, resulting in either reduced recall or a high false positive rate.
-In contrast, EmptyDrops uses the expression profile for each droplet to distinguish small cells from the ambient profile with greater power.
-Another benefit of EmptyDrops is its statistical rigour, allowing users to increase the stringency of the output by using a lower FDR threshold.
-The effect of adjusting the parameters in the quantile-based CellRanger approach is less interpretable.
+EmptyDrops also correctly controlled the FDR close to below the nominal thresholds in all datasets (Figure~\ref{fig:simpbmc}, Supplementary Figures~\suppfigsimresults{}).
+This is a useful property of the method as it provides users with a reliable upper bound on the expected proportion of empty droplets.
+Such information can be used to interpret the results of downstream analyses --
+for example, we would be satistifed that a clustering result was not driven by empty droplets if the proportion of cells in a cluster of interest was much higher than the nominal FDR threshold used in EmptyDrops.
+By comparison, the effect of the total count threshold on the cell calling error rate is less obvious.
+CellRanger also relies on knowledge of the expected number of cells, which may not be available or accurate.
 
 We note that CellRanger detects slightly more large cells than EmptyDrops in the PBMC-based simulation (Figure~\ref{fig:simpbmc}).
 We stress that this does not represent an inherent difference in performance between the two methods, and indeed, is not observed in many of the other simulations (Supplementary Figures~\suppfigsimresults{}).
 In fact, EmptyDrops can always be made to report a superset of the barcodes identified by CellRanger, simply by setting $U$ to the CellRanger-identified threshold.
 We do not do so as the CellRanger threshold may not be appropriate, as observed for the 9K neuron simulations.
-It also relies on knowledge of the expected number of cells, which may not be available or accurate.
 
 \subsection*{Characterizing behaviour of EmptyDrops on real datasets}
 To determine how EmptyDrops behaved on real data, we applied it to detect cells in the PBMC dataset at a FDR of 1\% (Figure~\ref{fig:realpbmc}).
