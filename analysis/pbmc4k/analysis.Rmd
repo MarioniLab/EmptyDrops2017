@@ -265,14 +265,22 @@ Having a look at how the clusters interact with the detection status, so we can 
 table(sce$Cluster, sce$Detection)
 ```
 
-Focusing on cluster 13, which seems to be made of platelets:
+Focusing on one of the clusters, which seems to be made of platelets:
 
 ```{r heatmap8, fig.wide=TRUE}
-current <- marker.out[["13"]]
+platelets <- "13"
+current <- marker.out[[platelets]]
 chosen <- rownames(current)[current$Top <= 5]
 plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
     zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
-    colour_columns_by="Cluster", columns=order(sce$Cluster))
+    colour_columns_by="Cluster", columns=order(sce$Cluster),
+    show_colnames=FALSE)
+```
+
+We'll record this in the metadata for future use.
+
+```{r}
+metadata(sce)$Platelets <- platelets
 ```
 
 # Wrapping up

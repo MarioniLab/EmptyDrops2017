@@ -260,24 +260,29 @@ Having a look at how the clusters interact with the detection status, so we can 
 table(sce$Cluster, sce$Detection)
 ```
 
-Focusing on cluster 10:
+Focusing on two clusters which seem to be interneurons:
 
-```{r heatmap8, fig.wide=TRUE}
-current <- marker.out[["10"]]
+```{r heatmap, fig.wide=TRUE}
+interneurons <- c("8", "10")
+current <- marker.out[[interneurons[1]]]
 chosen <- rownames(current)[current$Top <= 20]
 plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
     zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
-    colour_columns_by="Cluster", columns=order(sce$Cluster))
+    colour_columns_by="Cluster", columns=order(sce$Cluster),
+    show_colnames=FALSE)
+
+current <- marker.out[[interneurons[2]]]
+chosen <- rownames(current)[current$Top <= 20]
+plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
+    zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
+    colour_columns_by="Cluster", columns=order(sce$Cluster),
+    show_colnames=FALSE)
 ```
 
-... and 8, which seem to be interneurons:
+We'll record this in the metadata for future use.
 
-```{r heatmap6, fig.wide=TRUE}
-current <- marker.out[["8"]]
-chosen <- rownames(current)[current$Top <= 20]
-plotHeatmap(sce, features=chosen, exprs_values="logcounts", 
-    zlim=5, center=TRUE, symmetric=TRUE, cluster_cols=FALSE,
-    colour_columns_by="Cluster", columns=order(sce$Cluster))
+```{r}
+metadata(sce)$Interneurons <- interneurons
 ```
 
 # Wrapping up

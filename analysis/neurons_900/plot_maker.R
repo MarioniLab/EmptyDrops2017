@@ -5,11 +5,13 @@ sce <- readRDS("sce.rds")
 coords <- reducedDim(sce, "TSNE")
 dir.create("pics", showWarning=FALSE)
 
+inter.clusts <- metadata(sce)$Interneurons
+interneuron <- colMeans(coords[sce$Cluster %in% inter.clusts,]) 
+
 # Defining arrow coordinates.
-interneuron <- colMeans(coords[sce$Cluster=="9",]) 
 FUN <- function(coloration, ...) {
     plot(coords[,1], coords[,2], col=coloration, pch=16, xlab="t-SNE1", ylab="t-SNE2", cex.axis=1.2, cex.lab=1.4, ...)
-    SHIFT <- c(0, -16)
+    SHIFT <- c(0, -11)
     WIDTH <- c(0, 4)
     arrows(interneuron[1] - SHIFT[1] - WIDTH[1], interneuron[2] - SHIFT[2], 
            interneuron[1] - SHIFT[1], interneuron[2] - SHIFT[2] - WIDTH[2], angle=20, length=0.1, lwd=2)
@@ -31,7 +33,7 @@ coloration[sce$Detection=="CellRanger"] <- "dodgerblue"
 
 pdf("pics/by_detection.pdf")
 FUN(coloration)
-legend("bottomright", legend=c("Both", "EmptyDrops"), col=c("grey", "salmon"), pch=16)
+legend("bottomright", legend=c("Both", "EmptyDrops", "CellRanger"), col=c("grey", "salmon", "dodgerblue"), pch=16)
 dev.off()
 
 # Making a plot of interneuron marker expression.
