@@ -417,12 +417,13 @@ However, it may be a problem in protocols where error correction of the barcodes
 % Note that the detection drops down to a dribble near total=100 in the real data.
 % This is consistent with our assumptions.
 
-As we have shown, EmptyDrops is able to detect cells with low RNA content but also recovers more low-quality damaged cells in real data.
-Many of these cells can be removed by thresholding on the mitochondrial content
-or other metrics such as the proportion of ribosomal protein mRNA (e.g., if the extent of damage has stripped the cytoplasm from a cell).
+A notable side-effect of retaining barcodes with low UMI totals is that a higher number of low-quality cells are also recovered.
+EmptyDrops is technically correct in retaining the associated barcodes as damaged cells are distinct from empty droplets.
+However, these cells are usually not of interest in downstream analyses. 
+We have removed them by thresholding on the mitochondrial content (see Methods), though other metrics could be used such as the proportion of ribosomal protein mRNA (e.g., if damage has stripped the cytoplasm entirely).
 If this is not sufficient, manual inspection of the clustering results may be necessary to identify these cells and exclude them from further consideration.
 The other option is to apply a more stringent threshold on the total count, though this will also discard genuine cells with low RNA content and offset the benefits of using EmptyDrops.
-Nonetheless, EmptyDrops still provides an advantage over existing methods by providing a statistically rigorous framework for cell detection, 
+Even so, EmptyDrops still provides an advantage over existing methods by providing a statistically rigorous framework for cell detection, 
 without requiring any \textit{a priori} knowledge of the expected number of cells.
 
 We have focused exclusively on droplet-based scRNA-seq data generated using the GemCode technology from 10X Genomics.
@@ -431,9 +432,9 @@ In principle, the method can also be applied to data from other droplet-based pr
 Cell lysis or leakage will occur in any protocol involving dissociation and microfluidics,
 and the formation of empty droplets containing RNA from the ambient pool is unlikely to be a phenomenon that is unique to 10X datasets.
 
-An interesting direction for future work is whether the contribution of the ambient profile can be ``subtracted'' from each barcode's expression profile, thus yielding a more accurate representation of each cell's transcriptome.
+An interesting direction for future work is whether the contribution of the ambient profile can be ``subtracted'' from each barcode's expression profile, thus yielding a more accurate representation of each cell's transcriptome \cite{young2018soupx}.
 This is not straightforward as it requires an understanding of the distribution of the volume of the droplets (excluding the volume of the cell inside) to calculate the expected contribution.
-It is not clear whether such information can be obtained solely from the count matrix for a given dataset.
+It is not clear whether such information can be obtained solely from the count matrix for any arbitrary dataset.
 Direct subtraction of the contribution from the counts is also unsatisfactory as it does not preserve the mean-variance relationship.
 Rather, an identity-link factor model for count data may be required, which is not trivial to implement. 
 
