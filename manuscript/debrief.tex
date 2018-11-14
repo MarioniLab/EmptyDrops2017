@@ -371,19 +371,19 @@ Thus, EmptyDrops can capture biology associated with small cells that would have
         \caption{}
     \end{subfigure} \\[0.05in]
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../analysis/pbmc4k/pics/by_ribo.pdf}
+        \includegraphics[width=\textwidth]{../analysis/neurons_900/pics/by_detection.pdf}
         \caption{}
     \end{subfigure}
     \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../analysis/pbmc4k/pics/by_mito.pdf}
+        \includegraphics[width=\textwidth]{../analysis/neurons_900/pics/by_interneuron.pdf}
         \caption{}
-    \end{subfigure}
-    \caption{$t$-SNE plots for the PBMC dataset, constructed using the first 100 principal components of the normalized log-expression matrix.
-        Each point represents a cell that is coloured by (a) detection with either or both EmptyDrops and CellRanger, 
-        (b) expression of platelet genes \textit{PF4} and \textit{PPBP}, (c) expression of ribosomal protein genes or (d) the proportion of counts assigned to mitochondrial genes.
-        Expression in each cell was quantified as the sum of the normalized log-expression values across all genes in the relevant set.
-        Mitochondrial proportions are capped at 20\% to improve visibility.
-        Arrows mark the putative platelet population and a population of damaged cells.
+    \end{subfigure} 
+    \caption{$t$-SNE plots for the PBMC dataset (a, b) or 900 neuron dataset (c, d), constructed from cells that are detected with EmptyDrops and/or CellRanger.
+        Each point represents a library and is coloured based on (a, c) whether it is detected as a cell with each method;
+        (b) the expression of platelet marker genes \textit{PF4} and \textit{PPBP};
+        or (d) the expression of interneuron marker genes \textit{Gad1}, \textit{Gad2} and \textit{Sla6c1}.
+        Expression in each cell was quantified as the sum of the normalized log-expression values across all marker genes.
+        Arrows mark the putative platelet and interneuron populations in each dataset.
     }
     \label{fig:realtsne}
 \end{figure}
