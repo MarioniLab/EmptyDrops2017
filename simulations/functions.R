@@ -101,7 +101,7 @@ saveRaster <- function(...) {
     tmp
 }
 
-loadRaster <- function(fpath, log=TRUE) {
+loadRaster <- function(fpath, log=FALSE) {
     limits <- par("usr")
     img <- png::readPNG(fpath)
     if (log) { limits <- 10^limits }
@@ -109,4 +109,4 @@ loadRaster <- function(fpath, log=TRUE) {
     invisible(limits)
 }
 
-colors <- c("EmptyDrops"="salmon", "CellRanger"="dodgerblue", "EmptyDrops (II)"="orange")
+colors <- c("EmptyDrops"="salmon", "CellRanger"="dodgerblue", "Knee point"="orange")

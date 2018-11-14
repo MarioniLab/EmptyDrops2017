@@ -42,7 +42,7 @@ for (i in seq_along(ALLFILES)) {
     e.keep[is.na(e.keep)] <- FALSE
     
     # Keeping everything above the knee point.
-    k.keep <- p.adjust(e.out$PValue, method="BH") <= 0.001 & !is.na(e.out$PValue)
+    k.keep <- stats$knee <= stats$total
 
     # Using the CellRanger approach.
     c.keep <- defaultDrops(final, expected=expected[i])
@@ -51,7 +51,7 @@ for (i in seq_along(ALLFILES)) {
     # Quantifying the intersections.
     at.least.one <- k.keep | e.keep | c.keep
     collected <- data.frame(EmptyDrops=as.integer(e.keep), 
-                            `EmptyDrops (II)`=as.integer(k.keep), 
+                            `Knee point`=as.integer(k.keep), 
                             CellRanger=as.integer(c.keep),
                             check.names=FALSE)[at.least.one,]
 
@@ -64,7 +64,7 @@ for (i in seq_along(ALLFILES)) {
     # Having a look at the distribution of retained cells in more detail.
     limits <- log10(range(stats$total[at.least.one]))
     breaks <- seq(limits[1], limits[2], length.out=21)
-    modes <- list("EmptyDrops"=e.keep, "EmptyDrops (II)"=k.keep, "CellRanger"=c.keep)
+    modes <- list("EmptyDrops"=e.keep, "Knee point"=k.keep, "CellRanger"=c.keep)
 
     collected.x <- collected.y <- list()
     for (mode in names(modes)) {
@@ -81,13 +81,12 @@ for (i in seq_along(ALLFILES)) {
          ylab="Number of cells", cex.axis=1.2, cex.lab=1.4, main=stub, cex.main=1.4)
 
     shift <- 0
-    ltys <- c(EmptyDrops=1, "EmptyDrops (II)"=2, CellRanger=1)
     for (mode in names(modes)) { 
-        plotHistogramOutline(breaks+shift, collected.y[[mode]], col=colors[mode], lwd=2, lty=ltys[mode])
+        plotHistogramOutline(breaks+shift, collected.y[[mode]], col=colors[mode], lwd=2)
         shift <- shift + 0.01
     }
 
-    legend("topleft", col=colors[names(modes)], legend=names(modes), lty=ltys[names(modes)], lwd=2, cex=1.2)
+    legend("topleft", col=colors[names(modes)], legend=names(modes), lwd=2, cex=1.2)
     dev.off()
 
     ############################
@@ -102,10 +101,10 @@ for (i in seq_along(ALLFILES)) {
     
     plot(X, Y, log="xy", 
          xlab=expression("Total count (x "*10^3*")"), 
-         ylab=expression("-Log probability (x "*10^3*")"), 
+         ylab=expression("-Log likelihood (x "*10^3*")"), 
          xlim=xlim, type="n", cex.axis=1.2, cex.lab=1.4,
          main=stub, cex.main=1.4)
-    loadRaster(tmp)
+    loadRaster(tmp, log=TRUE)
     box()
 
     legend("bottomright", col=c("red", "grey80"), pch=16, cex=1.2,
@@ -125,7 +124,7 @@ for (i in seq_along(ALLFILES)) {
 
     pdf(file.path(ppath, paste0("ma_", stub, ".pdf")))
 	par(mar=c(5.1, 4.1, 2.1, 5.1))
-    plot(A, M, xlab="A", ylab="M (ambient - cells)",
+    plot(A, M, xlab="A", ylab="M (ambient - cells)", cex.main=1.4, main=stub,
         cex.axis=1.2, cex.lab=1.4, pch=16, cex=0.2, type="n")
     limits <- loadRaster(tmp)
 
