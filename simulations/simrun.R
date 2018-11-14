@@ -94,8 +94,8 @@ for (fname in ALLFILES) {
 
                     pdf(file.path(ppath, paste0(stub, "_", g1, "_", g2, "-roc.pdf")), width=8, height=6)
                     par(mar=c(5.1, 4.1, 4.1, 12.1))
-                    plot(c(0, emp.fdr), c(0, emp.tp1), xlim=c(0, 0.01), ylim=c(0, 1), type="l", col=emp.col, lwd=3,
-                        xlab="False discovery rate", ylab="True positive rate", cex.axis=1.2, cex.lab=1.4, cex.main=1.4)
+                    plot(c(0, emp.fdr), c(0, emp.tp1), xlim=c(0, 0.01), ylim=c(0, 1), type="l", col=emp.col, lwd=3, main=stub,
+                        xlab="Observed FDR", ylab="Recall", cex.axis=1.2, cex.lab=1.4, cex.main=1.4)
                     lines(c(0, lib.fdr), c(0, lib.tp1), col=lib.col,lwd=3)
                     lines(c(0, emp.fdr), c(0, emp.tp2), col=emp.col, lwd=3, lty=2)
                     lines(c(0, lib.fdr), c(0, lib.tp2), col=lib.col, lwd=3, lty=2)
