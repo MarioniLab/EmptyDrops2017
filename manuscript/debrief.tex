@@ -304,12 +304,12 @@ In both plots, each point represents the result of one simulation iteration, the
 \label{fig:simpbmc}
 \end{figure}
 
-EmptyDrops also correctly controlled the FDR close to below the nominal thresholds in all datasets (Figure~\ref{fig:simpbmc}, Supplementary Figures~\suppfigsimresults{}).
+EmptyDrops correctly controlled the FDR close to below the nominal thresholds in all simulated datasets (Figure~\ref{fig:simpbmc}, Supplementary Figures~\suppfigsimresults{}).
 This is a useful property of the method as it provides users with a reliable upper bound on the expected proportion of empty droplets.
-Such information can be used to interpret the results of downstream analyses --
-for example, we would be satistifed that a clustering result was not driven by empty droplets if the proportion of cells in a cluster of interest was much higher than the nominal FDR threshold used in EmptyDrops.
+Such information can be used to interpret downstream analysis results --
+for example, we would be satistifed that a clustering result was not driven by empty droplets if the proportion of cells in a cluster of interest was much higher than the FDR threshold used in EmptyDrops.
 By comparison, the effect of the total count threshold on the cell calling error rate is less obvious.
-CellRanger also relies on knowledge of the expected number of cells, which may not be available or accurate.
+CellRanger also requires the expected number of cells, which may not be available or accurate.
 
 \subsection*{Characterizing behaviour of EmptyDrops on real datasets}
 To determine how EmptyDrops behaved on real data, we applied it to detect cells in the PBMC dataset at a FDR of 0.1\% (Figure~\ref{fig:realpbmc}).
@@ -354,9 +354,11 @@ Increased retention of small cells was particularly pronounced in the neuronal d
 
 CellRanger also uniquely detects a number of barcodes with moderate total counts in some tested datasets (Figure~\ref{fig:realpbmc}c, Supplementary Figures~\suppfigrealresults{}).
 This is attributable to the fact that these barcodes have expression profiles similar to the ambient pool, which prevents their detection by EmptyDrops.
-Without further information, it is difficult to determine whether the lack of detection is correct (i.e., the missing barcodes are empty droplets) or if this represents a minor loss of power with EmptyDrops.
+Without further information, it is difficult to determine whether the lack of detection is correct (i.e., the missing barcodes are empty droplets) or if this represents a minor loss of power.
 We note that EmptyDrops can always be made to report a superset of the barcodes identified by CellRanger, simply by setting $U$ to the CellRanger-identified threshold.
-However, we do not do so as the CellRanger threshold may not be appropriate -- for example, CellRanger yields an observed FDR of 10-40\% in simulations based on the T-cell dataset.
+We do not do so as the CellRanger threshold may not be appropriate.
+For example, application of CellRanger to simulations based on the T-cell dataset yields an average observed FDR of 11 - 45\%.
+By comparison, EmptyDrops controls the type I error rate correctly across assumed empty droplets in most real datasets (Supplementary Figure~\suppfignegative{}).
 
 To explore the differences between methods in more detail, we generated a $t$-stochastic neighbour embedding (t-SNE) plot \cite{van2008visualizing} of all barcodes that were detected by either method in the PBMC dataset.
 We observed that the CellRanger-only barcodes generally clustered with barcodes that were detected by both methods (Figure~\ref{fig:realtsne}a).
