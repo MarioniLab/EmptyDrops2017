@@ -405,8 +405,9 @@ Droplet-based technologies are becoming increasingly popular for high-throughput
 However, little work has been performed to develop robust computational methods for distinguishing genuine cells from empty droplets.
 Here, we describe EmptyDrops, a method to detect cell-containing barcodes based on significant deviation of the expression profiles from the pool of ambient RNA.
 We use simulated data to demonstrate that EmptyDrops outperforms the strategy currently implemented in the CellRanger software suite.
-Furthermore, EmptyDrops can recover biology in real 10X data that is lost using the CellRanger strategy.
+EmptyDrops can recover biology in real 10X data that is lost using CellRanger.
 Our results indicate that EmptyDrops is effective for cell detection in droplet-based scRNA-seq data.
+This is supported by other work where EmptyDrops improves cell type recovery \cite{ernst2018staged} and reduces technical artifacts \cite{griffiths2018detection}.
 
 A key assumption of our approach is that barcodes with very low UMI totals represent empty droplets.
 This allows us to use these barcodes to estimate the ambient profile.
