@@ -137,10 +137,12 @@ These low $p$-values either correspond to the cell-containing droplets themselve
 or to genuinely empty droplets that no longer fit to our distorted estimate of the ambient profile.
 
 In most datasets, we observed a minor enrichment of low $p$-values in an otherwise uniform distribution (Supplementary Figure~\ref{fig:negative}). 
-This demonstrates that our testing procedure mostly holds its size and suggests that distortions of the ambient profile due to cell-containing droplets are not a major issue when using $T=100$.
+We attribute these small spikes of low $p$-values to the presence of cell-containing droplets that fall below the default $T=100$.
+Nonetheless, the distributions are mostly uniform, which demonstrates that our statitical model provides an accurate description of transcript sampling.
+It also suggests that distortions of the ambient profile due to cell-containing droplets are not a major issue.
 The exception is the \code{neurons\_900} dataset where we see a clear enrichment of very low and very large $p$-values.
-Note that  this effect is not consistent with distortion of the ambient profile, which should only result in a skew towards low $p$-values.
-Rather, we hypothesize that it is driven by violations of the independent sampling assumption (e.g., if transcript molecules are complexed and sampled together into droplets).
+This effect is not consistent with distortion of the ambient profile, which should only result in a skew towards low $p$-values.
+Rather, we hypothesize that it is driven by violations of the independent sampling assumption (e.g., if transcript molecules are bound together in RNA complexes and co-sampled into droplets).
 Positive correlations between molecules would increase the probability of obtaining droplets that are very similar or very different to the ambient profile.
 
 \section{Efficient calculation of the Monte Carlo $p$-value}
