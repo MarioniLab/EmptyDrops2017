@@ -30,7 +30,6 @@ Enter `real` and run:
 Each subdirectory of `analysis` contains self-contained analysis files for each data set.
 Run:
 
-- `analysis.Rmd`, which will perform the analysis of each the PBMC dataset.
-This can be compared to the expected results in `analysis.md`.
+- `analysis.Rmd`, which will perform the analysis of each dataset.
 - `plot_maker.R`, which will create the plots used in the manuscript.
 
