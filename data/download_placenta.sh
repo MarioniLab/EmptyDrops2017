@@ -1,6 +1,6 @@
 # get the data
-wget https://ndownloader.figshare.com/articles/7373870/versions/1
-unzip 1 # it comes zipped in this thing
+wget https://jmlab-gitlab.cruk.cam.ac.uk/publications/EmptyDrops2017-DataFiles/raw/08a775d772aadd25404f141bf95fce79412a0f3b/placenta_vento-tormo.zip
+unzip placenta_vento-tormo.zip
 
 for x in placenta1 placenta2 placenta3 placenta4 placenta5 placenta6
 do
@@ -8,4 +8,4 @@ do
     tar -xvf $x"_raw_gene_bc_matrices.tar.gz" -C $x
     rm $x"_raw_gene_bc_matrices.tar.gz"
 done
-rm 1
+rm placenta_vento-tormo.zip
