@@ -63,21 +63,11 @@ sce <- sce[,keep]
 
 # Adding gene-level annotation
 
-We add some gene-level annotation.
-
-```{r}
-library(org.Mm.eg.db)
-symb <- mapIds(org.Mm.eg.db, keys=rownames(sce), keytype="ENSEMBL", column="SYMBOL")
-rowData(sce)$ENSEMBL <- rownames(sce)
-rowData(sce)$SYMBOL <- symb
-head(rowData(sce))
-```
-
 We relabel the rows with the gene symbols for easier reading.
 
 ```{r}
 library(scater)
-rownames(sce) <- uniquifyFeatureNames(rowData(sce)$ENSEMBL, rowData(sce)$SYMBOL)
+rownames(sce) <- uniquifyFeatureNames(rowData(sce)$ID, rowData(sce)$Symbol)
 head(rownames(sce))
 ```
 
@@ -85,7 +75,7 @@ We also determine the chromosomal location for each gene.
 
 ```{r}
 library(TxDb.Mmusculus.UCSC.mm10.ensGene)
-location <- mapIds(TxDb.Mmusculus.UCSC.mm10.ensGene, keys=rowData(sce)$ENSEMBL, 
+location <- mapIds(TxDb.Mmusculus.UCSC.mm10.ensGene, keys=rowData(sce)$ID, 
     column="CDSCHROM", keytype="GENEID")
 rowData(sce)$CHR <- location
 summary(location=="chrM")

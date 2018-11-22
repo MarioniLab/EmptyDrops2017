@@ -63,28 +63,19 @@ sce <- sce[,keep]
 
 # Adding gene-level annotation
 
-We add some gene-level annotation.
-
-```{r}
-library(EnsDb.Hsapiens.v86)
-symb <- mapIds(EnsDb.Hsapiens.v86, keys=rownames(sce), keytype="GENEID", column="SYMBOL")
-rowData(sce)$ENSEMBL <- rownames(sce)
-rowData(sce)$SYMBOL <- symb
-head(rowData(sce))
-```
-
 We relabel the rows with the gene symbols for easier reading.
 
 ```{r}
 library(scater)
-rownames(sce) <- uniquifyFeatureNames(rowData(sce)$ENSEMBL, rowData(sce)$SYMBOL)
+rownames(sce) <- uniquifyFeatureNames(rowData(sce)$ID, rowData(sce)$Symbol)
 head(rownames(sce))
 ```
 
 We also determine the chromosomal location for each gene.
 
 ```{r}
-location <- mapIds(EnsDb.Hsapiens.v86, keys=rowData(sce)$ENSEMBL, 
+library(EnsDb.Hsapiens.v86)
+location <- mapIds(EnsDb.Hsapiens.v86, keys=rowData(sce)$ID, 
     column="SEQNAME", keytype="GENEID")
 rowData(sce)$CHR <- location
 summary(location=="MT")
