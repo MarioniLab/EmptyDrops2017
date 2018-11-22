@@ -10,13 +10,15 @@ It also contains the manuscript files themselves, which can be compiled with `pd
 
 Enter `data` and run:
 
-- `download_tenx.sh`, which will download publicly available data fromn the 10X Genomics website.
-- `download_placenta.sh`, which will download unprocessed 10X data from 
+- `download_tenx.sh`, which will download publicly available data from the 10X Genomics website.
+- `download_placenta.sh`, which will download unprocessed 10X data from [the Vento-Tormo _et al._ study](https://doi.org/10.1038/s41586-018-0698-6).
 
 ## Simulations
 
-Enter `simulations` and run `simrun.R`, which will perform simulations based on the real datasets to assess cell detection methods.
-Run `plotsim.R` to recreate the plots in the manuscript for the simulation results.
+Enter `simulations` and run:
+
+- `simrun.R`, which will perform simulations based on the real datasets to assess cell detection methods.
+- `plotsim.R`, to recreate the plots in the manuscript for the simulation results.
 
 ## Real data
 
@@ -29,6 +31,6 @@ Each subdirectory of `analysis` contains self-contained analysis files for each 
 Run:
 
 - `analysis.Rmd`, which will perform the analysis of each the PBMC dataset.
-Compare to the expected results in `analysis.md`.
+This can be compared to the expected results in `analysis.md`.
 - `plot_maker.R`, which will create the plots used in the manuscript.
 
