@@ -11,17 +11,25 @@ ALLFILES <- c("pbmc4k/raw_gene_bc_matrices/GRCh38",
               "293t/matrices_mex/hg19/",
               "jurkat/matrices_mex/hg19/",
               "t_4k/raw_gene_bc_matrices/GRCh38/",
-              "neuron_9k/raw_gene_bc_matrices/mm10/")
+              "neuron_9k/raw_gene_bc_matrices/mm10/",
+              sprintf("placenta%i/placenta%i_raw_gene_bc_matrices/GRCh38/", seq_len(6), seq_len(6)))
 expected <- c(4000,
               900,
               2800,
               3200,
               4000,
-              9000)
+              9000,
+              rep(5000, 6))
 
 for (i in seq_along(ALLFILES)) { 
     fname <- ALLFILES[i]
-    sce <- read10xCounts(file.path("..", "data", fname))
+    fpath <- file.path("..", "data", fname)
+    if (!file.exists(fpath)) {
+        message("missing data files for '", fname, "'")
+        next
+    }
+
+    sce <- read10xCounts(fpath)
     stub <- sub("/.*", "", fname)
 
     final <- counts(sce)

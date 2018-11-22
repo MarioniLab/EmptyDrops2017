@@ -12,13 +12,20 @@ ALLFILES <- c("pbmc4k/raw_gene_bc_matrices/GRCh38",
               "293t/matrices_mex/hg19/",
               "jurkat/matrices_mex/hg19/",
               "t_4k/raw_gene_bc_matrices/GRCh38/",
-              "neuron_9k/raw_gene_bc_matrices/mm10/")
+              "neuron_9k/raw_gene_bc_matrices/mm10/"
+              sprintf("placenta%i/placenta%i_raw_gene_bc_matrices/GRCh38/", seq_len(6), seq_len(6)))
 
 # Looping through the files.
 set.seed(1000)
 plot.legend <- TRUE
-for (fname in ALLFILES) { 
-    sce <- read10xCounts(file.path("..", "data", fname))
+for (fname in ALLFILES) {
+    fpath <- file.path("..", "data", fname)
+    if (!file.exists(fpath)) {
+        message("missing data files for '", fname, "'")
+        next
+    }
+
+    sce <- read10xCounts(fpath)
     totals <- colSums(counts(sce))
     ambient <- counts(sce)[,totals<=100 & totals > 0]
     out <- testEmptyDrops(ambient, test.ambient=TRUE, niters=20000)
