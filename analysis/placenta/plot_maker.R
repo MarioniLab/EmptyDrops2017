@@ -11,7 +11,7 @@ monocytes <- colMeans(coords[sce$Cluster==mo.clust,])
 # Defining arrow coordinates.
 FUN <- function(coloration, ...) {
   plot(coords[,1], coords[,2], col=coloration, pch=16, xlab="t-SNE1", ylab="t-SNE2", cex.axis=1.2, cex.lab=1.4, ...)
-  SHIFT <- c(11.5, -4)
+  SHIFT <- c(11.5, 0)
   WIDTH <- c(0, 4)
   arrows(monocytes[1] - SHIFT[1] - WIDTH[1], monocytes[2] - SHIFT[2],
          monocytes[1] - SHIFT[1]+5, monocytes[2] - SHIFT[2] - WIDTH[2],

@@ -1,7 +1,7 @@
 ---
 title: Analyzing the Placenta dataset
-author: Aaron Lun and others
-date: 28 December 2017
+author: Tomas Gomes and others
+date: "`r Sys.Date()`"
 output: 
   BiocStyle::html_document:
     fig_caption: no
@@ -16,85 +16,80 @@ options(bitmapType="cairo")
 
 # Introduction
 
-This document performs a brief analysis of the Placenta dataset (the subset of cells obtained from this tissue in Vento-Tormo et al. 2018), with particular focus on the cells that are uniquely detected by EmptyDrops or CellRanger.
-Since we have several runs for this dataset, we'll list all directories and first:
+This document performs a brief analysis of the placenta dataset (Vento-Tormo et al. 2018), with particular focus on the cells that are uniquely detected by EmptyDrops or CellRanger.
+We list all directories for this data set:
 
 ```{r}
-dirs = list.dirs("../../data", recursive = T)
-dirs = dirs[grepl("GRCh", dirs)]
+dirs <- list.dirs("../../data", recursive=TRUE)
+dirs <- dirs[grepl("GRCh", dirs) & grepl("placenta", dirs)]
 ```
 
-... and then we will process each dataset sequentially, keeping cells detected either by EmptyDrops or CellRanger (expecting 5k cells) to later compare both methods.
-See the comments within the function for each step performed, or refer to the pbmc/neuron processing for the individual step description
+... and we process each dataset sequentially, keeping cells detected either by EmptyDrops or CellRanger (expecting 5k cells) to later compare both methods.
 
 ```{r}
 library(DropletUtils)
 processData = function(file_path){
-  # read file
-  sce <- read10xCounts(file_path, col.names=TRUE)
-  
-  # EmptyDrops
-  set.seed(100)
-  e.out <- emptyDrops(counts(sce))
-  e.keep <- e.out$FDR <= 0.001
-  
-  # CellRanger cutoff (5k was the expected number)
-  c.keep <- defaultDrops(counts(sce), expected=5000)
-  
-  # Keep cells detected by at least one method
-  keep <- c.keep | (e.keep & !is.na(e.keep)) # in CellRanger or (non-NA) in EmptyDrops
-  detection <- rep("Both", ncol(sce))
-  detection[c.keep & !e.keep] <- "CellRanger"
-  detection[!c.keep & e.keep] <- "EmptyDrops"
-  
-  # store in metadata
-  sce$Detection <- detection
-  sce$PValue <- e.out$PValue
-  sce <- sce[,keep]
-  
-  return(sce)
+    # read file
+    sce <- read10xCounts(file_path, col.names=TRUE)
+    
+    # EmptyDrops
+    set.seed(100)
+    e.out <- emptyDrops(counts(sce))
+    e.keep <- e.out$FDR <= 0.001
+    
+    # CellRanger cutoff (5k was the expected number)
+    c.keep <- defaultDrops(counts(sce), expected=5000)
+    
+    # Keep cells detected by at least one method
+    keep <- c.keep | (e.keep & !is.na(e.keep)) # in CellRanger or (non-NA) in EmptyDrops
+    detection <- rep("Both", ncol(sce))
+    detection[c.keep & !e.keep] <- "CellRanger"
+    detection[!c.keep & e.keep] <- "EmptyDrops"
+    
+    # store in metadata
+    sce$Detection <- detection
+    sce$PValue <- e.out$PValue
+    sce <- sce[,keep]
+    return(sce)
 }
 
-processed_data = lapply(dirs, processData)
-samples = unlist(lapply(dirs, function(x) substr(unlist(strsplit(x, "/", fixed = T))[5], 1, 9)))
-names(processed_data) = samples
+processed_data <- lapply(dirs, processData)
+samples <- sub(".*placenta([0-9]+).*", "\\1", dirs)
+names(processed_data) <- samples
 ```
 
 And now merge all of it into a single object
 
 ```{r}
-library(scater)
-sce = Reduce(cbind, processed_data)
+library(SingleCellExperiment)
+sce <- do.call(cbind, processed_data)
 
-# add 10x run info
-sample_cnts = unlist(lapply(processed_data, ncol))
-sce$run = rep(names(sample_cnts), sample_cnts)
-rownames(sce@colData) = paste0(sce@colData$run, "_", rownames(sce@colData))
+# Add 10x run information.
+ncells <- vapply(processed_data, ncol, FUN.VALUE=0L)
+sce$run <- rep(names(processed_data), ncells)
+colnames(sce) <- paste0(sce$run, "_", colnames(sce))
+```
+
+```{r, echo=FALSE, results="hide"}
+rm(processed_data)
+gc()
 ```
 
 # Adding gene-level annotation
 
-We add some gene-level annotation.
-
-```{r}
-library(EnsDb.Hsapiens.v86)
-symb <- mapIds(EnsDb.Hsapiens.v86, keys=rownames(sce), keytype="GENEID", column="SYMBOL")
-rowData(sce)$ENSEMBL <- rownames(sce)
-rowData(sce)$SYMBOL <- symb
-head(rowData(sce))
-```
-
 We relabel the rows with the gene symbols for easier reading.
 
 ```{r}
-rownames(sce) <- uniquifyFeatureNames(rowData(sce)$ENSEMBL, rowData(sce)$SYMBOL)
+library(scater)
+rownames(sce) <- uniquifyFeatureNames(rowData(sce)$ID, rowData(sce)$Symbol)
 head(rownames(sce))
 ```
 
 We also determine the chromosomal location for each gene.
 
 ```{r}
-location <- mapIds(EnsDb.Hsapiens.v86, keys=rowData(sce)$ENSEMBL, 
+library(EnsDb.Hsapiens.v86)
+location <- mapIds(EnsDb.Hsapiens.v86, keys=rowData(sce)$ID, 
     column="SEQNAME", keytype="GENEID")
 rowData(sce)$CHR <- location
 summary(location=="MT")
@@ -156,7 +151,7 @@ We perform some pre-clustering to break up obvious clusters. We'll be using igra
 ```{r}
 library(scran)
 set.seed(1000)
-clusters <- quickCluster(sce, pc.approx=TRUE, method="igraph", min.size = 50)
+clusters <- quickCluster(sce, pc.approx=TRUE)
 table(clusters)
 ```
 
@@ -286,11 +281,11 @@ table(sce$Detection, sce$Cluster)
 We observe several clusters with a majority of cells only detected by EmptyDrops. For simplicity, we'll focus on number 12, which express known monocyte markers:
 
 ```{r heatmap8, fig.wide=TRUE}
-monocytes <- "12"
+monocytes <- "16"
 
 # Monocyte genes
-mo_genes = c("KCNA5", "STX11", "CFP", "S100A12") # KCNA5 = PCN1 (?)
-sce$monocyte_genes_total = Matrix::colSums(logcounts(sce)[mo_genes,])
+mo_genes <- c("KCNA5", "STX11", "CFP", "S100A12") # KCNA5 = PCN1 (?)
+sce$monocyte_genes_total <- Matrix::colSums(logcounts(sce)[mo_genes,])
 plotTSNE(sce, colour_by = "monocyte_genes_total")
 ```
 
