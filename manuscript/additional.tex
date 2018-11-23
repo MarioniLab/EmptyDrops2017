@@ -175,7 +175,7 @@ Repeating this procedure for $R$ iterations yields a distribution of likelihoods
 This is used to obtain a Monte Carlo $p$-value for each barcode as previously described.
 The above approach only requires $R \max\{t_b\}$ sampling and multiplication operations, where each sampling step takes $\log(N)$ time due to a binary search across genes.
 It is independent of the number of barcodes and scales better than the naive approach with respect to the number of genes.
-Moreover, the maximum total count is usually low in droplet-based data sets (around 5000-10000).
+Moreover, the maximum total count is usually low in droplet-based datasets (around 5000-10000).
 This results in a major reduction in computational work compared to the naive approach.
 
 Our algorithm can be viewed as an extension of a simpler optimization where the set of likelihoods from all iterations are re-used for all barcodes with the same $t_b$.
@@ -278,7 +278,7 @@ The organism, cell type, expected number of cells and the version of the CellRan
         \includegraphics[width=0.4\textwidth,trim=0mm 0mm 56mm 0mm,clip]{../simulations/pics-sim/pbmc4k_2000_2000-roc.pdf}
         \includegraphics[width=0.4\textwidth,trim=0mm 0mm 56mm 0mm,clip]{../simulations/pics-sim/t_4k_2000_2000-roc.pdf}
     \end{center}
-    \caption{Recall as a function of the observed FDR upon applying different cell calling strategies in simulations based on real data sets.
+    \caption{Recall as a function of the observed FDR upon applying different cell calling strategies in simulations based on real datasets.
         For EmptyDrops (pink), the recall and observed FDR were computed at varying nominal FDR thresholds.
         For total count-based methods (grey), metrics were computed after increasing the total count threshold. 
         Each simulation contained 2000 cells in both the large group (unbroken lines) and small group (dashed).
