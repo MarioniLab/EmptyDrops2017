@@ -274,13 +274,13 @@ We also tested methods that retain all cells with total UMI counts above a thres
 The threshold was defined as the total $U$ at the knee point, as described above;
 or using the quantile-based approach \cite{zheng2017massively} in the CellRanger software from 10X Genomics.
 
-Cell-calling results for a simulation based on a real dataset containing peripheral blood mononuclear cells (PBMCs) are shown in Figure~\ref{fig:simpbmc}.
-All methods consistently detected the large cells but recall for the group of small cells was much lower.
-Nonetheless, EmptyDrops was able to detect more small cells than the other methods in all scenarios.
+In a simulation based on a real dataset containing peripheral blood mononuclear cells (PBMCs), EmptyDrops detected the most cells from both groups (Figure~\ref{fig:simpbmc}).
+CellRanger and the knee point method detected large cells but failed to recover small cells.
 We observed similar results in simulations based on other real datasets (Supplementary Figures~\suppfigsimresults{}).
 The poor performance of the total count-based methods for small cells is expected.
 Barcodes corresponding to small cells with little RNA have similar total counts as barcodes corresponding to large empty droplets with many ambient molecules.
-A method based on the total count alone cannot distinguish between these two possibilities, either reducing recall or increasing false positives (Supplementary Figures~\suppfigsimrocs{}).
+A method based on the total count alone cannot distinguish between these two possibilities, 
+as any choice of threshold will either reduce recall or increase false positives (Supplementary Figure~\suppfigsimrocs{}).
 In contrast, EmptyDrops uses the expression profile for each droplet to distinguish small cells from the ambient profile with greater power.
 
 \begin{figure}[btp]
@@ -304,11 +304,11 @@ In both plots, each point represents the result of one simulation iteration, the
 \label{fig:simpbmc}
 \end{figure}
 
-EmptyDrops correctly controlled the FDR close to below the nominal thresholds in all simulated datasets (Figure~\ref{fig:simpbmc}, Supplementary Figures~\suppfigsimresults{}).
+EmptyDrops correctly controlled the FDR close to or below the nominal thresholds in all simulated datasets (Figure~\ref{fig:simpbmc}, Supplementary Figures~\suppfigsimresults{}).
 This is a useful property of the method as it provides users with a reliable upper bound on the expected proportion of empty droplets.
 Such information can be used to interpret downstream analysis results --
 for example, we would be satistifed that a clustering result was not driven by empty droplets if the proportion of cells in a cluster of interest was much higher than the FDR threshold used in EmptyDrops.
-By comparison, the effect of the total count threshold on the cell calling error rate is less obvious.
+By comparison, the effect of a total count threshold on the cell calling error rate is less obvious.
 CellRanger also requires the expected number of cells, which may not be available or accurate.
 
 \subsection*{Characterizing behaviour of EmptyDrops on real datasets}
