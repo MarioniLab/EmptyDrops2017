@@ -57,10 +57,10 @@ In both plots, each point represents the result of one simulation iteration, the
         \caption{}
     \end{subfigure}
 \end{center}
-    \caption{Results of applying EmptyDrops and the other cell detection methods to the #2 dataset.
+    \caption{Application of EmptyDrops and other cell detection methods to the #2 dataset.
         (a) A barcode rank plot showing the fitted spline used for knee point detection in EmptyDrops. 
         The detected knee and inflection points are also shown.
-        (b) The negative log-probability for each barcode in the multinomial model of EmptyDrops, plotted against the total count.
+        (b) The negative log-likelihood for each barcode in the multinomial model of EmptyDrops, plotted against the total count.
         Barcodes detected as putative cell-containing droplets at a FDR of 0.1\% are labelled in red.
         Only barcodes with $t_b > T$ are shown.
         (c) An UpSet plot of the barcodes detected by each combination of methods (vertical bars).
@@ -185,6 +185,17 @@ Moreover, increasing $R$ reduces the imprecision of the $p$-values caused by ran
 This means that the effect of correlated estimation errors between different $p$-values will become negligible at large $R$.
 We use $R=10000$ by default, though this can be increased if the lower bound on the $p$-values \cite{phipson2010permutation} is greater than the threshold for significance after the Benjamini-Hochberg correction.
 
+\section{Detection differences between CellRanger and EmptyDrops}
+CellRanger also uniquely detects a number of barcodes with moderate total counts in some tested datasets, e.g., Supplementary Figure~10.
+This is attributable to the fact that these barcodes have expression profiles similar to the ambient pool, which prevents their detection by EmptyDrops.
+Without further information, it is difficult to determine whether the lack of detection is correct (i.e., the missing barcodes are empty droplets) or if this represents a minor loss of power.
+We note that EmptyDrops can always be made to report a superset of the barcodes identified by CellRanger, simply by setting $U$ to the CellRanger-identified threshold.
+We do not do so as the CellRanger threshold may not be appropriate.
+For example, CellRanger has an average observed FDR of 11 - 45\% in simulations based on the T-cell dataset. 
+By comparison, EmptyDrops approximately controls the type I error rate across assumed empty droplets in most real datasets (Supplementary Figure~\ref{fig:negative}).
+Moreover, the CellRanger-only barcodes generally clustered with barcodes that were detected by both methods (Supplementary Figure~\ref{fig:realpbmc}a).
+This suggests that the ``conservativeness'' of EmptyDrops is not a major problem, as it only results in the loss of some cells from a cluster that would have been detected irrespectively.
+
 \bibliography{ref.bib}
 \bibliographystyle{unsrt}
 
@@ -274,11 +285,31 @@ The organism, cell type, expected number of cells and the version of the CellRan
     \label{fig:rocs}
 \end{figure}
 
-
+\PlotReal{pbmc4k}{4K PBMC}
 \PlotReal{293t}{293T cell line}
 \PlotReal{jurkat}{Jurkat cell line}
 \PlotReal{neuron_9k}{9K brain cell}
 \PlotReal{neurons_900}{900 brain cell}
 \PlotReal{t_4k}{pan T cell}
+
+\begin{figure}[btp]
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../analysis/pbmc4k/pics/by_detection.pdf}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{../analysis/pbmc4k/pics/by_platelet.pdf}
+        \caption{}
+    \end{subfigure} \\[0.05in]
+    \caption{$t$-SNE plots for the 4K PBMC dataset, constructed from barcodes that were detected with EmptyDrops and/or CellRanger.
+        Each point represents a barcode and is coloured based on (a) whether it was detected as a cell with each method; 
+		or (b) the expression of platelet marker genes \textit{PF4} and \textit{PPBP}.
+        Expression in each barcode was quantified as the sum of the normalized log-expression values across all marker genes.
+        Arrows mark the putative platelet population.
+    }
+    \label{fig:realpbmc}
+\end{figure}
+
+
 
 \end{document}
