@@ -87,8 +87,9 @@
 \newcommand{\suppfigrealpbmc}{15}
 
 \newcommand{\suppsecthreshold}{1}
-\newcommand{\suppsecmontecarlo}{2}
-\newcommand{\suppsecpower}{3}
+\newcommand{\suppsecphysical}{2}
+\newcommand{\suppsecmontecarlo}{3}
+\newcommand{\suppsecpower}{4}
 
 % document begins here
 \begin{document}
@@ -195,6 +196,7 @@ This suggests that the ambient pool contains RNA from multiple cell types, possi
 Our null hypothesis is that free-floating transcripts in solution are randomly encapsulated into the empty droplets.
 For a given droplet, the probability of sampling a transcript molecule for gene $g$ is equal to $\tilde{p}_g$.
 If we condition on the total count $t_b$ for a cell barcode $b$, we can model the counts for each barcode with a Dirichlet-multinomial distribution.
+(A physical justification of this model is provided in Supplementary Section~\suppsecphysical{}.)
 We define the likelihood of obtaining the counts for barcode $b$ as 
 \[
     L_b = \frac{t_b!\Gamma(\alpha_g)}{\Gamma(t_b + \alpha_g)} \prod_{g=1}^N \frac{\Gamma(y_{gb}+\alpha_g)}{y_{gb}!\Gamma(\alpha_g)} \;,
