@@ -158,8 +158,8 @@ Existing methods for removing empty droplets assume that droplets containing gen
 Zheng \textit{et al.} \cite{zheng2017massively} remove all barcodes with total counts below 10\% of the 99\textsuperscript{th} percentile of the $Y$ largest total counts, where $Y$ is defined as the expected number of cells to be captured in the experiment.
 Macosko \textit{et al.} \cite{macosko2015highly} set the threshold at the knee point in the cumulative fraction of reads with respect to increasing total count.
 While simple, the use of a one-dimensional filter on the total UMI count is suboptimal as it discards small cells with low RNA content.
-Droplets containing small cells are not easily distinguishable from large empty droplets in terms of the total number of transcripts.
-This problem is exacerbated by variable capture and amplification efficiency across droplets, which further mixes the distributions of total counts between empty and non-empty droplets.
+Droplets containing small cells are not easily distinguishable from empty droplets based on the total number of transcripts.
+This is due to variable capture and amplification efficiencies across droplets during library preparation, which mixes the distributions of total counts between empty and non-empty droplets.
 Applying a simple threshold on the total count forces the researcher to choose between the loss of small cells or an increase in the number of artifactual ``cells'' composed of ambient RNA.
 This is especially problematic if small cells represent distinct cell types or functional states.
 
@@ -283,7 +283,7 @@ In a simulation based on a real dataset containing peripheral blood mononuclear 
 CellRanger and the knee point method detected large cells but failed to recover small cells.
 We observed similar results in simulations based on other real datasets (Supplementary Figures~\suppfigsimresults{}).
 The poor performance of the total count-based methods for small cells is expected.
-Barcodes corresponding to small cells with little RNA have similar total counts as barcodes corresponding to large empty droplets with many ambient molecules.
+Barcodes corresponding to small cells with little RNA have similar total counts as barcodes corresponding to empty droplets with many ambient molecules.
 A method based on the total count alone cannot distinguish between these two possibilities, 
 as any choice of threshold will either reduce recall or increase false positives (Supplementary Figure~\suppfigsimrocs{}).
 In contrast, EmptyDrops uses the expression profile for each droplet to distinguish small cells from the ambient profile with greater power.
@@ -431,10 +431,11 @@ Cell lysis or leakage will occur in any protocol involving dissociation and micr
 and the formation of empty droplets containing RNA from the ambient pool is unlikely to be a phenomenon that is unique to 10X datasets.
 
 An interesting direction for future work is whether the contribution of the ambient profile can be ``subtracted'' from each barcode's expression profile, thus yielding a more accurate representation of each cell's transcriptome \cite{young2018soupx}.
-This is not straightforward as it requires an understanding of the distribution of the volume of the droplets (excluding the volume of the cell inside) to calculate the expected contribution.
-It is not clear whether such information can be obtained solely from the count matrix for any arbitrary dataset.
-Direct subtraction of the contribution from the counts is also unsatisfactory as it does not preserve the mean-variance relationship.
-Rather, an identity-link factor model for count data may be required, which is not trivial to implement. 
+This requires estimation of the relative amounts of the ambient pool and cellular RNA in each droplet,
+which is not straightforward as the ambient pool is itself derived from cells.
+Accurate quantification of the ambient contribution to each droplet requires ambient-specific ``markers'' that may not be available for an arbitrary dataset.
+Direct subtraction of the contribution from the counts is also unsatisfactory as it does not preserve the mean-variance relationship or the uncertainty of the ambient estimates.
+It seems that an identity-link factor model for count data may be required, which is not trivial to implement. 
 
 Our EmptyDrops method is implemented in the \textsf{DropletUtils} package, available from the Bioconductor project \cite{huber2015orchestrating}.
 We anticipate that it will be useful to researchers who want to extract much information as possible from their droplet-based datasets.
