@@ -171,16 +171,16 @@ When dealing with multiple barcodes, we can improve computational efficiency by 
 This is done by recognizing that sampling from a Dirichlet-multinomial distribution involves sampling from a multinomial distribution with a probability vector that itself is sampled from a Dirichlet distribution (i.e., each entry is sampled from a Gamma$(\alpha\tilde{p}_g, 1)$ distribution, and the sum of all entries is normalized to unity).
 Within a Monte Carlo iteration $i$:
 \begin{enumerate}
-\item We simulate an iteration-specific probability vector $\pmb{\pi}_i = \{ \pi_{1i}, \ldots, \pi_{gi}, \ldots, \pi_{Ni} \}$ across all genes.
+\item We simulate an iteration-specific probability vector $\pmb{\pi}_i = \{ \pi_{1i}, \ldots, \pi_{gi}, \ldots, \pi_{Ni} \}$ across all genes from a Dirichlet distribution with a concentration parameter of $\alpha\tilde{p}_g$ for each gene $g$.
 \item We consider the barcode $b_1$ with the lowest total count $t_{b_1}$. 
-For this barcode, we sample a count vector $\pmb{\lambda}_{i} = \{ \lambda_{1i}, \ldots, \lambda_{gi}, \ldots, \lambda_{Ni} \}$ from a multinomial distribution with probabilities $\pmb{\pi}_i$. 
-We calculate the Dirichlet-multinomial likelihood $L'_{b_1i}$ for $\pmb{\lambda}_{i}$ as previously described.
-\item For barcode $b_2$ with the total $t_{b_2}=t_{b_1}+1$, we sample a gene $k$ based on $\pmb{\pi}_i$ and increment $\lambda_{ki}$ to obtain an updated count vector.
+For this barcode, we sample a count vector $\mathbf{z}_{i} = \{ z_{1i}, \ldots, z_{gi}, \ldots, z_{Ni} \}$ from a multinomial distribution with probabilities $\pmb{\pi}_i$. 
+We calculate the Dirichlet-multinomial likelihood $L'_{b_1i}$ for $\mathbf{z}_{i}$ as previously described.
+\item For barcode $b_2$ with the total $t_{b_2}=t_{b_1}+1$, we sample a gene $k$ based on $\pmb{\pi}_i$ and increment $z_{ki}$ to obtain an updated count vector.
 Similarly, we update the likelihood 
 \[
-    L'_{b_2i} = L'_{b_1i} \left( \frac{t_{b_2}}{t_{b_2} + \alpha - 1} \right) \left( \frac{\lambda_{ki} + \alpha\tilde{p}_k - 1}{\lambda_{ki}} \right) \;,
+    L'_{b_2i} = L'_{b_1i} \left( \frac{t_{b_2}}{t_{b_2} + \alpha - 1} \right) \left( \frac{z_{ki} + \alpha\tilde{p}_k - 1}{z_{ki}} \right) \;,
 \]
-where $\lambda_{ki}$ is the frequency of $k$ after the increment.
+where $z_{ki}$ is the frequency of $k$ after the increment.
 (Iterative application of these updates can be used in cases where $t_{b_2} > t_{b_1}+1$.)
 The updated $L'_{b_2i}$ can be directly compared to $L_{b_2}$.
 \item Repeat the previous step for all unique total counts in increasing order.
