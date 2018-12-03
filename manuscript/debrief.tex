@@ -196,19 +196,19 @@ This suggests that the ambient pool contains RNA from multiple cell types, possi
 Our null hypothesis is that free-floating transcripts in solution are randomly encapsulated into the empty droplets.
 For a given droplet, the probability of sampling a transcript molecule for gene $g$ is equal to $\tilde{p}_g$.
 If we condition on the total count $t_b$ for a cell barcode $b$, we can model the counts for each barcode with a Dirichlet-multinomial distribution.
-(A physical justification of this model is provided in Supplementary Section~\suppsecphysical{}.)
+(A physical justification for this model is provided in Supplementary Section~\suppsecphysical{}.)
 We define the likelihood of obtaining the counts for barcode $b$ as 
 \[
-    L_b = \frac{t_b!\Gamma(\alpha_g)}{\Gamma(t_b + \alpha_g)} \prod_{g=1}^N \frac{\Gamma(y_{gb}+\alpha_g)}{y_{gb}!\Gamma(\alpha_g)} \;,
+    L_b = \frac{t_b!\Gamma(\alpha)}{\Gamma(t_b + \alpha)} \prod_{g=1}^N \frac{\Gamma(y_{gb}+\alpha_g)}{y_{gb}!\Gamma(\alpha_g)} \;,
 \]
 where $\alpha_g = \alpha\tilde{p}_g$ for a scaling factor $\alpha$.
 A maximum likelihood estimate of $\alpha$ is obtained from $\mathcal{G}$ by treating $\tilde{p}_g$ as known.
 Low estimates of $\alpha$ model overdispersion in the counts, e.g., due to amplification biases or correlated sampling of transcript molecules.
 
 We use a Monte Carlo approach to compute the $p$-value for $b$.
-We generate a new set of counts by randomly sampling from a multinomial distribution with probabilities set to $\tilde{p}_g$ for all $g$ and size equal to $t_b$.
-We use the above formula to calculate the likelihood for this set of counts (denoted $L'_{bi}$, for iteration $i$), and we repeat this process for $R$ iterations. 
-We use the method of Phipson and Smyth \cite{phipson2010permutation} to define the $p$-value as 
+At each iteration $i$, we generate a new vector of counts by randomly sampling from a Dirichlet-multinomial distribution with probabilities set to $\tilde{p}_g$ for all $g$, the size set to $t_b$, and the scaling factor set to (our estimate of) $\alpha$.
+We calculate the likelihood $L'_{bi}$ for this count vector using the same expression as shown above for $L_b$.
+We repeat this process for $R$ iterations and then use the method of Phipson and Smyth \cite{phipson2010permutation} to define the $p$-value as 
 \[
     P_b = \frac{R_b +1 }{R + 1} \;,
 \]
@@ -254,7 +254,7 @@ This is more statistically rigorous as it avoids the selection of an \textit{ad 
 \subsection*{Correcting for multiple testing across barcodes}
 We correct for multiple testing by controlling the false discovery rate (FDR) using the Benjamini-Hochberg (BH) method \cite{benjamini1995controlling}.
 Putative cells are defined as those barcodes that have significantly poor fits to the ambient model at a specified FDR threshold.
-In the following text, we will use a FDR threshold to 0.1\% unless otherwise mentioned.
+In the following text, we will use a FDR threshold of 0.1\% unless otherwise mentioned.
 This means that the expected proportion of empty droplets in the set of retained barcodes is no greater than 0.1\%,
 which we consider to be acceptably low for downstream analyses.
 Users are also free to choose their own thresholds, with more relaxed thresholds favouring sensitivity in cell detection at the cost of specificity.
