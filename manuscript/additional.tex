@@ -31,7 +31,7 @@
 \caption{Cell-calling results in simulations based on the #2 dataset using either EmptyDrops or CellRanger.
 Simulation scenarios are labelled as $G_1/G_2$ where $G_1$ and $G_2$ are the number of barcodes in the group of large and small cells, respectively.
 (a) The recall for each method, defined as the proportion of detected cells from each group.
-EmptyDrops was used with a FDR threshold of 0.1\%.
+EmptyDrops was used with an FDR of 0.1\%.
 (b) The observed FDR in the set of libraries detected by EmptyDrops at a range of nominal FDR thresholds (dotted lines), defined as the proportion of detected droplets that are empty.
 In both plots, each point represents the result of one simulation iteration, the bar represents the mean value across 10 iterations and the error bars represent the standard error of the mean.
 }
@@ -61,7 +61,7 @@ In both plots, each point represents the result of one simulation iteration, the
         (a) A barcode rank plot showing the fitted spline used for knee point detection in EmptyDrops. 
         The detected knee and inflection points are also shown.
         (b) The negative log-likelihood for each barcode in the multinomial model of EmptyDrops, plotted against the total count.
-        Barcodes detected as putative cell-containing droplets at a FDR of 0.1\% are labelled in red.
+        Barcodes detected as putative cell-containing droplets at an FDR of 0.1\% are labelled in red.
         Only barcodes with $t_b > T$ are shown.
         (c) An UpSet plot of the barcodes detected by each combination of methods (vertical bars).
         Horizontal bars represent the number of barcodes detected by each method.
@@ -240,7 +240,7 @@ This suggests that the ``conservativeness'' of EmptyDrops is not a major problem
         \includegraphics[width=0.4\textwidth]{../real/pics-real/ma_pbmc4k.pdf}
         \includegraphics[width=0.4\textwidth]{../real/pics-real/ma_t_4k.pdf}
     \end{center}
-    \caption{MA plots for all genes comparing the mean expression profile of the ambient pool (all barcodes with total counts less than or equal to $T$) with the mean expression profile of all barcodes called as cells by EmptyDrops at a FDR of 0.1\%.
+    \caption{MA plots for all genes comparing the mean expression profile of the ambient pool (all barcodes with total counts less than or equal to $T$) with the mean expression profile of all barcodes called as cells by EmptyDrops at an FDR of 0.1\%.
         Each plot corresponds to a dataset in Supplementary Table~\ref{tab:datasets}.
         The top 10 genes with the strongest differential expression are also highlighted, based on a likelihood ratio test with a Poisson generalized linear model.
     }

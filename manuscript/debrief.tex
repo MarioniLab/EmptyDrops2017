@@ -254,7 +254,7 @@ This is more statistically rigorous as it avoids the selection of an \textit{ad 
 \subsection*{Correcting for multiple testing across barcodes}
 We correct for multiple testing by controlling the false discovery rate (FDR) using the Benjamini-Hochberg (BH) method \cite{benjamini1995controlling}.
 Putative cells are defined as those barcodes that have significantly poor fits to the ambient model at a specified FDR threshold.
-In the following text, we will use a FDR threshold of 0.1\% unless otherwise mentioned.
+In the following text, we will use an FDR threshold of 0.1\% unless otherwise mentioned.
 This means that the expected proportion of empty droplets in the set of retained barcodes is no greater than 0.1\%,
 which we consider to be acceptably low for downstream analyses.
 Users are also free to choose their own thresholds, with more relaxed thresholds favouring sensitivity in cell detection at the cost of specificity.
@@ -274,7 +274,7 @@ Each simulated dataset was generated from real droplet-based scRNA-seq data (Sup
 and contained one group of large cells with high RNA content and large $t_b$;
 one group of small cells with low RNA content and small $t_b$; 
 and a set of empty droplets with counts sampled from an ambient pool of RNA.
-We applied EmptyDrops at a FDR of 0.1\% to determine the recall for each group of cells and the FDR among the detected barcodes.
+We applied EmptyDrops at an FDR of 0.1\% to determine the recall for each group of cells and the FDR among the detected barcodes.
 We also tested methods that retain all cells with total UMI counts above a threshold.
 The threshold was defined as the total $U$ at the knee point, as described above;
 or using the quantile-based approach \cite{zheng2017massively} in the CellRanger software from 10X Genomics.
@@ -302,7 +302,7 @@ In contrast, EmptyDrops uses the expression profile for each droplet to distingu
 \caption{Cell-calling results from different algorithms in simulations based on the PBMC dataset.
 Simulation scenarios are labelled as $G_1/G_2$ where $G_1$ and $G_2$ are the number of barcodes in the group of large and small cells, respectively.
 (a) The recall for each method, defined as the proportion of detected cells from each group.
-EmptyDrops was used with a FDR threshold of 0.1\%.
+EmptyDrops was used with an FDR threshold of 0.1\%.
 (b) The observed FDR in the set of libraries detected by EmptyDrops at a range of nominal FDR thresholds (dotted lines), defined as the proportion of detected droplets that are empty.
 In both plots, each point represents the result of one simulation iteration, the bar represents the mean value across 10 iterations and the error bars represent the standard error of the mean.
 }
@@ -317,7 +317,7 @@ By comparison, the effect of a total count threshold on the cell calling error r
 CellRanger also requires the expected number of cells, which may not be available or accurate.
 
 \subsection*{Characterizing behaviour of EmptyDrops on real datasets}
-To determine how EmptyDrops behaved on real data, we applied it to detect cells in a placenta dataset \cite{vento2018single} at a FDR of 0.1\% (Figure~\ref{fig:realplacenta}).
+To determine how EmptyDrops behaved on real data, we applied it to detect cells in a placenta dataset \cite{vento2018single} at an FDR of 0.1\% (Figure~\ref{fig:realplacenta}).
 EmptyDrops identified a visually appropriate $U$ using the knee point from the smoothed spline (Figure~\ref{fig:realplacenta}a),
 and detected significant barcodes as those with low likelihoods under the null Dirichlet-multinomial model (Figure~\ref{fig:realplacenta}b).
 Most of the barcodes detected as cells by EmptyDrops had large total counts and were also detected using CellRanger (Figure~\ref{fig:realplacenta}c). 
@@ -350,7 +350,7 @@ A smaller number of barcodes were uniquely detected by CellRanger in a few datas
         (a) A barcode rank plot showing the fitted spline used for knee point detection in EmptyDrops. 
         The detected knee and inflection points are also shown.
         (b) The negative log-likelihood for each barcode in the multinomial model of EmptyDrops, plotted against the total count.
-        Barcodes detected as putative cell-containing droplets at a FDR of 0.1\% are labelled in red.
+        Barcodes detected as putative cell-containing droplets at an FDR of 0.1\% are labelled in red.
         Only barcodes with $t_b > T$ are shown.
         (c) An UpSet plot \cite{lex2014upset} of the barcodes detected by each combination of methods (vertical bars).
         Horizontal bars represent the number of barcodes detected by each method.
@@ -468,7 +468,7 @@ This ensures that the assumed true cells in our simulation are not actually empt
 We tested different simulation scenarios by setting $G_1$ or $G_2$ to 500 and 2000 cells.
 The various components of the simulation are visualized in Supplementary Figure~\suppfigsimdesign{}.
 
-We applied our EmptyDrops method to the simulated data at a FDR of 0.1\%. 
+We applied our EmptyDrops method to the simulated data at an FDR of 0.1\%. 
 The recall was defined as the proportion of known cells from each group that were successfully detected.
 The observed false discovery rate was defined as the proportion of detected barcodes that were known empty droplets.
 We repeated this evaluation using the knee point approach, where all barcodes with total counts above the knee point were retained;
@@ -479,7 +479,7 @@ For each scenario and dataset, we repeated the simulation for 10 iterations.
 We used each method in each iteration and collected performance metrics across all iterations.
 
 \subsection*{Detecting cells in real data with different methods}
-For each real dataset, we applied EmptyDrops to detect cells at a FDR of 0.1\%. 
+For each real dataset, we applied EmptyDrops to detect cells at an FDR of 0.1\%. 
 We also used the CellRanger approach where the expected number of cells was set to the reported value in Supplementary Table~\supptabdataset{};
 and the knee point method, where the threshold on the total count was defined as the detected knee point in the barcode rank plot.
 UpSet plots were created with using the \textsf{UpSetR} package \cite{lex2014upset}.
