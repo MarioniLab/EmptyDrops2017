@@ -148,16 +148,16 @@ Rather, we hypothesize that it is driven by violations of the independent sampli
 Positive correlations between molecules would increase the probability of obtaining droplets that are very similar or very different to the ambient profile.
 
 \section{Physically justifying the Dirichlet-multinomial model}
-Denote $\lambda_{bg}$ as the number of transcript molecules of gene $g$ in a droplet with cell barcode $b$.
+Denote $\lambda_{bg}$ as the number of transcript molecules of gene $g$ in an empty droplet with cell barcode $b$.
 Upon sequencing, the UMI count for $g$ follows a Poisson distribution \cite{marioni2008rnaseq} with mean $\omega_bc_g\lambda_{bg}$,
 where $\omega_b$ represents the capture efficiency of library preparation for $b$ and $c_g$ represents the capture efficiency for transcripts of $g$.
 If we condition on the total count, the count vector for $b$ follows a multinomial distribution with probability of sampling $g$ equal to $c_g\lambda_{bg}C^{-1}$
 where $C = \sum c_g\lambda_g$ across all $g$.
 
 We further assume that $\lambda_{bg} \sim \mbox{Gamma}(v_b\mu_g, 1)$ independently for each $g$, 
-where $\mu_g$ represents the ambient concentration of transcript molecules for $g$ and $v_b$ represents the droplet volume of $b$.
-Here, the absolute number of molecules is assumed to be sufficiently large that $\lambda_{bg}$ is well-modelled by a continuous distribution.
-If $c_g$ is similar across all $g$ and/or if $v_b\mu_g$ is very large, the count vector for $b$ will follow a Dirichlet-multinomial distribution with $\alpha = v_b C_2$ and probability of sampling $g$ equal to $c_g\mu_g C_2^{-1}$ where $C_2 = \sum c_g\mu_g$.
+where $\mu_g$ represents the ambient concentration of transcript molecules for $g$ and $v_b$ represents the volume of the droplet corresponding to $b$.
+Here, the absolute number of molecules is assumed to be sufficiently large such that $\lambda_{bg}$ is well-modelled by a continuous distribution.
+If the per-gene capture efficiency $c_g$ is similar across all $g$ and/or if the expected number of molecules $E(\lambda_{bg})=v_b\mu_g$ is very large, the count vector for $b$ will follow a Dirichlet-multinomial distribution with $\alpha = v_b C_2$ and probability of sampling $g$ equal to $c_g\mu_g C_2^{-1}$ where $C_2 = \sum c_g\mu_g$.
 These conditions are necessary as scaling $\lambda_{bg}$ by $c_g$ does not preserve the Gamma scale parameter of 1 that is required to define a Dirichlet distrbution.
 If $c_g$ is constant across genes, it cancels out and can be ignored entirely, while if $v_b\mu_g$ is large, the variance of Dirichlet distribution approaches zero and any incorrect scaling of the variance due to $c_g$ can be ignored.
 
