@@ -161,6 +161,12 @@ If the per-gene capture efficiency $c_g$ is similar across all $g$ and/or if the
 These conditions are necessary as scaling $\lambda_{bg}$ by $c_g$ does not preserve the Gamma scale parameter of 1 that is required to define a Dirichlet distrbution.
 If $c_g$ is constant across genes, it cancels out and can be ignored entirely, while if $v_b\mu_g$ is large, the variance of Dirichlet distribution approaches zero and any incorrect scaling of the variance due to $c_g$ can be ignored.
 
+\revised{As mentioned previously, the role of $\alpha$ is to model overdispersion in the counts, with greater variance leading to smaller estimates of $\alpha$.
+Overdispersion can be introduced when the expected ambient profile differs across droplets due to local fluctuations in transcript molecule concentration or changes in the ambient pool over the runtime of the scRNA-seq protocol.
+In the Dirichlet-multinomial model, such differences in the expected profile are represented by independent probability vectors sampled from the Dirichlet distribution.
+The same model can also accommodate overdispersion from other sources, such as amplification-induced scaling effects after incomplete removal of PCR duplicates;
+or from correlated sampling of transcript molecules when RNA is present in cell-free complexes or granules.}
+
 \section{Efficient calculation of the Monte Carlo $p$-value}
 The naive approach to computing the Monte Carlo $p$-value for a barcode would be to directly sample $R$ count vectors from a Dirichlet-multinomial distribution,
 compute the likelihood $L'_{bi}$ for each count vector, and count the number of vectors with $L'_{bi} \le L_{b}$.
