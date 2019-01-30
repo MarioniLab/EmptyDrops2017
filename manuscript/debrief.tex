@@ -75,6 +75,7 @@
 \usepackage{subcaption}
 \captionsetup[subfigure]{justification=centering}
 \newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\revised}[1]{\textcolor{red}{#1}}
 
 \newcommand{\supptabdataset}{2}
 
@@ -487,7 +488,8 @@ UpSet plots were created with using the \textsf{UpSetR} package \cite{lex2014ups
 \subsection*{Characterizing detected cells in real datasets}
 We analyzed the placenta dataset by adapting an existing workflow for scRNA-seq data analysis \cite{lun2016stepbystep}.
 We performed the analysis on the union of all cells detected by either CellRanger or EmptyDrops to simplify downstream comparisons between the two methods.
-First, we removed low-quality cells with high proportions of mitochondrial reads by detecting outliers based on the median absolute deviation \cite{mccarthy2017scater}.
+First, we removed low-quality cells with high proportions of mitochondrial transcripts by detecting outliers based on the median absolute deviation (MAD) \cite{mccarthy2017scater}.
+\revised{Cells were discarded if the percentage of UMIs assigned to mitochondrial genes was greater than 3 MADs above the median for all detected cells.}
 We calculated cell-specific size factors using the deconvolution method with pre-clustering \cite{lun2016pooling}.
 We used the size factors to obtain normalized log-expression values for further analysis.
 
