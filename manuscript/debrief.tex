@@ -85,7 +85,8 @@
 \newcommand{\suppfigsimresults}{4-8}
 \newcommand{\suppfigsimrocs}{9}
 \newcommand{\suppfigrealresults}{10-15}
-\newcommand{\suppfigrealpbmc}{16}
+\newcommand{\suppfigrealplacenta}{16}
+\newcommand{\suppfigrealpbmc}{17}
 
 \newcommand{\suppsecthreshold}{1}
 \newcommand{\suppsecphysical}{2}
@@ -360,12 +361,10 @@ A smaller number of barcodes were uniquely detected by CellRanger in a few datas
 
 To explore the differences between methods in more detail, we generated $t$-stochastic neighbour embedding (t-SNE) plots \cite{van2008visualizing} of all barcodes that were detected by either CellRanger or EmptyDrops in several datasets.
 In the placenta dataset, many of the EmptyDrops-only barcodes formed unique clusters (Figure~\ref{fig:realtsne}a), one of which likely contains monocytes (Figure~\ref{fig:realtsne}b).
+\revised{Examination of another unique cluster indicated that it contained putative T cells of a maternal origin (Supplementary Figures~\suppfigrealplacenta{}a, b).}
 This suggests that the use of EmptyDrops enables the recovery of distinct cell types, which is not surprising as the total RNA content of a cell is often associated with its biology.
-We repeated our analysis on another 10X dataset containing approximately 900 brain cells.
-EmptyDrops uniquely retained a large number of barcodes, including a putative cluster of interneurons (Figures~\ref{fig:realtsne}c, d) that would have been lost with CellRanger.
-This may reflect the difficulty of dissociating brain tissue without loss of cytoplasmic RNA \cite{habib2017massively} that yields low total counts in the resulting libraries.
-In the PBMC dataset, the EmptyDrops-only barcodes again formed a separate cluster corresponding to platelet-like cells (Supplementary Figure~\suppfigrealpbmc{}).
-This is consistent with the fact that platelets have much less RNA than other cell types \cite{rowley2012platelet}.
+\revised{We also identified a cluster that may represent damaged cells stripped of cytoplasmic content (Supplementary Figures~\suppfigrealplacenta{}c, d).
+This highlights the potential for detecting droplets that are technically non-empty yet are also biologically uninteresting.}
 
 \begin{figure}[btp]
     \begin{subfigure}{0.49\textwidth}
@@ -393,6 +392,12 @@ This is consistent with the fact that platelets have much less RNA than other ce
     }
     \label{fig:realtsne}
 \end{figure}
+
+We repeated our analysis \revised{on other 10X datasets to demonstrate the general applicability of our method}.
+\revised{In a data set} containing approximately 900 brain cells, EmptyDrops uniquely retained a large number of barcodes, including a putative cluster of interneurons (Figures~\ref{fig:realtsne}c, d) that would have been lost with CellRanger.
+This may reflect the difficulty of dissociating brain tissue without loss of cytoplasmic RNA \cite{habib2017massively} that yields low total counts in the resulting libraries.
+In the PBMC dataset \revised{described previously}, the EmptyDrops-only barcodes again formed a separate cluster corresponding to platelet-like cells (Supplementary Figure~\suppfigrealpbmc{}).
+This is consistent with the fact that platelets have much less RNA than other cell types \cite{rowley2012platelet}.
 
 \section*{Discussion}
 Droplet-based technologies are becoming increasingly popular for high-throughput single-cell transcriptomics.
