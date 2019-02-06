@@ -83,7 +83,7 @@ coloration[origin=="Maternal"] <- "forestgreen"
 
 pdf("pics/by_origin.pdf")
 par(mar=c(5.1, 4.1, 4.1, 4.1), xpd=TRUE)
-FUN(coloration, main="T cell gene expression", cex.main=1.4, loc=tcells, SHIFT=SHIFT, WIDTH=WIDTH, orientation=5)
+FUN(coloration, main="Individual of origin", cex.main=1.4, loc=tcells, SHIFT=SHIFT, WIDTH=WIDTH, orientation=5)
 legend("bottomright", legend=c("Fetal", "Maternal", "Unknown"), col=c("orange", "forestgreen", "grey80"), pch=16)
 dev.off()
 
