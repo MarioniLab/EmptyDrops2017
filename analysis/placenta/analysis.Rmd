@@ -264,7 +264,9 @@ pheatmap(log.ratio, cluster_rows=FALSE, cluster_cols=FALSE,
     color=colorRampPalette(c("white", "blue"))(100))
 ```
 
-# Marker gene detection
+# Annotating clusters
+
+## Detecting marker genes
 
 Detecting marker genes for each cluster.
 
@@ -278,9 +280,13 @@ Having a look at how the clusters interact with the detection status, so we can 
 table(sce$Detection, sce$Cluster)
 ```
 
-We observe several clusters with a majority of cells only detected by EmptyDrops. For simplicity, we'll focus on number 12, which express known monocyte markers:
+We observe several clusters with a majority of cells only detected by EmptyDrops. 
 
-```{r heatmap8, fig.wide=TRUE}
+## Finding monocytes
+
+We'll focus on one that expresses known monocyte markers:
+
+```{r monoplot}
 monocytes <- "16"
 
 # Monocyte genes
@@ -294,6 +300,45 @@ We'll record this in the metadata for future use.
 ```{r}
 metadata(sce)$Monocytes <- monocytes
 ```
+
+## Finding T cells 
+
+We'll focus on another cluster that expresses known T cell markers:
+
+```{r tplot}
+tcells <- "12"
+
+# T cell genes
+t_genes <- c("TRAC", "CD3E", "TRBC2", "CD3D", "LCK", "IL2RG", "PTPRC", "CORO1A")
+sce$t_genes_total <- Matrix::colSums(logcounts(sce)[t_genes,])
+plotTSNE(sce, colour_by = "t_genes_total")
+```
+
+We'll record this in the metadata for future use.
+
+```{r}
+metadata(sce)$TCells <- tcells 
+```
+
+## Finding damaged cells
+
+Finally, we'll look at a cluster that has very low mitochondrial gene expression.
+
+```{r tplot}
+stripped <- "27"
+
+# T cell genes
+mito_genes <- grep("^MT-", rownames(sce))
+sce$mito_genes_total <- Matrix::colSums(logcounts(sce)[mito_genes,])
+plotTSNE(sce, colour_by = "mito_genes_total")
+```
+
+We'll record this in the metadata for future use.
+
+```{r}
+metadata(sce)$StrippedNucleus <- stripped 
+```
+
 
 # Wrapping up
 
