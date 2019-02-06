@@ -4,10 +4,13 @@ library(scran)
 sce <- readRDS("sce.rds")
 coords <- reducedDim(sce, "TSNE")
 dir.create("pics", showWarning=FALSE)
+source("../../simulations/functions.R")
 
 # Defining arrow coordinates.
 FUN <- function(coloration, loc, SHIFT, WIDTH, orientation=-5, ...) {
-  plot(coords[,1], coords[,2], col=coloration, pch=16, xlab="t-SNE1", ylab="t-SNE2", cex.axis=1.2, cex.lab=1.4, ...)
+  out <- saveRaster(coords[,1], coords[,2], col=coloration, pch=16)
+  plot(coords[,1], coords[,2], type="n", xlab="t-SNE1", ylab="t-SNE2", cex.axis=1.2, cex.lab=1.4, ...)
+  loadRaster(out)
   arrows(loc[1] + SHIFT[1] + WIDTH[1], loc[2] + SHIFT[2],
          loc[1] + SHIFT[1] + orientation, loc[2] + SHIFT[2] + WIDTH[2],
          angle=20, length=0.1, lwd=2, col="black")
@@ -97,7 +100,7 @@ coloration <- inferno(100)[by.segment]
 
 pdf("pics/by_ribo.pdf")
 par(mar=c(5.1, 4.1, 4.1, 4.1), xpd=TRUE)
-FUN(coloration, main="Ribosomal protein expression", cex.main=1.4, loc=striploc, SHIFT=SHIFT, WIDTH=WIDTH)
+FUN(coloration, main="Ribosomal protein expression", cex.main=1.4, loc=striploc, SHIFT=SHIFT, WIDTH=WIDTH, orientation=5)
 COLBAR(inferno)
 dev.off()
 
