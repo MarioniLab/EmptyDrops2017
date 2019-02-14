@@ -1,79 +1,85 @@
-\documentclass[10pt,letterpaper]{article}
-\usepackage[top=0.85in,left=2.75in,footskip=0.75in,marginparwidth=2in]{geometry}
+%% BioMed_Central_Tex_Template_v1.06
+%%                                      %
+%  bmc_article.tex            ver: 1.06 %
+%                                       %
 
-% use Unicode characters - try changing the option if you run into troubles with special characters (e.g. umlauts)
-\usepackage[utf8]{inputenc}
+%%IMPORTANT: do not delete the first line of this template
+%%It must be present to enable the BMC Submission system to
+%%recognise this template!!
 
-% clean citations
-\usepackage{cite}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                     %%
+%%  LaTeX template for BioMed Central  %%
+%%     journal article submissions     %%
+%%                                     %%
+%%          <8 June 2012>              %%
+%%                                     %%
+%%                                     %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% hyperref makes references clicky. use \url{www.example.com} or \href{www.example.com}{description} to add a clicky url
-\usepackage{nameref,hyperref}
 
-% line numbers
-\usepackage[right]{lineno}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                 %%
+%% For instructions on how to fill out this Tex template           %%
+%% document please refer to Readme.html and the instructions for   %%
+%% authors page on the biomed central website                      %%
+%% http://www.biomedcentral.com/info/authors/                      %%
+%%                                                                 %%
+%% Please do not use \input{...} to include other tex files.       %%
+%% Submit your LaTeX manuscript as one .tex document.              %%
+%%                                                                 %%
+%% All additional figures and files should be attached             %%
+%% separately and not embedded in the \TeX\ document itself.       %%
+%%                                                                 %%
+%% BioMed Central currently use the MikTex distribution of         %%
+%% TeX for Windows) of TeX and LaTeX.  This is available from      %%
+%% http://www.miktex.org                                           %%
+%%                                                                 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% improves typesetting in LaTeX
-\usepackage{microtype}
-\DisableLigatures[f]{encoding = *, family = * }
+%%% additional documentclass options:
+%  [doublespacing]
+%  [linenumbers]   - put the line numbers on margins
 
-% text layout - change as needed
-\raggedright
-\setlength{\parindent}{0.5cm}
-\textwidth 5.25in 
-\textheight 8.75in
+%%% loading packages, author definitions
 
-% Remove % for double line spacing
-%\usepackage{setspace} 
-%\doublespacing
+%\documentclass[twocolumn]{bmcart}% uncomment this for twocolumn layout and comment line below
+\documentclass{bmcart}
 
-% use adjustwidth environment to exceed text width (see examples in text)
-\usepackage{changepage}
+%%% Load packages
+%\usepackage{amsthm,amsmath}
+%\RequirePackage{natbib}
+%\RequirePackage[authoryear]{natbib}% uncomment this for author-year bibliography
+%\RequirePackage{hyperref}
+\usepackage[utf8]{inputenc} %unicode support
+%\usepackage[applemac]{inputenc} %applemac support if unicode package fails
+%\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
 
-% adjust caption style
-\usepackage[aboveskip=1pt,labelfont=bf,labelsep=period,singlelinecheck=off]{caption}
 
-% remove brackets from references
-\makeatletter
-\renewcommand{\@biblabel}[1]{\quad#1.}
-\makeatother
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                             %%
+%%  If you wish to display your graphics for   %%
+%%  your own use using includegraphic or       %%
+%%  includegraphics, then comment out the      %%
+%%  following two lines of code.               %%
+%%  NB: These line *must* be included when     %%
+%%  submitting to BMC.                         %%
+%%  All figure files must be submitted as      %%
+%%  separate graphics through the BMC          %%
+%%  submission process, not included in the    %%
+%%  submitted article.                         %%
+%%                                             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% headrule, footrule and page numbers
-\usepackage{lastpage,fancyhdr,graphicx}
-\usepackage{epstopdf}
-\pagestyle{myheadings}
-\pagestyle{fancy}
-\fancyhf{}
-\rfoot{\thepage/\pageref{LastPage}}
-\renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
-\fancyheadoffset[L]{2.25in}
-\fancyfootoffset[L]{2.25in}
 
-% use \textcolor{color}{text} for colored text (e.g. highlight to-do areas)
-\usepackage{color}
+\def\includegraphic{}
+\def\includegraphics{}
 
-% define custom colors (this one is for figure captions)
-\definecolor{Gray}{gray}{.25}
 
-% this is required to include graphics
-\usepackage{graphicx}
 
-% use if you want to put caption to the side of the figure - see example in text
-\usepackage{sidecap}
+%%% Put your definitions there:
+\startlocaldefs
 
-% use for have text wrap around figures
-\usepackage{wrapfig}
-\usepackage[pscoord]{eso-pic}
-\usepackage[fulladjust]{marginnote}
-\reversemarginpar
-
-% Adding multirow.
-\usepackage{multirow}
-
-% Other required things:
-\usepackage{color}
-\usepackage{subcaption}
-\captionsetup[subfigure]{justification=centering}
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\revised}[1]{\textcolor{red}{#1}}
 
@@ -93,48 +99,174 @@
 \newcommand{\suppsecmontecarlo}{3}
 \newcommand{\suppsecpower}{4}
 
-% document begins here
+\endlocaldefs
+
+%%% Begin ...
 \begin{document}
-\vspace*{0.35in}
 
-% title goes here:
-\begin{flushleft}
-{\Large
-    \textbf\newline{Distinguishing cells from empty droplets in droplet-based single-cell RNA sequencing data}
+%%% Start of article front matter
+\begin{frontmatter}
+
+\begin{fmbox}
+\dochead{Research}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the title of your article here     %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Distinguishing cells from empty droplets in droplet-based single-cell RNA sequencing data}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the authors here                   %%
+%%                                          %%
+%% Specify information, if available,       %%
+%% in the form:                             %%
+%%   <key>={<id1>,<id2>}                    %%
+%%   <key>=                                 %%
+%% Comment or delete the keys which are     %%
+%% not used. Repeat \author command as much %%
+%% as required.                             %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\author[
+    addressref={cruk},
+    corref={cruk},
+    noteref={n1},
+    email={aaron.lun@cruk.cam.ac.uk}
+]{\inits{ATLL}\fnm{Aaron TL} \snm{Lun}}
+\author[
+	addressref={broad},
+    noteref={n1}
+]{\inits{SR}\fnm{Samantha} \snm{Riesenfeld}}
+\author[
+	addressref={sanger},
+    noteref={n1}
+]{\inits{TA}\fnm{Tallulah} \snm{Andrews}}
+\author[
+    addressref={sloan},
+    noteref={n1}
+]{\inits{TPD}\fnm{The Phuong} \snm{Dao}}
+\author[
+    addressref={sanger},
+    noteref={n1}
+]{\inits{TG}\fnm{Tomas} \snm{Gomes}}
+\author[
+    noteref={n2}
+]{participants in the 1\textsuperscript{st} Human Cell Atlas Jamboree}
+\author[
+    addressref={cruk,sanger,ebi},
+    corref={cruk},
+    email={marioni@ebi.ac.uk}
+]{\inits{JCM}\fnm{John C} \snm{Marioni}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the authors' addresses here        %%
+%%                                          %%
+%% Repeat \address commands as much as      %%
+%% required.                                %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\address[id=cruk]{
+    \orgname{Cancer Research UK Cambridge Institute, University of Cambridge},
+    \street{Robinson Way},
+    \city{Cambridge}, 
+    \cny{United Kingdom}
 }
-\newline
+\address[id=broad]{
+    \orgname{Klarman Cell Observatory, Broad Institute of MIT and Harvard}
+    \city{Cambridge, Massachusetts},
+    \cny{USA} 
+}
+\address[id=sanger]{
+    \orgname{Wellcome Trust Sanger Institute},
+    \street{Wellcome Genome Campus},
+    \city{Hinxton, Cambridge}, 
+    \cny{United Kingdom}
+}
+\address[id=sloan]{
+    \orgname{Program for Computational and Systems Biology, Sloan Kettering Institute},
+    \street{Memorial Sloan Kettering Cancer Center},
+    \city{New York},
+    \cny{USA}
+}
+\address[id=ebi]{
+    \orgname{EMBL European Bioinformatics Institute},
+    \street{Wellcome Genome Campus},
+    \city{Hinxton, Cambridge},
+    \cny{United Kingdom}
+}
 
-% authors go here:
-%\\
-Aaron T. L. Lun\textsuperscript{1,*,\dag{}},
-Samantha Riesenfeld\textsuperscript{2,*},
-Tallulah Andrews\textsuperscript{3,*},
-The Phuong Dao\textsuperscript{4,*},
-Tomas Gomes\textsuperscript{3,*},
-participants in the 1\textsuperscript{st} Human Cell Atlas Jamboree\textsuperscript{\ddag{}},
-John C. Marioni\textsuperscript{1,3,5,\#}
-\\
-\bigskip
-\bf{1} Cancer Research UK Cambridge Institute, University of Cambridge, Li Ka Shing Centre, Robinson Way, Cambridge CB2 0RE, United Kingdom \\
-\bf{2} Klarman Cell Observatory, Broad Institute of MIT and Harvard, Cambridge, Massachusetts, USA \\
-\bf{3} Wellcome Trust Sanger Institute, Wellcome Genome Campus, Hinxton, Cambridge CB10 1SA, United Kingdom \\
-\bf{4} Program for Computational and Systems Biology, Sloan Kettering Institute, Memorial Sloan Kettering Cancer Center, New York, NY \\
-\bf{5} EMBL European Bioinformatics Institute, Wellcome Genome Campus, Hinxton, Cambridge CB10 1SD, United Kingdom
-\\
-\bigskip
-* These authors contributed equally to this work.\\
-\dag{} Email: aaron.lun@cruk.cam.ac.uk \\
-\ddag{} The full list of participants is provided in Supplementary Table 1. \\
-\# Email: john.marioni@cruk.cam.ac.uk
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter short notes here                   %%
+%%                                          %%
+%% Short notes will be after addresses      %%
+%% on first page.                           %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\end{flushleft}
+\begin{artnotes}
+%\note{Sample of title note}     % note to the article
+\note[id=n1]{These authors contributed equally to this work.} % note, connected to author
+\note[id=n2]{The full list of participants is provided in Supplementary Table 1.} % note, connected to author
+\end{artnotes}
 
-\section*{Abstract}
+\end{fmbox}% comment this for two column layout
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The Abstract begins here                 %%
+%%                                          %%
+%% Please refer to the Instructions for     %%
+%% authors on http://www.biomedcentral.com  %%
+%% and include the section headings         %%
+%% accordingly for your article type.       %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstractbox}
+
+\begin{abstract} % abstract
 Droplet-based single-cell RNA sequencing protocols have dramatically increased the throughput of single-cell transcriptomics studies.
 A key computational challenge when processing these data is to distinguish libraries for real cells from empty droplets.
 Here, we describe a new statistical method for calling cells from droplet-based data, based on detecting significant deviations from the expression profile of the ambient solution.
 Using simulations, we demonstrate that our method has greater power than existing approaches while controlling the false discovery rate among detected cells.
 \revised{Our method also} retains distinct cell types that would have been discarded \revised{by existing methods in several real data sets}.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The keywords begin here                  %%
+%%                                          %%
+%% Put each keyword in separate \kwd{}.     %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{keyword}
+\kwd{single-cell transcriptomics}
+\kwd{droplet-based protocols}
+\kwd{empty droplets}
+\kwd{cell detection}
+\end{keyword}
+
+% MSC classifications codes, if any
+%\begin{keyword}[class=AMS]
+%\kwd[Primary ]{}
+%\kwd{}
+%\kwd[; secondary ]{}
+%\end{keyword}
+
+\end{abstractbox}
+%
+%\end{fmbox}% uncomment this for twcolumn layout
+
+\end{frontmatter}
 
 \section*{Introduction}
 Recent advances in droplet-based protocols have revolutionized the field of single-cell transcriptomics by allowing tens of thousands of cells to be profiled in a single assay \cite{macosko2015highly,klein2015droplet,zheng2017massively}.
