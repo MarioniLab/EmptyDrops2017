@@ -1,0 +1,30 @@
+\documentclass{article}
+\usepackage[margin=4cm]{geometry}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\pagenumbering{gobble}
+\captionsetup[sub]{labelfont={sf}}
+
+\begin{document}
+\newcommand{\path}[1]{../../analysis/#1/pics}
+
+\begin{figure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{\path{placenta}/by_detection.pdf}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{\path{placenta}/by_monocyte.pdf}
+        \caption{}
+    \end{subfigure} \\[0.05in]
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{\path{neurons_900}/by_detection.pdf}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{0.49\textwidth}
+        \includegraphics[width=\textwidth]{\path{neurons_900}/by_interneuron.pdf}
+        \caption{}
+    \end{subfigure} 
+\end{figure}
+
+\end{document}

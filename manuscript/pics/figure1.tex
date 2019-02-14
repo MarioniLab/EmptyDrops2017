@@ -1,0 +1,22 @@
+\documentclass{article}
+\usepackage[margin=4cm]{geometry}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\pagenumbering{gobble}
+\captionsetup[sub]{labelfont={sf}}
+
+\begin{document}
+\newcommand{\path}{../../simulations/results-sim/pics}
+
+\begin{figure}
+    \begin{subfigure}{\textwidth}
+    \includegraphics[width=\textwidth,trim=0mm 15mm 0mm 0mm,clip]{\path/pbmc4k-recall.pdf}
+    \caption{}
+    \end{subfigure} \\[0.1in]
+    \begin{subfigure}{\textwidth}
+    \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 0mm,clip]{\path/pbmc4k-fdr.pdf}
+    \caption{}
+    \end{subfigure}
+\end{figure}
+
+\end{document}
