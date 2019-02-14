@@ -50,7 +50,7 @@
 %\usepackage{amsthm,amsmath}
 %\RequirePackage{natbib}
 %\RequirePackage[authoryear]{natbib}% uncomment this for author-year bibliography
-%\RequirePackage{hyperref}
+\RequirePackage{hyperref}
 \usepackage[utf8]{inputenc} %unicode support
 %\usepackage[applemac]{inputenc} %applemac support if unicode package fails
 %\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
@@ -159,7 +159,7 @@
 ]{participants in the 1\textsuperscript{st} Human Cell Atlas Jamboree}
 \author[
     addressref={cruk,sanger,ebi},
-    corref={cruk},
+    corref={ebi},
     email={marioni@ebi.ac.uk}
 ]{\inits{JCM}\fnm{John C} \snm{Marioni}}
 
@@ -174,12 +174,12 @@
 
 \address[id=cruk]{
     \orgname{Cancer Research UK Cambridge Institute, University of Cambridge},
-    \street{Robinson Way},
+    \street{Li Ka Shing Centre, Robinson Way},
     \city{Cambridge}, 
     \cny{United Kingdom}
 }
 \address[id=broad]{
-    \orgname{Klarman Cell Observatory, Broad Institute of MIT and Harvard}
+    \orgname{Klarman Cell Observatory, Broad Institute of MIT and Harvard},
     \city{Cambridge, Massachusetts},
     \cny{USA} 
 }
@@ -420,27 +420,6 @@ A method based on the total count alone cannot distinguish between these two pos
 as any choice of threshold will either reduce recall or increase false positives (Supplementary Figure~\suppfigsimrocs{}).
 In contrast, EmptyDrops uses the expression profile for each droplet to distinguish small cells from the ambient profile with greater power.
 
-\begin{figure}[btp]
-    \begin{center}
-        \begin{subfigure}{\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 15mm 0mm 0mm,clip]{../simulations/results-sim/pics/pbmc4k-recall.pdf}
-        \caption{}
-        \end{subfigure}
-        \begin{subfigure}{\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 5mm 0mm 0mm,clip]{../simulations/results-sim/pics/pbmc4k-fdr.pdf}
-        \caption{}
-        \end{subfigure}
-    \end{center}
-\caption{Cell-calling results from different algorithms in simulations based on the PBMC dataset.
-Simulation scenarios are labelled as $G_1/G_2$ where $G_1$ and $G_2$ are the number of barcodes in the group of large and small cells, respectively.
-(a) The recall for each method, defined as the proportion of detected cells from each group.
-EmptyDrops was used with an FDR threshold of 0.1\%.
-(b) The observed FDR in the set of libraries detected by EmptyDrops at a range of nominal FDR thresholds (dotted lines), defined as the proportion of detected droplets that are empty.
-In both plots, each point represents the result of one simulation iteration, the bar represents the mean value across 10 iterations and the error bars represent the standard error of the mean.
-}
-\label{fig:simpbmc}
-\end{figure}
-
 EmptyDrops correctly controlled the FDR close to or below the nominal thresholds in all simulated datasets (Figure~\ref{fig:simpbmc}, Supplementary Figures~\suppfigsimresults{}).
 This is a useful property of the method as it provides users with a reliable upper bound on the expected proportion of empty droplets.
 Such information can be used to interpret downstream analysis results --
@@ -459,71 +438,12 @@ where EmptyDrops often detected the most barcodes.
 Increased retention of small cells was particularly pronounced in the neuronal datasets where EmptyDrops uniquely detected over a thousand cells.
 A smaller number of barcodes were uniquely detected by CellRanger in a few datasets, the causes of which are discussed in Supplementary Section~\suppsecpower{}.
 
-\begin{figure}[btp]
-    \begin{center}
-    \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../real/pics-real/rank_placenta1.pdf}
-        \caption{}
-    \end{subfigure}
-    \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../real/pics-real/dev_placenta1.pdf}
-        \caption{}
-    \end{subfigure}\\[0.1in]
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 5mm,clip]{../real/pics-real/intersect_placenta1.pdf}
-        \caption{}
-    \end{subfigure}
-    \begin{subfigure}[b]{0.49\textwidth}
-        \includegraphics[width=\textwidth,trim=0mm 0mm 0mm 20mm,clip]{../real/pics-real/kept_placenta1.pdf}
-        \caption{}
-    \end{subfigure}
-\end{center}
-    \caption{Application of EmptyDrops and other cell detection methods to one sample of the placenta dataset.
-        (a) A barcode rank plot showing the fitted spline used for knee point detection in EmptyDrops. 
-        The detected knee and inflection points are also shown.
-        (b) The negative log-likelihood for each barcode in the multinomial model of EmptyDrops, plotted against the total count.
-        Barcodes detected as putative cell-containing droplets at an FDR of 0.1\% are labelled in red.
-        Only barcodes with $t_b > T$ are shown.
-        (c) An UpSet plot \cite{lex2014upset} of the barcodes detected by each combination of methods (vertical bars).
-        Horizontal bars represent the number of barcodes detected by each method.
-        (d) Histogram outlines of the log-total count for barcodes detected by each method.
-    }
-\label{fig:realplacenta}
-\end{figure}
-
 To explore the differences between methods in more detail, we generated $t$-stochastic neighbour embedding (t-SNE) plots \cite{van2008visualizing} of all barcodes that were detected by either CellRanger or EmptyDrops in several datasets.
 In the placenta dataset, many of the EmptyDrops-only barcodes formed unique clusters (Figure~\ref{fig:realtsne}a), one of which likely contains monocytes (Figure~\ref{fig:realtsne}b).
 \revised{Examination of another unique cluster indicated that it contained putative T cells of a maternal origin (Supplementary Figures~\suppfigrealplacenta{}a, b).}
 This suggests that the use of EmptyDrops enables the recovery of distinct cell types, which is not surprising as the total RNA content of a cell is often associated with its biology.
 \revised{We also identified a cluster that may represent damaged cells stripped of cytoplasmic content (Supplementary Figures~\suppfigrealplacenta{}c, d).
 This highlights the potential for detecting droplets that are technically non-empty yet are also biologically uninteresting.}
-
-\begin{figure}[btp]
-    \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../analysis/placenta/pics/by_detection.pdf}
-        \caption{}
-    \end{subfigure}
-    \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../analysis/placenta/pics/by_monocyte.pdf}
-        \caption{}
-    \end{subfigure} \\[0.05in]
-    \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../analysis/neurons_900/pics/by_detection.pdf}
-        \caption{}
-    \end{subfigure}
-    \begin{subfigure}{0.49\textwidth}
-        \includegraphics[width=\textwidth]{../analysis/neurons_900/pics/by_interneuron.pdf}
-        \caption{}
-    \end{subfigure} 
-    \caption{$t$-SNE plots for the placenta dataset (a, b) or the 900 neuron dataset (c, d), constructed from barcodes that were detected with EmptyDrops and/or CellRanger.
-        Each point represents a barcode and is coloured based on (a, c) whether it was detected as a cell with each method;
-        (b) the expression of monocyte marker genes \textit{KCNA5}, \textit{CFP}, \textit{STX11} and \textit{S100A12};
-        or (d) the expression of interneuron marker genes \textit{Gad1}, \textit{Gad2} and \textit{Sla6c1}.
-        Expression of the relevant marker set in each barcode was quantified as the sum of the normalized log-expression values across all marker genes.
-        Arrows mark the putative monocyte and interneuron populations in each dataset.
-    }
-    \label{fig:realtsne}
-\end{figure}
 
 We repeated our analysis \revised{on other 10X datasets to demonstrate the general applicability of our method}.
 \revised{In a data set} containing approximately 900 brain cells, EmptyDrops uniquely retained a large number of barcodes, including a putative cluster of interneurons (Figures~\ref{fig:realtsne}c, d) that would have been lost with CellRanger.
@@ -666,7 +586,70 @@ Roser Vento-Tormo and Mirjana Efremova for providing the unprocessed placenta da
 and Stephen Sansom for discussions on the nature of cell damage.
 We would also like to thank the AWS Cloud Credits for Research Program for providing computational resources during the Jamboree.
 
-\bibliography{ref.bib}
-\bibliographystyle{unsrt}
+\bibliographystyle{bmc-mathphys} 
+\bibliography{ref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                               %%
+%% Figures                       %%
+%%                               %%
+%% NB: this is for captions and  %%
+%% Titles. All graphics must be  %%
+%% submitted separately and NOT  %%
+%% included in the Tex document  %%
+%%                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Figures}
+
+\begin{figure}[h!]
+\caption{\csentence{Cell-calling results from different algorithms in simulations based on the PBMC dataset.}
+Simulation scenarios are labelled as $G_1/G_2$ where $G_1$ and $G_2$ are the number of barcodes in the group of large and small cells, respectively.
+(a) The recall for each method, defined as the proportion of detected cells from each group.
+EmptyDrops was used with an FDR threshold of 0.1\%.
+(b) The observed FDR in the set of libraries detected by EmptyDrops at a range of nominal FDR thresholds (dotted lines), defined as the proportion of detected droplets that are empty.
+In both plots, each point represents the result of one simulation iteration, the bar represents the mean value across 10 iterations and the error bars represent the standard error of the mean.
+}
+\label{fig:simpbmc}
+\end{figure}
+
+\begin{figure}[h!]
+\caption{\csentence{Application of EmptyDrops and other cell detection methods to one sample of the placenta dataset.}
+(a) A barcode rank plot showing the fitted spline used for knee point detection in EmptyDrops. 
+The detected knee and inflection points are also shown.
+(b) The negative log-likelihood for each barcode in the multinomial model of EmptyDrops, plotted against the total count.
+Barcodes detected as putative cell-containing droplets at an FDR of 0.1\% are labelled in red.
+Only barcodes with $t_b > T$ are shown.
+(c) An UpSet plot \cite{lex2014upset} of the barcodes detected by each combination of methods (vertical bars).
+Horizontal bars represent the number of barcodes detected by each method.
+(d) Histogram outlines of the log-total count for barcodes detected by each method.
+}
+\label{fig:realplacenta}
+\end{figure}
+
+\begin{figure}[h!]
+\caption{\csentence{$t$-SNE plots for the placenta dataset (a, b) or the 900 neuron dataset (c, d), constructed from barcodes that were detected with EmptyDrops and/or CellRanger.}
+Each point represents a barcode and is coloured based on (a, c) whether it was detected as a cell with each method;
+(b) the expression of monocyte marker genes \textit{KCNA5}, \textit{CFP}, \textit{STX11} and \textit{S100A12};
+or (d) the expression of interneuron marker genes \textit{Gad1}, \textit{Gad2} and \textit{Sla6c1}.
+Expression of the relevant marker set in each barcode was quantified as the sum of the normalized log-expression values across all marker genes.
+Arrows mark the putative monocyte and interneuron populations in each dataset.
+}
+\label{fig:realtsne}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                               %%
+%% Additional Files              %%
+%%                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Additional Files}
+\subsection*{Supplementary Table 1}
+This is a CSV file containing the names of all participants in the 1\textsuperscript{st} Human Cell Atlas Jamboree.
+
+\subsection*{Supplementary Materials}
+This is a PDF file containing Supplementary Sections 1-4 and Supplementary Figures 1-17.
 
 \end{document}
