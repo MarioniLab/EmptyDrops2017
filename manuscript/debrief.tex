@@ -561,10 +561,17 @@ We used a perplexity of 30, though similar plots were obtained with other values
 
 We performed similar analyses on the PBMC and 900 brain cell datasets.
 
-\subsection*{Implementation details}
+\section*{Competing interests}
+The authors declare that they have no competing interests.
+
+\section*{Availability of data and materials}
 EmptyDrops is implemented as the \code{emptyDrops} function in the \textsf{DropletUtils} package, available from version 3.8 of the Bioconductor project (\url{https://bioconductor.org/packages/DropletUtils}).
 It is written in a combination of R and C++ and requires approximately 1-2 minutes to run on each of the tested datasets.
 All code for simulations and real data analysis were written in R and are available at \url{https://github.com/MarioniLab/EmptyDrops2017}.
+Data are available from the 10X Genomics website as described in Additional File 1: Table S2.
+
+\section*{Ethics approval}
+Not applicable.
 
 \section*{Author contributions}
 ATLL, SR, TA, TPD and TG developed the initial EmptyDrops algorithm and tested it on simulated data.
@@ -572,11 +579,10 @@ TPD tested the algorithm on the PBMC dataset and TG tested it on the placenta da
 ATLL improved the efficiency of the algorithm, incorporated it into a package, prepared new simulations for further testing, refined the real data analysis and wrote the manuscript.
 JCM provided guidance for the project direction. 
 
-\section*{Funding statement}
+\section*{Funding}
 ATLL and JCM were supported by core funding from Cancer Research UK (award no. 17197 to JCM).
 TA was supported by a core grant to the Wellcome Sanger Institute provided by the Wellcome Trust.
 TG was supported by the European Union's H2020 research and innovation programme ``ENLIGHT-TEN'' under the Marie Sklodowska-Curie grant agreement 675395.
-The authors declare that they have no competing interests.
 
 \section*{Acknowledgements}
 We would like to thank Jonathan Griffiths for further testing of the algorithm;
@@ -584,6 +590,19 @@ Elia Benito-Gutierrez for assistance with identifying neuronal markers;
 Roser Vento-Tormo and Mirjana Efremova for providing the unprocessed placenta dataset and assisting in its interpretation;
 and Stephen Sansom for discussions on the nature of cell damage.
 We would also like to thank the AWS Cloud Credits for Research Program for providing computational resources during the Jamboree.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                               %%
+%% Additional Files              %%
+%%                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Additional Files}
+\subsection*{Supplementary Table 1}
+This is a CSV file (0.8 KB) containing the names of all participants in the 1\textsuperscript{st} Human Cell Atlas Jamboree.
+
+\subsection*{Supplementary Materials}
+This is a PDF file (2.6 MB) containing Sections S1-4, Table S2 and Figures S1-17.
 
 \bibliographystyle{bmc-mathphys} 
 \bibliography{ref}
@@ -637,18 +656,5 @@ Arrows mark the putative monocyte and interneuron populations in each dataset.
 \label{fig:realtsne}
 \end{figure}
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                               %%
-%% Additional Files              %%
-%%                               %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section*{Additional Files}
-\subsection*{Supplementary Table 1}
-This is a CSV file containing the names of all participants in the 1\textsuperscript{st} Human Cell Atlas Jamboree.
-
-\subsection*{Supplementary Materials}
-This is a PDF file containing Supplementary Sections 1-4 and Supplementary Figures 1-17.
 
 \end{document}
