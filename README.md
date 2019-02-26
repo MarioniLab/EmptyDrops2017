@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains analysis scripts and simulation code for the manuscript **Distinguishing cells from empty droplets in droplet-based single-cell RNA sequencing data_**
+This repository contains analysis scripts and simulation code for the manuscript **Distinguishing cells from empty droplets in droplet-based single-cell RNA sequencing data**
 by [Lun _et al._ (2018)](https://doi.org/10.1101/234872).
 It also contains the manuscript files themselves, which can be compiled with `pdflatex` if you're into that sort of thing.
 
