@@ -81,7 +81,6 @@
 \startlocaldefs
 
 \newcommand{\code}[1]{\texttt{#1}}
-\newcommand{\revised}[1]{\textcolor{red}{#1}}
 
 \newcommand{\supptabdataset}{2}
 
@@ -237,7 +236,7 @@ Droplet-based single-cell RNA sequencing protocols have dramatically increased t
 A key computational challenge when processing these data is to distinguish libraries for real cells from empty droplets.
 Here, we describe a new statistical method for calling cells from droplet-based data, based on detecting significant deviations from the expression profile of the ambient solution.
 Using simulations, we demonstrate that our method has greater power than existing approaches while controlling the false discovery rate among detected cells.
-\revised{Our method also} retains distinct cell types that would have been discarded \revised{by existing methods in several real data sets}.
+Our method also retains distinct cell types that would have been discarded by existing methods in several real data sets.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -319,8 +318,8 @@ We define the ambient count for $g$ as
 \]
 yielding a count vector $\mathbf{A} = (A_1, \dots, A_N)$ for all $N$ genes.
 (We assume that any gene with counts of zero for all barcodes has already been filtered out, as this provides no information for distiguishing between barcodes.)
-We apply the Good-Turing algorithm to $\mathbf{A}$ to obtain the posterior expectation $\tilde{p}_g$ of the proportion of counts assigned to \revised{each gene} $g$ \cite{gale1995good}, using the \code{goodTuringProportions} function in the \textsf{edgeR} package \cite{robinson2010edgeR}.
-This ensures that genes with zero counts in the ambient pool have non-zero proportions, avoiding \revised{undefined} likelihoods in downstream calculations.
+We apply the Good-Turing algorithm to $\mathbf{A}$ to obtain the posterior expectation $\tilde{p}_g$ of the proportion of counts assigned to each gene $g$ \cite{gale1995good}, using the \code{goodTuringProportions} function in the \textsf{edgeR} package \cite{robinson2010edgeR}.
+This ensures that genes with zero counts in the ambient pool have non-zero proportions, avoiding undefined likelihoods in downstream calculations.
 In general, we do not observe strong differential expression between $\mathbf{A}$ and the average of the cell-containing droplets (Supplementary Figure~\suppfigambientma{}).
 This suggests that the ambient pool contains RNA from multiple cell types, possibly from widespread stress and lysis during dissociation.
 
@@ -333,8 +332,8 @@ We define the likelihood of obtaining the counts for barcode $b$ as
     L_b = \frac{t_b!\Gamma(\alpha)}{\Gamma(t_b + \alpha)} \prod_{g=1}^N \frac{\Gamma(y_{gb}+\alpha_g)}{y_{gb}!\Gamma(\alpha_g)} \;,
 \]
 where $\alpha_g = \alpha\tilde{p}_g$ for a scaling factor $\alpha$.
-\revised{This highlights the usefulness of $\tilde p_g$ instead of a naive estimate of the proportions from $\mathbf{A}$, as the former is guaranteed to be non-zero such that $L_b$ is defined.}
-\revised{We replace $\alpha$ with its} maximum likelihood estimate, obtained from $\mathcal{G}$ by treating $\tilde{p}_g$ as known.
+This highlights the usefulness of $\tilde p_g$ instead of a naive estimate of the proportions from $\mathbf{A}$, as the former is guaranteed to be non-zero such that $L_b$ is defined.
+We replace $\alpha$ with its maximum likelihood estimate, obtained from $\mathcal{G}$ by treating $\tilde{p}_g$ as known.
 Low estimates of $\alpha$ model overdispersion in the counts, e.g., due to amplification biases or correlated sampling of transcript molecules.
 
 We use a Monte Carlo approach to compute the $p$-value for $b$.
@@ -440,15 +439,15 @@ A smaller number of barcodes were uniquely detected by CellRanger in a few datas
 
 To explore the differences between methods in more detail, we generated $t$-stochastic neighbour embedding (t-SNE) plots \cite{van2008visualizing} of all barcodes that were detected by either CellRanger or EmptyDrops in several datasets.
 In the placenta dataset, many of the EmptyDrops-only barcodes formed unique clusters (Figure~\ref{fig:realtsne}a), one of which likely contains monocytes (Figure~\ref{fig:realtsne}b).
-\revised{Examination of another unique cluster indicated that it contained putative CD8\textsuperscript{+} T cells of maternal origin (Supplementary Figures~\suppfigrealplacenta{}a, b).}
+Examination of another unique cluster indicated that it contained putative CD8\textsuperscript{+} T cells of maternal origin (Supplementary Figures~\suppfigrealplacenta{}a, b).
 This suggests that the use of EmptyDrops enables the recovery of distinct cell types, which is not surprising as the total RNA content of a cell is often associated with its biology.
-\revised{We also identified a cluster that may represent damaged cells stripped of cytoplasmic content (Supplementary Figures~\suppfigrealplacenta{}c, d).
-This highlights the potential for detecting droplets that are technically non-empty yet are also biologically uninteresting.}
+We also identified a cluster that may represent damaged cells stripped of cytoplasmic content (Supplementary Figures~\suppfigrealplacenta{}c, d).
+This highlights the potential for detecting droplets that are technically non-empty yet are also biologically uninteresting.
 
-We repeated our analysis \revised{on other 10X datasets to demonstrate the general applicability of our method}.
-\revised{In a data set} containing approximately 900 brain cells, EmptyDrops uniquely retained a large number of barcodes, including a putative cluster of interneurons (Figures~\ref{fig:realtsne}c, d) that would have been lost with CellRanger.
+We repeated our analysis on other 10X datasets to demonstrate the general applicability of our method.
+In a data set containing approximately 900 brain cells, EmptyDrops uniquely retained a large number of barcodes, including a putative cluster of interneurons (Figures~\ref{fig:realtsne}c, d) that would have been lost with CellRanger.
 This may reflect the difficulty of dissociating brain tissue without loss of cytoplasmic RNA \cite{habib2017massively} that yields low total counts in the resulting libraries.
-In the PBMC dataset \revised{described previously}, the EmptyDrops-only barcodes again formed a separate cluster corresponding to platelet-like cells (Supplementary Figure~\suppfigrealpbmc{}).
+In the PBMC dataset described previously, the EmptyDrops-only barcodes again formed a separate cluster corresponding to platelet-like cells (Supplementary Figure~\suppfigrealpbmc{}).
 This is consistent with the fact that platelets have much less RNA than other cell types \cite{rowley2012platelet}.
 
 \section*{Discussion}
@@ -543,8 +542,8 @@ UpSet plots were created with using the \textsf{UpSetR} package \cite{lex2014ups
 \subsection*{Characterizing detected cells in real datasets}
 We analyzed the placenta dataset by adapting an existing workflow for scRNA-seq data analysis \cite{lun2016stepbystep}.
 We performed the analysis on the union of all cells detected by either CellRanger or EmptyDrops to simplify downstream comparisons between the two methods.
-First, we removed low-quality cells with high proportions of mitochondrial transcripts by detecting outliers based on the median absolute deviation \revised{(MAD)} \cite{mccarthy2017scater}.
-\revised{Cells were discarded if the percentage of UMIs assigned to mitochondrial genes was greater than 3 MADs above the median for all detected cells.}
+First, we removed low-quality cells with high proportions of mitochondrial transcripts by detecting outliers based on the median absolute deviation (MAD) \cite{mccarthy2017scater}.
+Cells were discarded if the percentage of UMIs assigned to mitochondrial genes was greater than 3 MADs above the median for all detected cells.
 We calculated cell-specific size factors using the deconvolution method with pre-clustering \cite{lun2016pooling}.
 We used the size factors to obtain normalized log-expression values for further analysis.
 

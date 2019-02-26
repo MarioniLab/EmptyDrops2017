@@ -14,7 +14,6 @@
 \newcommand{\code}[1]{\texttt{#1}}
 
 \usepackage{color}
-\newcommand{\revised}[1]{\textcolor{red}{#1}}
 
 \newcommand{\PlotSim}[2]{%
 \begin{figure}[btp]
@@ -161,11 +160,11 @@ If the per-gene capture efficiency $c_g$ is similar across all $g$ and/or if the
 These conditions are necessary as scaling $\lambda_{bg}$ by $c_g$ does not preserve the Gamma scale parameter of 1 that is required to define a Dirichlet distrbution.
 If $c_g$ is constant across genes, it cancels out and can be ignored entirely, while if $v_b\mu_g$ is large, the variance of Dirichlet distribution approaches zero and any incorrect scaling of the variance due to $c_g$ can be ignored.
 
-\revised{As mentioned previously, the role of $\alpha$ is to model overdispersion in the counts, with greater variance leading to smaller estimates of $\alpha$.
+As mentioned previously, the role of $\alpha$ is to model overdispersion in the counts, with greater variance leading to smaller estimates of $\alpha$.
 Overdispersion can be introduced when the expected ambient profile differs across droplets due to local fluctuations in transcript molecule concentration or changes in the ambient pool over the runtime of the scRNA-seq protocol.
 In the Dirichlet-multinomial model, such differences in the expected profile are represented by independent probability vectors sampled from the Dirichlet distribution.
 The same model can also accommodate overdispersion from other sources, such as amplification-induced scaling effects after incomplete removal of PCR duplicates;
-or from correlated sampling of transcript molecules when RNA is present in cell-free complexes or granules.}
+or from correlated sampling of transcript molecules when RNA is present in cell-free complexes or granules.
 
 \section{Efficient calculation of the Monte Carlo $p$-value}
 The naive approach to computing the Monte Carlo $p$-value for a barcode would be to directly sample $R$ count vectors from a Dirichlet-multinomial distribution,
@@ -330,14 +329,14 @@ The organism, cell type, expected number of cells and the version of the CellRan
         \includegraphics[width=\textwidth]{../analysis/placenta/pics/by_ribo.pdf}
         \caption{}
     \end{subfigure} \\[0.05in]
-    \caption{\revised{$t$-SNE plots for the placenta dataset, constructed from barcodes that were detected with EmptyDrops and/or CellRanger.
+    \caption{$t$-SNE plots for the placenta dataset, constructed from barcodes that were detected with EmptyDrops and/or CellRanger.
         Each point represents a barcode and is coloured based on 
             (a) the expression of T cell marker genes \textit{TRAC}, \textit{CD3E}, \textit{CD8A}, \textit{CD8B}, \textit{TRBC2}, \textit{CD3D}, \textit{LCK}, \textit{IL2RG}, \textit{PTPRC} and \textit{CORO1A};
             (b) the individual of origin, i.e., maternal or fetal;
             (c) the expression of mitochondrial genes;
             or (d) the expression of ribosomal protein genes.
         Expression in each barcode was quantified as the sum of the normalized log-expression values across all marker genes.
-        Arrows in (a) and (b) mark putative T cells, and those in (c) and (d) mark potential stripped nuclei.}
+        Arrows in (a) and (b) mark putative T cells, and those in (c) and (d) mark potential stripped nuclei.
     }
     \label{fig:realplacenta}
 \end{figure}
