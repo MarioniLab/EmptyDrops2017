@@ -4,8 +4,9 @@
 \usepackage[hidelinks]{hyperref}
 
 \makeatletter 
-\renewcommand{\fnum@figure}{Supplementary \figurename~\thefigure}
-\renewcommand{\fnum@table}{Supplementary \tablename~\thetable}
+\renewcommand{\figurename}{Fig.}
+\renewcommand{\fnum@figure}{\figurename~S\thefigure}
+\renewcommand{\fnum@table}{\tablename~S\thetable}
 \makeatother
 
 \usepackage[labelfont=bf]{caption}

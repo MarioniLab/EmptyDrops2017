@@ -81,22 +81,23 @@
 \startlocaldefs
 
 \newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\ADD}[1]{Additional File 1: #1}
 
-\newcommand{\supptabdataset}{2}
+\newcommand{\supptabdataset}{S2}
 
-\newcommand{\suppfignegative}{1}
-\newcommand{\suppfigambientma}{2}
-\newcommand{\suppfigsimdesign}{3}
-\newcommand{\suppfigsimresults}{4-8}
-\newcommand{\suppfigsimrocs}{9}
-\newcommand{\suppfigrealresults}{10-15}
-\newcommand{\suppfigrealplacenta}{16}
-\newcommand{\suppfigrealpbmc}{17}
+\newcommand{\suppfignegative}{S1}
+\newcommand{\suppfigambientma}{S2}
+\newcommand{\suppfigsimdesign}{S3}
+\newcommand{\suppfigsimresults}{S4-8}
+\newcommand{\suppfigsimrocs}{S9}
+\newcommand{\suppfigrealresults}{S10-15}
+\newcommand{\suppfigrealplacenta}{S16}
+\newcommand{\suppfigrealpbmc}{S17}
 
-\newcommand{\suppsecthreshold}{1}
-\newcommand{\suppsecphysical}{2}
-\newcommand{\suppsecmontecarlo}{3}
-\newcommand{\suppsecpower}{4}
+\newcommand{\suppsecthreshold}{S1}
+\newcommand{\suppsecphysical}{S2}
+\newcommand{\suppsecmontecarlo}{S3}
+\newcommand{\suppsecpower}{S4}
 
 \endlocaldefs
 
@@ -213,7 +214,7 @@
 \begin{artnotes}
 %\note{Sample of title note}     % note to the article
 \note[id=n1]{These authors contributed equally to this work.} % note, connected to author
-\note[id=n2]{The full list of participants is provided in Supplementary Table 1.} % note, connected to author
+\note[id=n2]{The full list of participants is provided in Table S1.} % note, connected to author
 \end{artnotes}
 
 \end{fmbox}% comment this for two column layout
@@ -307,7 +308,7 @@ To construct the profile for the ambient RNA pool, we consider a threshold $T$ o
 The set $\mathcal{G}$ of all barcodes with total counts less than or equal to $T$ are considered to represent empty droplets.
 The exact choice of $T$ does not matter, as long as (i) it is small enough so that droplets with genuine cells do not have total counts below $T$,
 and (ii) there are sufficient counts to obtain a precise estimate of the ambient profile.
-We set $T=100$ by default in our approach, motivated by examination of several real datasets (Supplementary Section~\suppsecthreshold{}, Supplementary Figure~\suppfignegative{}).
+We set $T=100$ by default in our approach, motivated by examination of several real datasets (\ADD{Section~\suppsecthreshold{}, Fig.~\suppfignegative{}}).
 We stress that $T$ is not the same as the threshold used in existing methods, as barcodes with total counts greater than $T$ are not automatically considered to be cell-containing droplets.
 
 The ambient profile is constructed by summing counts for each gene across $\mathcal{G}$.
@@ -320,13 +321,13 @@ yielding a count vector $\mathbf{A} = (A_1, \dots, A_N)$ for all $N$ genes.
 (We assume that any gene with counts of zero for all barcodes has already been filtered out, as this provides no information for distiguishing between barcodes.)
 We apply the Good-Turing algorithm to $\mathbf{A}$ to obtain the posterior expectation $\tilde{p}_g$ of the proportion of counts assigned to each gene $g$ \cite{gale1995good}, using the \code{goodTuringProportions} function in the \textsf{edgeR} package \cite{robinson2010edgeR}.
 This ensures that genes with zero counts in the ambient pool have non-zero proportions, avoiding undefined likelihoods in downstream calculations.
-In general, we do not observe strong differential expression between $\mathbf{A}$ and the average of the cell-containing droplets (Supplementary Figure~\suppfigambientma{}).
+In general, we do not observe strong differential expression between $\mathbf{A}$ and the average of the cell-containing droplets (\ADD{Fig.~\suppfigambientma{}}).
 This suggests that the ambient pool contains RNA from multiple cell types, possibly from widespread stress and lysis during dissociation.
 
 Our null hypothesis is that free-floating transcripts in solution are randomly encapsulated into the empty droplets.
 For a given droplet, the probability of sampling a transcript molecule for gene $g$ is equal to $\tilde{p}_g$.
 If we condition on the total count $t_b$ for a cell barcode $b$, we can model the counts for each barcode with a Dirichlet-multinomial distribution.
-(A physical justification for this model is provided in Supplementary Section~\suppsecphysical{}.)
+(A physical justification for this model is provided in \ADD{Section~\suppsecphysical{}}.)
 We define the likelihood of obtaining the counts for barcode $b$ as 
 \[
     L_b = \frac{t_b!\Gamma(\alpha)}{\Gamma(t_b + \alpha)} \prod_{g=1}^N \frac{\Gamma(y_{gb}+\alpha_g)}{y_{gb}!\Gamma(\alpha_g)} \;,
@@ -345,7 +346,7 @@ We repeat this process for $R$ iterations and then use the method of Phipson and
 \]
 where $R_b$ is the number of iterations in which $L'_{bi} \le L_b$.
 This strategy avoids $p$-values of zero, which is important during multiple testing correction.
-See Supplementary Section~\suppsecmontecarlo{} for a description of how these $p$-values are efficiently computed.
+See \ADD{Section~\suppsecmontecarlo{}} for a description of how these $p$-values are efficiently computed.
 
 \subsection*{Detecting the knee point in the log-totals}
 Applying a threshold on the $p$-value will identify barcodes that have count profiles that are significantly different from the ambient pool of RNA.
@@ -400,8 +401,8 @@ This approach improves power by reducing the severity of the correction in the p
 \section*{Results}
 
 \subsection*{Evaluating performance with simulated droplet-based data}
-We named our method ``EmptyDrops'' and tested it on simulated data involving cells with different RNA content (see Methods, Supplementary Figure~\suppfigsimdesign{}).
-Each simulated dataset was generated from real droplet-based scRNA-seq data (Supplementary Table~\supptabdataset{}) 
+We named our method ``EmptyDrops'' and tested it on simulated data involving cells with different RNA content (see Methods, \ADD{Fig.~\suppfigsimdesign{}}).
+Each simulated dataset was generated from real droplet-based scRNA-seq data (\ADD{Table~\supptabdataset{}}) 
 and contained one group of large cells with high RNA content and large $t_b$;
 one group of small cells with low RNA content and small $t_b$; 
 and a set of empty droplets with counts sampled from an ambient pool of RNA.
@@ -412,14 +413,14 @@ or using the quantile-based approach \cite{zheng2017massively} in the CellRanger
 
 In a simulation based on a real dataset containing peripheral blood mononuclear cells (PBMCs), EmptyDrops detected the most cells from both groups (Figure~\ref{fig:simpbmc}).
 CellRanger and the knee point method detected large cells but failed to recover small cells.
-We observed similar results in simulations based on other real datasets (Supplementary Figures~\suppfigsimresults{}).
+We observed similar results in simulations based on other real datasets (\ADD{Figs.~\suppfigsimresults{}}).
 The poor performance of the total count-based methods for small cells is expected.
 Barcodes corresponding to small cells with little RNA have similar total counts as barcodes corresponding to empty droplets with many ambient molecules.
 A method based on the total count alone cannot distinguish between these two possibilities, 
-as any choice of threshold will either reduce recall or increase false positives (Supplementary Figure~\suppfigsimrocs{}).
+as any choice of threshold will either reduce recall or increase false positives (\ADD{Fig.~\suppfigsimrocs{}}).
 In contrast, EmptyDrops uses the expression profile for each droplet to distinguish small cells from the ambient profile with greater power.
 
-EmptyDrops correctly controlled the FDR close to or below the nominal thresholds in all simulated datasets (Figure~\ref{fig:simpbmc}, Supplementary Figures~\suppfigsimresults{}).
+EmptyDrops correctly controlled the FDR close to or below the nominal thresholds in all simulated datasets (Figure~\ref{fig:simpbmc}, \ADD{Figs.~\suppfigsimresults{}}).
 This is a useful property of the method as it provides users with a reliable upper bound on the expected proportion of empty droplets.
 Such information can be used to interpret downstream analysis results --
 for example, we would be satistifed that a clustering result was not driven by empty droplets if the proportion of cells in a cluster of interest was much higher than the FDR threshold used in EmptyDrops.
@@ -432,22 +433,22 @@ EmptyDrops identified a visually appropriate $U$ using the knee point from the s
 and detected significant barcodes as those with low likelihoods under the null Dirichlet-multinomial model (Figure~\ref{fig:realplacenta}b).
 Most of the barcodes detected as cells by EmptyDrops had large total counts and were also detected using CellRanger (Figure~\ref{fig:realplacenta}c). 
 Barcodes that were only detected by EmptyDrops had low total counts (Figure~\ref{fig:realplacenta}d), consistent with the expected differences between methods.
-We observed similar results in the other tested datasets (Supplementary Table~\supptabdataset{}, Supplementary Figures~\suppfigrealresults{})
+We observed similar results in the other tested datasets (\ADD{Table~\supptabdataset{}, Figs.~\suppfigrealresults{}})
 where EmptyDrops often detected the most barcodes.
 Increased retention of small cells was particularly pronounced in the neuronal datasets where EmptyDrops uniquely detected over a thousand cells.
-A smaller number of barcodes were uniquely detected by CellRanger in a few datasets, the causes of which are discussed in Supplementary Section~\suppsecpower{}.
+A smaller number of barcodes were uniquely detected by CellRanger in a few datasets, the causes of which are discussed in \ADD{Section~\suppsecpower{}}.
 
 To explore the differences between methods in more detail, we generated $t$-stochastic neighbour embedding (t-SNE) plots \cite{van2008visualizing} of all barcodes that were detected by either CellRanger or EmptyDrops in several datasets.
 In the placenta dataset, many of the EmptyDrops-only barcodes formed unique clusters (Figure~\ref{fig:realtsne}a), one of which likely contains monocytes (Figure~\ref{fig:realtsne}b).
-Examination of another unique cluster indicated that it contained putative CD8\textsuperscript{+} T cells of maternal origin (Supplementary Figures~\suppfigrealplacenta{}a, b).
+Examination of another unique cluster indicated that it contained putative CD8\textsuperscript{+} T cells of maternal origin (\ADD{Fig.~\suppfigrealplacenta{}a, b}).
 This suggests that the use of EmptyDrops enables the recovery of distinct cell types, which is not surprising as the total RNA content of a cell is often associated with its biology.
-We also identified a cluster that may represent damaged cells stripped of cytoplasmic content (Supplementary Figures~\suppfigrealplacenta{}c, d).
+We also identified a cluster that may represent damaged cells stripped of cytoplasmic content (\ADD{Fig.~\suppfigrealplacenta{}c, d}).
 This highlights the potential for detecting droplets that are technically non-empty yet are also biologically uninteresting.
 
 We repeated our analysis on other 10X datasets to demonstrate the general applicability of our method.
 In a data set containing approximately 900 brain cells, EmptyDrops uniquely retained a large number of barcodes, including a putative cluster of interneurons (Figures~\ref{fig:realtsne}c, d) that would have been lost with CellRanger.
 This may reflect the difficulty of dissociating brain tissue without loss of cytoplasmic RNA \cite{habib2017massively} that yields low total counts in the resulting libraries.
-In the PBMC dataset described previously, the EmptyDrops-only barcodes again formed a separate cluster corresponding to platelet-like cells (Supplementary Figure~\suppfigrealpbmc{}).
+In the PBMC dataset described previously, the EmptyDrops-only barcodes again formed a separate cluster corresponding to platelet-like cells (\ADD{Fig.~\suppfigrealpbmc{}}).
 This is consistent with the fact that platelets have much less RNA than other cell types \cite{rowley2012platelet}.
 
 \section*{Discussion}
@@ -521,7 +522,7 @@ This mimics the presence of small cells with low RNA content.
 In both cases, we scrambled a small proportion (10\%) of randomly selected genes to eliminate any similarities to the ambient pool in the sampled set of profiles.
 This ensures that the assumed true cells in our simulation are not actually empty droplets.
 We tested different simulation scenarios by setting $G_1$ or $G_2$ to 500 and 2000 cells.
-The various components of the simulation are visualized in Supplementary Figure~\suppfigsimdesign{}.
+The various components of the simulation are visualized in \ADD{Fig.~\suppfigsimdesign{}}.
 
 We applied our EmptyDrops method to the simulated data at an FDR of 0.1\%. 
 The recall was defined as the proportion of known cells from each group that were successfully detected.
@@ -529,13 +530,13 @@ The observed false discovery rate was defined as the proportion of detected barc
 We repeated this evaluation using the knee point approach, where all barcodes with total counts above the knee point were retained;
 and with the CellRanger approach, implemented as described \cite{zheng2017massively} with the expected number of cells set to $G_1+G_2$ (i.e., the true number of simulated cells).
 
-We generated simulated data based on each real dataset in Supplementary Table~\supptabdataset{}.
+We generated simulated data based on each real dataset in \ADD{Table~\supptabdataset{}}.
 For each scenario and dataset, we repeated the simulation for 10 iterations.
 We used each method in each iteration and collected performance metrics across all iterations.
 
 \subsection*{Detecting cells in real data with different methods}
 For each real dataset, we applied EmptyDrops to detect cells at an FDR of 0.1\%. 
-We also used the CellRanger approach where the expected number of cells was set to the reported value in Supplementary Table~\supptabdataset{};
+We also used the CellRanger approach where the expected number of cells was set to the reported value in \ADD{Table~\supptabdataset{}};
 and the knee point method, where the threshold on the total count was defined as the detected knee point in the barcode rank plot.
 UpSet plots were created with using the \textsf{UpSetR} package \cite{lex2014upset}.
 
@@ -598,10 +599,10 @@ We would also like to thank the AWS Cloud Credits for Research Program for provi
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section*{Additional Files}
-\subsection*{Supplementary Table 1}
+\subsection*{Table S1}
 This is a CSV file (0.8 KB) containing the names of all participants in the 1\textsuperscript{st} Human Cell Atlas Jamboree.
 
-\subsection*{Supplementary Materials}
+\subsection*{Additional File 1}
 This is a PDF file (2.6 MB) containing Sections S1-4, Table S2 and Figures S1-17.
 
 \bibliographystyle{bmc-mathphys} 
